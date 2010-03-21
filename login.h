@@ -16,25 +16,30 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
- 
-#include "mainwindow.h"
+#ifndef LOGIN_H
+#define LOGIN_H
 
-int main(int argc, char **argv)
+#include <KDialog>
+
+class KLineEdit;
+class MainWindow;
+
+class Login
+    : public KDialog
 {
-    KAboutData aboutData("spokify", "spokify",
-                         ki18n("Spokify"), "1.0",
-                         ki18n("A Free Spotify Client"),
-                         KAboutData::License_GPL,
-                         ki18n("Copyright (c) 2010 Rafael Fernández López"));
+    Q_OBJECT
 
-    KCmdLineArgs::init(argc, argv, &aboutData);
-    KApplication app;
+public:
+    Login(MainWindow *mainWindow);
+    virtual ~Login();
+
+private Q_SLOTS:
+    void loginSlot();
+
+private:
+    KLineEdit  *m_username;
+    KLineEdit  *m_password;
+    MainWindow *m_mainWindow;
+};
  
-    MainWindow* window = new MainWindow();
-    window->show();
-
-    return app.exec();
-}
+#endif

@@ -16,25 +16,38 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <KApplication>
-#include <KAboutData>
-#include <KCmdLineArgs>
- 
+#include "login.h"
 #include "mainwindow.h"
 
-int main(int argc, char **argv)
+#include <QtGui/QFormLayout>
+
+#include <KLineEdit>
+#include <KLocale>
+
+Login::Login(MainWindow *mainWindow)
+    : KDialog(mainWindow)
+    , m_username(new KLineEdit(this))
+    , m_password(new KLineEdit(this))
+    , m_mainWindow(mainWindow)
 {
-    KAboutData aboutData("spokify", "spokify",
-                         ki18n("Spokify"), "1.0",
-                         ki18n("A Free Spotify Client"),
-                         KAboutData::License_GPL,
-                         ki18n("Copyright (c) 2010 Rafael Fernández López"));
+    setWindowTitle(i18n("Login"));
+    m_password->setEchoMode(KLineEdit::Password);
 
-    KCmdLineArgs::init(argc, argv, &aboutData);
-    KApplication app;
- 
-    MainWindow* window = new MainWindow();
-    window->show();
+    QWidget *main = new QWidget(this);
+    QFormLayout *layout = new QFormLayout;
+    layout->addRow(i18n("Username"), m_username);
+    layout->addRow(i18n("Password"), m_password);
+    main->setLayout(layout);
 
-    return app.exec();
+    setMainWidget(main);
+}
+
+Login::~Login()
+{
+}
+
+void Login::loginSlot()
+{
+    sp_session_login(m_mainWindow->session(), m_username->text().toLatin1(),
+                     m_password->text().toLatin1());
 }

@@ -18,17 +18,34 @@
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
- 
+
 #include <KXmlGuiWindow>
- 
+
+#include "api_key.h"
+#include <spotify/api.h>
+
 class MainWindow
     : public KXmlGuiWindow
 {
+    Q_OBJECT
+
 public:
     MainWindow(QWidget *parent = 0);
 
+    sp_session *session() const;
+
+protected:
+    virtual bool event(QEvent *event);
+
+private Q_SLOTS:
+    void loginSlot();
+
 private:
     void setupActions();
+
+private:
+    sp_session_config m_config;
+    sp_session       *m_session;
 };
  
 #endif
