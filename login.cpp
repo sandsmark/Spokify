@@ -31,6 +31,8 @@ Login::Login(MainWindow *mainWindow)
     , m_mainWindow(mainWindow)
 {
     setWindowTitle(i18n("Login"));
+    setButtons(KDialog::Ok | KDialog::Cancel);
+
     m_password->setEchoMode(KLineEdit::Password);
 
     QWidget *main = new QWidget(this);
@@ -38,6 +40,8 @@ Login::Login(MainWindow *mainWindow)
     layout->addRow(i18n("Username"), m_username);
     layout->addRow(i18n("Password"), m_password);
     main->setLayout(layout);
+
+    connect(this, SIGNAL(okClicked()), SLOT(loginSlot()));
 
     setMainWidget(main);
 }
