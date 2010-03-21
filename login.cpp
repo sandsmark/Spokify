@@ -19,6 +19,7 @@
 #include "login.h"
 #include "mainwindow.h"
 
+#include <QtGui/QLabel>
 #include <QtGui/QFormLayout>
 
 #include <KLineEdit>
@@ -39,6 +40,9 @@ Login::Login(MainWindow *mainWindow)
     QFormLayout *layout = new QFormLayout;
     layout->addRow(i18n("Username"), m_username);
     layout->addRow(i18n("Password"), m_password);
+    QLabel *note = new QLabel(i18n("Note that for logging in you need a Premium Account"), main);
+    note->setWordWrap(true);
+    layout->addWidget(note);
     main->setLayout(layout);
 
     connect(this, SIGNAL(okClicked()), SLOT(loginSlot()));
