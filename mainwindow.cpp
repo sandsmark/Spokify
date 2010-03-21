@@ -26,26 +26,23 @@
 #include <KStandardAction>
 #include <KActionCollection>
 
+MainWindow *MainWindow::s_self = 0;
+
 namespace Spotify {
 
     static void loggedIn(sp_session *session, sp_error error)
     {
-        if (SP_ERROR_OK != error) {
-            kDebug() << "Failed to log in to Spotify:" << sp_error_message(error);
-            return;
-        }
+        MainWindow::self()->spotifyLoggedIn();
+    }
 
-        sp_user *me = sp_session_user(session);
-        const char *my_name = (sp_user_is_loaded(me) ?
-                               sp_user_display_name(me) :
-                               sp_user_canonical_name(me));
-
-        kDebug() << "Logged in to Spotify as user" << my_name;
+    static void loggedOut(sp_session *session)
+    {
+        MainWindow::self()->spotifyLoggedOut();
     }
 
     static sp_session_callbacks spotifyCallbacks = {
         &Spotify::loggedIn,
-        NULL,
+        &Spotify::loggedOut,
         NULL,
         NULL,
         NULL,
@@ -59,8 +56,10 @@ namespace Spotify {
 }
 
 MainWindow::MainWindow(QWidget *parent)
-  : KXmlGuiWindow(parent)
+    : KXmlGuiWindow(parent)
 {
+    s_self = this;
+
     setCentralWidget(new QWidget(this));
     setupActions();
 
@@ -82,6 +81,25 @@ sp_session *MainWindow::session() const
     return m_session;
 }
 
+MainWindow *MainWindow::self()
+{
+    return s_self;
+}
+
+void MainWindow::spotifyLoggedIn()
+{
+    m_login->setVisible(false);
+    m_login->setEnabled(true);
+    m_logout->setVisible(true);
+}
+
+void MainWindow::spotifyLoggedOut()
+{
+    m_login->setVisible(true);
+    m_logout->setVisible(false);
+    m_logout->setEnabled(true);
+}
+
 bool MainWindow::event(QEvent *event)
 {
     switch (event->type()) {
@@ -100,17 +118,33 @@ bool MainWindow::event(QEvent *event)
 void MainWindow::loginSlot()
 {
     Login *login = new Login(this);
-    login->exec();
+    if (login->exec() == KDialog::Accepted) {
+        m_login->setEnabled(false);
+    }
+}
+
+void MainWindow::logoutSlot()
+{
+    sp_session_logout(m_session);
+    m_logout->setEnabled(false);
 }
 
 void MainWindow::setupActions()
 {
-    KAction *login = new KAction(this);
-    login->setText(i18n("&Login"));
-    login->setIcon(KIcon("view-media-artist"));
-    login->setShortcut(Qt::CTRL + Qt::Key_L);
-    actionCollection()->addAction("login", login);
-    connect(login, SIGNAL(triggered(bool)), this, SLOT(loginSlot()));
+    m_login = new KAction(this);
+    m_login->setText(i18n("&Login"));
+    m_login->setIcon(KIcon("user-online"));
+    m_login->setShortcut(Qt::CTRL + Qt::Key_L);
+    actionCollection()->addAction("login", m_login);
+    connect(m_login, SIGNAL(triggered(bool)), this, SLOT(loginSlot()));
+
+    m_logout = new KAction(this);
+    m_logout->setVisible(false);
+    m_logout->setText(i18n("L&ogout"));
+    m_logout->setIcon(KIcon("user-offline"));
+    m_logout->setShortcut(Qt::CTRL + Qt::Key_O);
+    actionCollection()->addAction("logout", m_logout);
+    connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));    
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 

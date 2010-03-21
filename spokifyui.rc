@@ -9,11 +9,13 @@
   <MenuBar>
     <Menu name="file">
 	  <Action name="login"/>
+	  <Action name="logout"/>
     </Menu>
   </MenuBar>
  
   <ToolBar name="mainToolBar">
 	<text>Main Toolbar</text>
     <Action name="login"/>
+    <Action name="logout"/>
   </ToolBar> 
 </gui>

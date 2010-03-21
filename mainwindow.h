@@ -24,6 +24,8 @@
 #include "api_key.h"
 #include <spotify/api.h>
 
+class KAction;
+
 class MainWindow
     : public KXmlGuiWindow
 {
@@ -34,18 +36,27 @@ public:
 
     sp_session *session() const;
 
+    static MainWindow *self();
+
+    void spotifyLoggedIn();
+    void spotifyLoggedOut();
+
 protected:
     virtual bool event(QEvent *event);
 
 private Q_SLOTS:
     void loginSlot();
+    void logoutSlot();
 
 private:
     void setupActions();
 
 private:
-    sp_session_config m_config;
-    sp_session       *m_session;
+    sp_session_config  m_config;
+    sp_session        *m_session;
+    KAction           *m_login;
+    KAction           *m_logout;
+    static MainWindow *s_self;
 };
  
 #endif
