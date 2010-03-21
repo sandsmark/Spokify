@@ -35,7 +35,8 @@
 
 MainWindow *MainWindow::s_self = 0;
 
-namespace Spotify {
+//BEGIN: SpotifySession - application bridge
+namespace SpotifySession {
 
     static void loggedIn(sp_session *session, sp_error error)
     {
@@ -47,20 +48,56 @@ namespace Spotify {
         MainWindow::self()->spotifyLoggedOut();
     }
 
+    static void metadataUpdated(sp_session *session)
+    {
+    }
+
+    static void connectionError(sp_session *session, sp_error error)
+    {
+    }
+
+    static void messageToUser(sp_session *session, const char *message)
+    {
+    }
+
+    static void notifyMainThread(sp_session*)
+    {
+        // Nothing to do. We have our own polling system.
+    }
+
+    static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
+                             int numFrames)
+    {
+        return 0;
+    }
+
+    static void playTokenLost(sp_session *session)
+    {
+    }
+
+    static void logMessage(sp_session *session, const char *data)
+    {
+    }
+
+    static void endOfTrack(sp_session *session)
+    {
+    }
+
     static sp_session_callbacks spotifyCallbacks = {
-        &Spotify::loggedIn,
-        &Spotify::loggedOut,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL
+        &SpotifySession::loggedIn,
+        &SpotifySession::loggedOut,
+        &SpotifySession::metadataUpdated,
+        &SpotifySession::connectionError,
+        &SpotifySession::messageToUser,
+        &SpotifySession::notifyMainThread,
+        &SpotifySession::musicDelivery,
+        &SpotifySession::playTokenLost,
+        &SpotifySession::logMessage,
+        &SpotifySession::endOfTrack
     };
 
 }
+//END: SpotifySession - application bridge
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
@@ -80,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
         m_config.application_key = g_appkey;
         m_config.application_key_size = g_appkey_size;
         m_config.user_agent = "spokify";
-        m_config.callbacks = &Spotify::spotifyCallbacks;
+        m_config.callbacks = &SpotifySession::spotifyCallbacks;
 
         sp_session_init(&m_config, &m_session);
     }
