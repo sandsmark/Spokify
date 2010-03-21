@@ -21,11 +21,15 @@
 
 #include <QtCore/QTimer>
 
+#include <QtGui/QLabel>
+#include <QtGui/QMovie>
+
 #include <KDebug>
 #include <KAction>
 #include <KLocale>
 #include <KStatusBar>
 #include <KApplication>
+#include <KStandardDirs>
 #include <KStandardAction>
 #include <KActionCollection>
 
@@ -60,24 +64,36 @@ namespace Spotify {
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
+    , m_statusLabel(new QLabel(i18n("Ready"), this))
+    , m_progress(new QLabel(this))
 {
     s_self = this;
 
     setCentralWidget(new QWidget(this));
     setupActions();
 
-    m_config.api_version = SPOTIFY_API_VERSION;
-    m_config.cache_location = "tmp";
-    m_config.settings_location = "tmp";
-    m_config.application_key = g_appkey;
-    m_config.application_key_size = g_appkey_size;
-    m_config.user_agent = "spokify";
-    m_config.callbacks = &Spotify::spotifyCallbacks;
+    //BEGIN: Spotify session init
+    {
+        m_config.api_version = SPOTIFY_API_VERSION;
+        m_config.cache_location = "tmp";
+        m_config.settings_location = "tmp";
+        m_config.application_key = g_appkey;
+        m_config.application_key_size = g_appkey_size;
+        m_config.user_agent = "spokify";
+        m_config.callbacks = &Spotify::spotifyCallbacks;
 
-    sp_session_init(&m_config, &m_session);
+        sp_session_init(&m_config, &m_session);
+    }
+    //END: Spotify session init
+
+    QMovie *movie = new QMovie(KStandardDirs::locate("appdata", "images/loading.gif"));
+    m_progress->setMovie(movie);
+    m_progress->setVisible(false);
 
     startTimer(500);
-    statusBar()->showMessage(i18n("Ready"));
+    statusBar()->insertWidget(0, m_statusLabel);
+    statusBar()->insertWidget(1, new QWidget(this), 1);
+    statusBar()->insertWidget(2, m_progress);
 }
 
 sp_session *MainWindow::session() const
@@ -108,8 +124,17 @@ void MainWindow::spotifyLoggedOut()
 
 void MainWindow::showTemporaryMessage(const QString &message)
 {
-    statusBar()->showMessage(message);
+    m_progress->movie()->stop();
+    m_progress->setVisible(false);
+    m_statusLabel->setText(message);
     QTimer::singleShot(2000, this, SLOT(restoreStatusBarSlot()));
+}
+
+void MainWindow::showRequest(const QString &request)
+{
+    m_progress->movie()->start();
+    m_progress->setVisible(true);
+    m_statusLabel->setText(request);
 }
 
 bool MainWindow::event(QEvent *event)
@@ -132,7 +157,7 @@ void MainWindow::loginSlot()
     Login *login = new Login(this);
     if (login->exec() == KDialog::Accepted) {
         m_login->setEnabled(false);
-        statusBar()->showMessage(i18n("Logging in..."));
+        showRequest(i18n("Logging in..."));
     }
 }
 
@@ -140,12 +165,14 @@ void MainWindow::logoutSlot()
 {
     sp_session_logout(m_session);
     m_logout->setEnabled(false);
-    statusBar()->showMessage(i18n("Logging out..."));
+    showRequest(i18n("Logging out..."));
 }
 
 void MainWindow::restoreStatusBarSlot()
 {
-    statusBar()->showMessage(i18n("Ready"));
+    m_progress->movie()->stop();
+    m_progress->setVisible(false);
+    m_statusLabel->setText(i18n("Ready"));
 }
 
 void MainWindow::setupActions()

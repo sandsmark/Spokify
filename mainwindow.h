@@ -24,6 +24,8 @@
 #include "api_key.h"
 #include <spotify/api.h>
 
+class QLabel;
+
 class KAction;
 
 class MainWindow
@@ -42,6 +44,7 @@ public:
     void spotifyLoggedOut();
 
     void showTemporaryMessage(const QString &message);
+    void showRequest(const QString &request);
 
 protected:
     virtual bool event(QEvent *event);
@@ -59,6 +62,8 @@ private:
     sp_session        *m_session;
     KAction           *m_login;
     KAction           *m_logout;
+    QLabel            *m_statusLabel;
+    QLabel            *m_progress;
     static MainWindow *s_self;
 };
  
