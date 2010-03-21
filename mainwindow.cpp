@@ -19,9 +19,12 @@
 #include "mainwindow.h"
 #include "login.h"
 
+#include <QtCore/QTimer>
+
 #include <KDebug>
 #include <KAction>
 #include <KLocale>
+#include <KStatusBar>
 #include <KApplication>
 #include <KStandardAction>
 #include <KActionCollection>
@@ -74,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     sp_session_init(&m_config, &m_session);
 
     startTimer(500);
+    statusBar()->showMessage(i18n("Ready"));
 }
 
 sp_session *MainWindow::session() const
@@ -91,6 +95,7 @@ void MainWindow::spotifyLoggedIn()
     m_login->setVisible(false);
     m_login->setEnabled(true);
     m_logout->setVisible(true);
+    showTemporaryMessage(i18n("Logged in"));
 }
 
 void MainWindow::spotifyLoggedOut()
@@ -98,6 +103,13 @@ void MainWindow::spotifyLoggedOut()
     m_login->setVisible(true);
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
+    showTemporaryMessage(i18n("Logged out"));
+}
+
+void MainWindow::showTemporaryMessage(const QString &message)
+{
+    statusBar()->showMessage(message);
+    QTimer::singleShot(2000, this, SLOT(restoreStatusBarSlot()));
 }
 
 bool MainWindow::event(QEvent *event)
@@ -120,6 +132,7 @@ void MainWindow::loginSlot()
     Login *login = new Login(this);
     if (login->exec() == KDialog::Accepted) {
         m_login->setEnabled(false);
+        statusBar()->showMessage(i18n("Logging in..."));
     }
 }
 
@@ -127,6 +140,12 @@ void MainWindow::logoutSlot()
 {
     sp_session_logout(m_session);
     m_logout->setEnabled(false);
+    statusBar()->showMessage(i18n("Logging out..."));
+}
+
+void MainWindow::restoreStatusBarSlot()
+{
+    statusBar()->showMessage(i18n("Ready"));
 }
 
 void MainWindow::setupActions()

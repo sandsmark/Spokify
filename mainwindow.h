@@ -41,12 +41,15 @@ public:
     void spotifyLoggedIn();
     void spotifyLoggedOut();
 
+    void showTemporaryMessage(const QString &message);
+
 protected:
     virtual bool event(QEvent *event);
 
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
+    void restoreStatusBarSlot();
 
 private:
     void setupActions();
