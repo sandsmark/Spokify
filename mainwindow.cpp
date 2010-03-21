@@ -139,6 +139,7 @@ void MainWindow::showRequest(const QString &request)
 
 bool MainWindow::event(QEvent *event)
 {
+    //BEGIN: Spotify event processing
     switch (event->type()) {
         case QEvent::Timer: {
             int timeout = -1;
@@ -149,6 +150,7 @@ bool MainWindow::event(QEvent *event)
         default:
             break;
     }
+    //END: Spotify event processing
     return KXmlGuiWindow::event(event);
 }
 
@@ -163,7 +165,9 @@ void MainWindow::loginSlot()
 
 void MainWindow::logoutSlot()
 {
+    //BEGIN: Spotify logout
     sp_session_logout(m_session);
+    //END: Spotify logout
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
 }

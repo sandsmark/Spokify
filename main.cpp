@@ -27,8 +27,11 @@ int main(int argc, char **argv)
     KAboutData aboutData("spokify", "spokify",
                          ki18n("Spokify"), "1.0",
                          ki18n("A Free Spotify Client"),
-                         KAboutData::License_GPL,
-                         ki18n("Copyright (c) 2010 Rafael Fernández López"));
+                         KAboutData::License_GPL_V3,
+                         ki18n("Copyright (C) 2010 Rafael Fernández López"));
+    aboutData.setHomepage("http://www.ereslibre.es/projects/spokify");
+
+    aboutData.addAuthor(ki18n("Rafael Fernández López"), ki18n("Maintainer and Developer"), "ereslibre@kde.org");
 
     KCmdLineArgs::init(argc, argv, &aboutData);
     KApplication app;
