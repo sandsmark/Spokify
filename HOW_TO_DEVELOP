@@ -12,3 +12,13 @@ once you have logged in at the web as a Premium User.
 
 Click on "c-code", and download it as "api_key.h". Place it where has been told before, on the root
 directory of the Spokify project.
+
+Its appearance is something like this:
+
+#include <stdint.h>
+#include <stdlib.h>
+const uint8_t g_appkey[] = {
+    0xHERE, 0xCAN, 0xBE, 0xFOUND,
+    0xLOTS, 0xOF, 0xHEXADECIMAL, 0xNUMBERS
+};
+const size_t g_appkey_size = sizeof(g_appkey);
