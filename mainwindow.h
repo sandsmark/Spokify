@@ -68,7 +68,6 @@ protected:
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
-    void playerStateChangedSlot(Phonon::State newState, Phonon::State oldState);
 
 private:
     void setupActions();

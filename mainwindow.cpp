@@ -289,18 +289,15 @@ MainWindow::MainWindow(QWidget *parent)
     , m_trayIcon(new KSystemTrayIcon(this))
     , m_loggedIn(false)
     , m_soundBuffer(new QBuffer(this))
+    , m_player(Phonon::createPlayer(Phonon::MusicCategory))
 {
     s_self = this;
+
     m_soundBuffer->open(QBuffer::ReadWrite);
+    m_player->setParent(this);
 
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
-
-    m_player = Phonon::createPlayer(Phonon::MusicCategory, m_soundBuffer);
-    m_player->setParent(this);
-
-    connect(m_player, SIGNAL(stateChanged(Phonon::State,Phonon::State)),
-            this, SLOT(playerStateChangedSlot(Phonon::State,Phonon::State)));
 
     setCentralWidget(new QWidget(this));
     setupActions();
@@ -355,15 +352,6 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     showTemporaryMessage(i18n("Logged in"));
-    //BEGIN: Play something. Check this works.
-#if 1
-    sp_playlistcontainer *pc = sp_session_playlistcontainer(m_session);
-    sp_playlist *pl = sp_playlistcontainer_playlist(pc, 0);
-    sp_track *t = sp_playlist_track(pl, 0);
-    sp_session_player_load(m_session, t);
-    sp_session_player_play(m_session, 1);
-#endif
-    //END: Play something. Check this works.
 }
 
 void MainWindow::spotifyLoggedOut()
@@ -441,14 +429,6 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
-}
-
-void MainWindow::playerStateChangedSlot(Phonon::State newState, Phonon::State oldState)
-{
-    kDebug() << "old state" << oldState;
-    kDebug() << "new state" << newState;
-    kDebug() << "total time" << m_player->totalTime();
-    kDebug() << "error" << m_player->errorString();
 }
 
 void MainWindow::setupActions()
