@@ -127,12 +127,14 @@ namespace SpotifySession {
     static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
                              int numFrames)
     {
+        Q_UNUSED(session);
+
         if (!numFrames) {
             return 0;
         }
 
         const qint64 s = numFrames * sizeof(qint16) * format->channels;
-        MainWindow::self()->soundBuffer()->write((char *) frames, s);
+        MainWindow::self()->soundBuffer()->write((const char *) frames, s);
 
         return numFrames;
     }
@@ -324,6 +326,12 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(2, m_progress);
 }
 
+MainWindow::~MainWindow()
+{
+    m_player->stop();
+    m_soundBuffer->close();
+}
+
 sp_session *MainWindow::session() const
 {
     return m_session;
@@ -341,6 +349,16 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     showTemporaryMessage(i18n("Logged in"));
+    //BEGIN: Play something. Check this works.
+#if 1
+    sp_playlistcontainer *pc = sp_session_playlistcontainer(m_session);
+    sp_playlist *pl = sp_playlistcontainer_playlist(pc, 0);
+    sp_track *t = sp_playlist_track(pl, 0);
+    sp_session_player_load(m_session, t);
+    sp_session_player_play(m_session, 1);
+    QTimer::singleShot(5000, m_player, SLOT(play()));
+#endif
+    //END: Play something. Check this works.
 }
 
 void MainWindow::spotifyLoggedOut()

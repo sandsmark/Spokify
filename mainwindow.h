@@ -42,6 +42,7 @@ class MainWindow
 
 public:
     MainWindow(QWidget *parent = 0);
+    virtual ~MainWindow();
 
     sp_session *session() const;
 
