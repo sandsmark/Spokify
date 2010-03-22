@@ -26,6 +26,10 @@
 #include "api_key.h"
 #include <spotify/api.h>
 
+#if 1
+#include "audio.h"
+#endif
+
 class QLabel;
 class QBuffer;
 class QProgressBar;
@@ -58,6 +62,9 @@ public:
 
     QBuffer *soundBuffer();
     Phonon::MediaObject *player();
+#if 1
+    audio_fifo_t *audioFifo();
+#endif
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -83,6 +90,9 @@ private:
     bool                 m_loggedIn;
     QBuffer             *m_soundBuffer;
     Phonon::MediaObject *m_player;
+#if 1
+    audio_fifo_t         m_audioFifo;
+#endif
     static MainWindow   *s_self;
 };
  

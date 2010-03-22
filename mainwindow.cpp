@@ -129,14 +129,39 @@ namespace SpotifySession {
     {
         Q_UNUSED(session);
 
-        if (!numFrames) {
+#if 1
+        audio_fifo_t *af = MainWindow::self()->audioFifo();
+        audio_fifo_data_t *afd;
+        size_t s;
+
+        if (numFrames == 0)
+            return 0;
+
+        pthread_mutex_lock(&af->mutex);
+
+        if (af->qlen > format->sample_rate) {
+            pthread_mutex_unlock(&af->mutex);
             return 0;
         }
 
-        const qint64 s = numFrames * sizeof(qint16) * format->channels;
-        MainWindow::self()->soundBuffer()->write((const char *) frames, s);
+        s = numFrames * sizeof(int16_t) * format->channels;
+
+        afd = (audio_fifo_data_t*) malloc(sizeof(audio_fifo_data_t) + s);
+        memcpy(afd->samples, frames, s);
+
+        afd->nsamples = numFrames;
+
+        afd->rate = format->sample_rate;
+        afd->channels = format->channels;
+
+        TAILQ_INSERT_TAIL(&af->q, afd, link);
+        af->qlen += numFrames;
+
+        pthread_cond_signal(&af->cond);
+        pthread_mutex_unlock(&af->mutex);
 
         return numFrames;
+#endif
     }
 
     static void playTokenLost(sp_session *session)
@@ -352,6 +377,14 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     showTemporaryMessage(i18n("Logged in"));
+#if 1
+    audio_init(&m_audioFifo);
+    sp_playlistcontainer *pc = sp_session_playlistcontainer(m_session);
+    sp_playlist *pl = sp_playlistcontainer_playlist(pc, 0);
+    sp_track *t = sp_playlist_track(pl, 1);
+    sp_session_player_load(m_session, t);
+    sp_session_player_play(m_session, 1);
+#endif
 }
 
 void MainWindow::spotifyLoggedOut()
@@ -388,6 +421,13 @@ Phonon::MediaObject *MainWindow::player()
 {
     return m_player;
 }
+
+#if 1
+audio_fifo_t *MainWindow::audioFifo()
+{
+    return &m_audioFifo;
+}
+#endif
 
 void MainWindow::restoreStatusBarSlot()
 {
