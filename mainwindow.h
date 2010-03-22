@@ -21,8 +21,6 @@
 
 #include <KXmlGuiWindow>
 
-#include <Phonon>
-
 #include "api_key.h"
 #include <spotify/api.h>
 
@@ -32,14 +30,13 @@
 
 class QLabel;
 class QBuffer;
+class QListView;
 class QProgressBar;
 
 class KAction;
 class KSystemTrayIcon;
 
-namespace Phonon {
-    class MediaObject;
-};
+class PlaylistModel;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -60,11 +57,7 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
-    QBuffer *soundBuffer();
-    Phonon::MediaObject *player();
-#if 1
     audio_fifo_t *audioFifo();
-#endif
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -78,24 +71,24 @@ private Q_SLOTS:
 
 private:
     void setupActions();
+    void fillPlaylistModel();
 
 private:
-    sp_session_config    m_config;
-    sp_session          *m_session;
-    KAction             *m_login;
-    KAction             *m_logout;
-    QLabel              *m_statusLabel;
-    QProgressBar        *m_progress;
-    KSystemTrayIcon     *m_trayIcon;
-    bool                 m_loggedIn;
-    QBuffer             *m_soundBuffer;
-    Phonon::MediaObject *m_player;
-#if 1
-    audio_fifo_t         m_audioFifo;
-    int                  m_curr;
-    sp_playlist         *pl;
-#endif
-    static MainWindow   *s_self;
+    sp_session_config     m_config;
+    sp_session           *m_session;
+    sp_playlistcontainer *m_pc;
+
+    KAction              *m_login;
+    KAction              *m_logout;
+    QLabel               *m_statusLabel;
+    QProgressBar         *m_progress;
+    KSystemTrayIcon      *m_trayIcon;
+    bool                  m_loggedIn;
+    audio_fifo_t          m_audioFifo;
+    static MainWindow    *s_self;
+
+    PlaylistModel        *m_playlistModel;
+    QListView            *m_playlistView;
 };
  
 #endif

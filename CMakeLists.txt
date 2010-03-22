@@ -7,7 +7,8 @@ set(spokify_SRCS
     alsa-audio.cpp
     login.cpp
     main.cpp
-    mainwindow.cpp)
+    mainwindow.cpp
+    playlistmodel.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  

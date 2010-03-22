@@ -18,12 +18,14 @@
 
 #include "mainwindow.h"
 #include "login.h"
+#include "playlistmodel.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QBuffer>
 
 #include <QtGui/QLabel>
-#include <QtGui/QMovie>
+#include <QtGui/QListView>
+#include <QtGui/QDockWidget>
 #include <QtGui/QProgressBar>
 
 #include <KDebug>
@@ -36,8 +38,6 @@
 #include <KSystemTrayIcon>
 #include <KStandardAction>
 #include <KActionCollection>
-
-#include <Phonon/MediaObject>
 
 MainWindow *MainWindow::s_self = 0;
 
@@ -121,7 +121,6 @@ namespace SpotifySession {
     static void notifyMainThread(sp_session *session)
     {
         Q_UNUSED(session);
-        // Nothing to do. We have our own polling system.
     }
 
     static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
@@ -129,7 +128,6 @@ namespace SpotifySession {
     {
         Q_UNUSED(session);
 
-#if 1
         audio_fifo_t *af = MainWindow::self()->audioFifo();
         audio_fifo_data_t *afd;
         size_t s;
@@ -161,7 +159,6 @@ namespace SpotifySession {
         pthread_mutex_unlock(&af->mutex);
 
         return numFrames;
-#endif
     }
 
     static void playTokenLost(sp_session *session)
@@ -309,18 +306,15 @@ namespace SpotifyPlaylistContainer {
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
+    , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
     , m_trayIcon(new KSystemTrayIcon(this))
     , m_loggedIn(false)
-    , m_soundBuffer(new QBuffer(this))
-    , m_player(Phonon::createPlayer(Phonon::MusicCategory))
-    , m_curr(0)
+    , m_playlistModel(new PlaylistModel(this))
+    , m_playlistView(new QListView(this))
 {
     s_self = this;
-
-    m_soundBuffer->open(QBuffer::ReadWrite);
-    m_player->setParent(this);
 
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
@@ -342,6 +336,15 @@ MainWindow::MainWindow(QWidget *parent)
     }
     //END: Spotify session init
 
+    //BEGIN: set up playlists widget
+    {
+        m_playlistView->setModel(m_playlistModel);
+        QDockWidget *playlists = new QDockWidget(i18n("Playlists"), this);
+        playlists->setWidget(m_playlistView);
+        addDockWidget(Qt::LeftDockWidgetArea, playlists);
+    }
+    //END: set up playlists widget
+
     m_progress->setMinimum(0);
     m_progress->setMaximum(0);
     m_progress->setVisible(false);
@@ -354,8 +357,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    m_player->stop();
-    m_soundBuffer->close();
     if (m_loggedIn) {
         sp_session_logout(m_session);
     }
@@ -378,14 +379,7 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     showTemporaryMessage(i18n("Logged in"));
-#if 1
-    audio_init(&m_audioFifo);
-    sp_playlistcontainer *pc = sp_session_playlistcontainer(m_session);
-    pl = sp_playlistcontainer_playlist(pc, 0);
-    sp_track *t = sp_playlist_track(pl, m_curr);
-    sp_session_player_load(m_session, t);
-    sp_session_player_play(m_session, 1);
-#endif
+    fillPlaylistModel();
 }
 
 void MainWindow::spotifyLoggedOut()
@@ -413,22 +407,10 @@ void MainWindow::showRequest(const QString &request)
     m_statusLabel->setText(request);
 }
 
-QBuffer *MainWindow::soundBuffer()
-{
-    return m_soundBuffer;
-}
-
-Phonon::MediaObject *MainWindow::player()
-{
-    return m_player;
-}
-
-#if 1
 audio_fifo_t *MainWindow::audioFifo()
 {
     return &m_audioFifo;
 }
-#endif
 
 void MainWindow::restoreStatusBarSlot()
 {
@@ -445,14 +427,6 @@ bool MainWindow::event(QEvent *event)
             sp_session_process_events(m_session, &timeout);
             event->accept();
             return true;
-        }
-        case QEvent::KeyPress: {
-            sp_session_player_unload(m_session);
-            audio_fifo_flush(&m_audioFifo);
-            ++m_curr;
-            sp_track *t = sp_playlist_track(pl, m_curr);
-            sp_session_player_load(m_session, t);
-            sp_session_player_play(m_session, 1);
         }
         default:
             break;
@@ -500,4 +474,19 @@ void MainWindow::setupActions()
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
     setupGUI(Default, "spokifyui.rc");
+}
+
+void MainWindow::fillPlaylistModel()
+{
+    if (!m_pc) {
+        m_pc = sp_session_playlistcontainer(m_session);
+    }
+    const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
+    m_playlistModel->removeRows(0, m_playlistModel->rowCount());
+    m_playlistModel->insertRows(0, numPlaylists);
+    for (int i = 0; i < numPlaylists; ++i) {
+        sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
+        const QModelIndex &index = m_playlistModel->index(i);
+        m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
+    }
 }
