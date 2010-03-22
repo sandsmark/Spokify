@@ -353,6 +353,8 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(0, m_statusLabel);
     statusBar()->insertWidget(1, new QWidget(this), 1);
     statusBar()->insertWidget(2, m_progress);
+
+    clearAllWidgets();
 }
 
 MainWindow::~MainWindow()
@@ -447,11 +449,18 @@ void MainWindow::loginSlot()
 
 void MainWindow::logoutSlot()
 {
+    m_logout->setEnabled(false);
+    showRequest(i18n("Logging out..."));
+    clearAllWidgets();
     //BEGIN: Spotify logout
     sp_session_logout(m_session);
     //END: Spotify logout
-    m_logout->setEnabled(false);
-    showRequest(i18n("Logging out..."));
+}
+
+void MainWindow::clearAllWidgets()
+{
+    m_playlistModel->removeRows(0, m_playlistModel->rowCount());
+    m_playlistView->setEnabled(false);
 }
 
 void MainWindow::setupActions()
@@ -481,6 +490,7 @@ void MainWindow::fillPlaylistModel()
     if (!m_pc) {
         m_pc = sp_session_playlistcontainer(m_session);
     }
+    m_playlistView->setEnabled(true);
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistModel->insertRows(0, numPlaylists);

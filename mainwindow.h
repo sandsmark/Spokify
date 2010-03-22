@@ -71,6 +71,7 @@ private Q_SLOTS:
 
 private:
     void setupActions();
+    void clearAllWidgets();
     void fillPlaylistModel();
 
 private:
