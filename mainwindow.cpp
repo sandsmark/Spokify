@@ -289,15 +289,18 @@ MainWindow::MainWindow(QWidget *parent)
     , m_trayIcon(new KSystemTrayIcon(this))
     , m_loggedIn(false)
     , m_soundBuffer(new QBuffer(this))
-    , m_player(Phonon::createPlayer(Phonon::MusicCategory))
 {
     s_self = this;
+    m_soundBuffer->open(QBuffer::ReadWrite);
+
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
 
-    m_soundBuffer->open(QBuffer::ReadWrite);
-    m_player->setCurrentSource(m_soundBuffer);
+    m_player = Phonon::createPlayer(Phonon::MusicCategory, m_soundBuffer);
     m_player->setParent(this);
+
+    connect(m_player, SIGNAL(stateChanged(Phonon::State,Phonon::State)),
+            this, SLOT(playerStateChangedSlot(Phonon::State,Phonon::State)));
 
     setCentralWidget(new QWidget(this));
     setupActions();
@@ -330,6 +333,9 @@ MainWindow::~MainWindow()
 {
     m_player->stop();
     m_soundBuffer->close();
+    if (m_loggedIn) {
+        sp_session_logout(m_session);
+    }
 }
 
 sp_session *MainWindow::session() const
@@ -356,7 +362,6 @@ void MainWindow::spotifyLoggedIn()
     sp_track *t = sp_playlist_track(pl, 0);
     sp_session_player_load(m_session, t);
     sp_session_player_play(m_session, 1);
-    QTimer::singleShot(5000, m_player, SLOT(play()));
 #endif
     //END: Play something. Check this works.
 }
@@ -386,9 +391,14 @@ void MainWindow::showRequest(const QString &request)
     m_statusLabel->setText(request);
 }
 
-QBuffer *MainWindow::soundBuffer() const
+QBuffer *MainWindow::soundBuffer()
 {
     return m_soundBuffer;
+}
+
+Phonon::MediaObject *MainWindow::player()
+{
+    return m_player;
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -431,6 +441,14 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
+}
+
+void MainWindow::playerStateChangedSlot(Phonon::State newState, Phonon::State oldState)
+{
+    kDebug() << "old state" << oldState;
+    kDebug() << "new state" << newState;
+    kDebug() << "total time" << m_player->totalTime();
+    kDebug() << "error" << m_player->errorString();
 }
 
 void MainWindow::setupActions()

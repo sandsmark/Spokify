@@ -21,6 +21,8 @@
 
 #include <KXmlGuiWindow>
 
+#include <Phonon>
+
 #include "api_key.h"
 #include <spotify/api.h>
 
@@ -54,7 +56,8 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
-    QBuffer *soundBuffer() const;
+    QBuffer *soundBuffer();
+    Phonon::MediaObject *player();
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -65,6 +68,7 @@ protected:
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
+    void playerStateChangedSlot(Phonon::State newState, Phonon::State oldState);
 
 private:
     void setupActions();
