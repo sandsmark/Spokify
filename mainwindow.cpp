@@ -43,6 +43,8 @@ namespace SpotifySession {
 
     static void loggedIn(sp_session *session, sp_error error)
     {
+        Q_UNUSED(session);
+
         if (error == SP_ERROR_OK) {
             MainWindow::self()->spotifyLoggedIn();
             return;
@@ -91,42 +93,58 @@ namespace SpotifySession {
 
     static void loggedOut(sp_session *session)
     {
+        Q_UNUSED(session);
+
         MainWindow::self()->spotifyLoggedOut();
     }
 
     static void metadataUpdated(sp_session *session)
     {
+        Q_UNUSED(session);
     }
 
     static void connectionError(sp_session *session, sp_error error)
     {
+        Q_UNUSED(session);
+        Q_UNUSED(error);
     }
 
     static void messageToUser(sp_session *session, const char *message)
     {
+        Q_UNUSED(session);
+        Q_UNUSED(message);
     }
 
-    static void notifyMainThread(sp_session*)
+    static void notifyMainThread(sp_session *session)
     {
+        Q_UNUSED(session);
         // Nothing to do. We have our own polling system.
     }
 
     static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
                              int numFrames)
     {
+        Q_UNUSED(session);
+        Q_UNUSED(format);
+        Q_UNUSED(frames);
+        Q_UNUSED(numFrames);
         return 0;
     }
 
     static void playTokenLost(sp_session *session)
     {
+        Q_UNUSED(session);
     }
 
     static void logMessage(sp_session *session, const char *data)
     {
+        Q_UNUSED(session);
+        Q_UNUSED(data);
     }
 
     static void endOfTrack(sp_session *session)
     {
+        Q_UNUSED(session);
     }
 
     static sp_session_callbacks spotifyCallbacks = {
@@ -144,6 +162,117 @@ namespace SpotifySession {
 
 }
 //END: SpotifySession - application bridge
+
+//BEGIN: SpotifyPlaylists - application bridge
+namespace SpotifyPlaylists {
+
+    static void tracksAdded(sp_playlist *pl, sp_track *const *tracks, int numTracks, int position, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(tracks);
+        Q_UNUSED(numTracks);
+        Q_UNUSED(position);
+        Q_UNUSED(userdata);
+    }
+
+    static void tracksRemoved(sp_playlist *pl, const int *tracks, int numTracks, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(tracks);
+        Q_UNUSED(numTracks);
+        Q_UNUSED(userdata);
+    }
+
+    static void tracksMoved(sp_playlist *pl, const int *tracks, int numTracks, int newPosition, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(tracks);
+        Q_UNUSED(numTracks);
+        Q_UNUSED(newPosition);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistRenamed(sp_playlist *pl, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistStateChanged(sp_playlist *pl, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistUpdateInProgress(sp_playlist *pl, bool done, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(done);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistMetadataUpdated(sp_playlist *pl, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(userdata);
+    }
+
+    static sp_playlist_callbacks spotifyCallbacks = {
+        &SpotifyPlaylists::tracksAdded,
+        &SpotifyPlaylists::tracksRemoved,
+        &SpotifyPlaylists::tracksMoved,
+        &SpotifyPlaylists::playlistRenamed,
+        &SpotifyPlaylists::playlistStateChanged,
+        &SpotifyPlaylists::playlistUpdateInProgress,
+        &SpotifyPlaylists::playlistMetadataUpdated
+    };
+
+}
+//END: SpotifyPlaylists - application bridge
+
+//BEGIN: SpotifyPlaylistContainer - application bridge
+namespace SpotifyPlaylistContainer {
+
+    static void playlistAdded(sp_playlistcontainer *pc, sp_playlist *playlist, int position, void *userdata)
+    {
+        Q_UNUSED(pc);
+        Q_UNUSED(playlist);
+        Q_UNUSED(position);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistRemoved(sp_playlistcontainer *pc, sp_playlist *playlist, int position, void *userdata)
+    {
+        Q_UNUSED(pc);
+        Q_UNUSED(playlist);
+        Q_UNUSED(position);
+        Q_UNUSED(userdata);
+    }
+
+    static void playlistMoved(sp_playlistcontainer *pc, sp_playlist *playlist, int position, int newPosition, void *userdata)
+    {
+        Q_UNUSED(pc);
+        Q_UNUSED(playlist);
+        Q_UNUSED(position);
+        Q_UNUSED(newPosition);
+        Q_UNUSED(userdata);
+    }
+
+    static void containerLoaded(sp_playlistcontainer *pc, void *userdata)
+    {
+        Q_UNUSED(pc);
+        Q_UNUSED(userdata);
+    }
+
+    static sp_playlistcontainer_callbacks spotifyCallbacks = {
+        &SpotifyPlaylistContainer::playlistAdded,
+        &SpotifyPlaylistContainer::playlistRemoved,
+        &SpotifyPlaylistContainer::playlistMoved,
+        &SpotifyPlaylistContainer::containerLoaded
+    };
+
+}
+//END: SpotifyPlaylistContainer - application bridge
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
@@ -257,6 +386,7 @@ void MainWindow::loginSlot()
         m_login->setEnabled(false);
         showRequest(i18n("Logging in..."));
     }
+    delete login;
 }
 
 void MainWindow::logoutSlot()
