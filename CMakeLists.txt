@@ -10,7 +10,7 @@ set(spokify_SRCS
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
-target_link_libraries(spokify ${KDE4_KDEUI_LIBS} spotify)
+target_link_libraries(spokify ${KDE4_KDEUI_LIBS} spotify phonon)
  
 install(TARGETS spokify DESTINATION ${BIN_INSTALL_DIR})
 install(FILES spokifyui.rc DESTINATION ${DATA_INSTALL_DIR}/spokify)

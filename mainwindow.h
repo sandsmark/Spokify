@@ -25,10 +25,15 @@
 #include <spotify/api.h>
 
 class QLabel;
+class QBuffer;
 class QProgressBar;
 
 class KAction;
 class KSystemTrayIcon;
+
+namespace Phonon {
+    class MediaObject;
+};
 
 class MainWindow
     : public KXmlGuiWindow
@@ -48,6 +53,8 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
+    QBuffer *soundBuffer() const;
+
 public Q_SLOTS:
     void restoreStatusBarSlot();
 
@@ -62,15 +69,17 @@ private:
     void setupActions();
 
 private:
-    sp_session_config  m_config;
-    sp_session        *m_session;
-    KAction           *m_login;
-    KAction           *m_logout;
-    QLabel            *m_statusLabel;
-    QProgressBar      *m_progress;
-    KSystemTrayIcon   *m_trayIcon;
-    bool               m_loggedIn;
-    static MainWindow *s_self;
+    sp_session_config    m_config;
+    sp_session          *m_session;
+    KAction             *m_login;
+    KAction             *m_logout;
+    QLabel              *m_statusLabel;
+    QProgressBar        *m_progress;
+    KSystemTrayIcon     *m_trayIcon;
+    bool                 m_loggedIn;
+    QBuffer             *m_soundBuffer;
+    Phonon::MediaObject *m_player;
+    static MainWindow   *s_self;
 };
  
 #endif

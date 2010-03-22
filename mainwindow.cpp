@@ -20,6 +20,7 @@
 #include "login.h"
 
 #include <QtCore/QTimer>
+#include <QtCore/QBuffer>
 
 #include <QtGui/QLabel>
 #include <QtGui/QMovie>
@@ -35,6 +36,8 @@
 #include <KSystemTrayIcon>
 #include <KStandardAction>
 #include <KActionCollection>
+
+#include <Phonon/MediaObject>
 
 MainWindow *MainWindow::s_self = 0;
 
@@ -124,11 +127,14 @@ namespace SpotifySession {
     static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
                              int numFrames)
     {
-        Q_UNUSED(session);
-        Q_UNUSED(format);
-        Q_UNUSED(frames);
-        Q_UNUSED(numFrames);
-        return 0;
+        if (!numFrames) {
+            return 0;
+        }
+
+        const qint64 s = numFrames * sizeof(qint16) * format->channels;
+        MainWindow::self()->soundBuffer()->write((char *) frames, s);
+
+        return numFrames;
     }
 
     static void playTokenLost(sp_session *session)
@@ -280,10 +286,16 @@ MainWindow::MainWindow(QWidget *parent)
     , m_progress(new QProgressBar(this))
     , m_trayIcon(new KSystemTrayIcon(this))
     , m_loggedIn(false)
+    , m_soundBuffer(new QBuffer(this))
+    , m_player(Phonon::createPlayer(Phonon::MusicCategory))
 {
     s_self = this;
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
+
+    m_soundBuffer->open(QBuffer::ReadWrite);
+    m_player->setCurrentSource(m_soundBuffer);
+    m_player->setParent(this);
 
     setCentralWidget(new QWidget(this));
     setupActions();
@@ -354,6 +366,11 @@ void MainWindow::showRequest(const QString &request)
 {
     m_progress->setVisible(true);
     m_statusLabel->setText(request);
+}
+
+QBuffer *MainWindow::soundBuffer() const
+{
+    return m_soundBuffer;
 }
 
 void MainWindow::restoreStatusBarSlot()
