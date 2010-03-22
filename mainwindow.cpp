@@ -315,6 +315,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_loggedIn(false)
     , m_soundBuffer(new QBuffer(this))
     , m_player(Phonon::createPlayer(Phonon::MusicCategory))
+    , m_curr(0)
 {
     s_self = this;
 
@@ -380,8 +381,8 @@ void MainWindow::spotifyLoggedIn()
 #if 1
     audio_init(&m_audioFifo);
     sp_playlistcontainer *pc = sp_session_playlistcontainer(m_session);
-    sp_playlist *pl = sp_playlistcontainer_playlist(pc, 0);
-    sp_track *t = sp_playlist_track(pl, 1);
+    pl = sp_playlistcontainer_playlist(pc, 0);
+    sp_track *t = sp_playlist_track(pl, m_curr);
     sp_session_player_load(m_session, t);
     sp_session_player_play(m_session, 1);
 #endif
@@ -444,6 +445,14 @@ bool MainWindow::event(QEvent *event)
             sp_session_process_events(m_session, &timeout);
             event->accept();
             return true;
+        }
+        case QEvent::KeyPress: {
+            sp_session_player_unload(m_session);
+            audio_fifo_flush(&m_audioFifo);
+            ++m_curr;
+            sp_track *t = sp_playlist_track(pl, m_curr);
+            sp_session_player_load(m_session, t);
+            sp_session_player_play(m_session, 1);
         }
         default:
             break;

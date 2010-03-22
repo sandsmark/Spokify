@@ -92,6 +92,8 @@ private:
     Phonon::MediaObject *m_player;
 #if 1
     audio_fifo_t         m_audioFifo;
+    int                  m_curr;
+    sp_playlist         *pl;
 #endif
     static MainWindow   *s_self;
 };
