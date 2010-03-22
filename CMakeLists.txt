@@ -14,5 +14,4 @@ target_link_libraries(spokify ${KDE4_KDEUI_LIBS} spotify)
  
 install(TARGETS spokify DESTINATION ${BIN_INSTALL_DIR})
 install(FILES spokifyui.rc DESTINATION ${DATA_INSTALL_DIR}/spokify)
-install(FILES images/loading.gif
-              images/spotify-core-logo-128x128.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
+install(FILES images/spotify-core-logo-128x128.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)

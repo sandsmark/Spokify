@@ -16,7 +16,7 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <KApplication>
+#include <KUniqueApplication>
 #include <KAboutData>
 #include <KCmdLineArgs>
  
@@ -29,12 +29,13 @@ int main(int argc, char **argv)
                          ki18n("A Free Spotify Client"),
                          KAboutData::License_GPL_V3,
                          ki18n("Copyright (C) 2010 Rafael Fernández López"));
+    aboutData.setProgramIconName("preferences-desktop-text-to-speech");
     aboutData.setHomepage("http://www.ereslibre.es/projects/spokify");
 
     aboutData.addAuthor(ki18n("Rafael Fernández López"), ki18n("Maintainer and Developer"), "ereslibre@kde.org");
 
     KCmdLineArgs::init(argc, argv, &aboutData);
-    KApplication app;
+    KUniqueApplication app;
  
     MainWindow* window = new MainWindow();
     window->show();

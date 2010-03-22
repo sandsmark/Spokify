@@ -23,13 +23,16 @@
 
 #include <QtGui/QLabel>
 #include <QtGui/QMovie>
+#include <QtGui/QProgressBar>
 
 #include <KDebug>
 #include <KAction>
 #include <KLocale>
 #include <KStatusBar>
+#include <KMessageBox>
 #include <KApplication>
 #include <KStandardDirs>
+#include <KSystemTrayIcon>
 #include <KStandardAction>
 #include <KActionCollection>
 
@@ -40,7 +43,50 @@ namespace SpotifySession {
 
     static void loggedIn(sp_session *session, sp_error error)
     {
-        MainWindow::self()->spotifyLoggedIn();
+        if (error == SP_ERROR_OK) {
+            MainWindow::self()->spotifyLoggedIn();
+            return;
+        }
+        MainWindow::self()->restoreStatusBarSlot();
+        MainWindow::self()->actionCollection()->action("login")->setEnabled(true);
+        switch (error) {
+            case SP_ERROR_BAD_API_VERSION:
+            case SP_ERROR_API_INITIALIZATION_FAILED:
+            case SP_ERROR_RESOURCE_NOT_LOADED:
+            case SP_ERROR_BAD_APPLICATION_KEY:
+            case SP_ERROR_CLIENT_TOO_OLD:
+            case SP_ERROR_BAD_USER_AGENT:
+            case SP_ERROR_MISSING_CALLBACK:
+            case SP_ERROR_INVALID_INDATA:
+            case SP_ERROR_INDEX_OUT_OF_RANGE:
+            case SP_ERROR_OTHER_TRANSIENT:
+            case SP_ERROR_IS_LOADING:
+                KMessageBox::sorry(MainWindow::self(), i18n("An internal error happened with error code (%1).\n\nPlease, report this bug.").arg(error),
+                                   i18n("A critical error happened"));
+                break;
+            case SP_ERROR_BAD_USERNAME_OR_PASSWORD:
+                KMessageBox::sorry(MainWindow::self(), i18n("Invalid username or password"),
+                                   i18n("Invalid username or password"));
+                break;
+            case SP_ERROR_USER_BANNED:
+                KMessageBox::sorry(MainWindow::self(), i18n("This user has been banned"),
+                                   i18n("User banned"));
+                break;
+            case SP_ERROR_UNABLE_TO_CONTACT_SERVER:
+                KMessageBox::sorry(MainWindow::self(), i18n("Cannot connect to server"),
+                                   i18n("Cannot connect to server"));
+                break;
+            case SP_ERROR_OTHER_PERMANENT:
+                KMessageBox::sorry(MainWindow::self(), i18n("Something wrong happened.\n\nWhatever it is, it is permanent."),
+                                   i18n("Something wrong happened"));
+                break;
+            case SP_ERROR_USER_NEEDS_PREMIUM:
+                KMessageBox::sorry(MainWindow::self(), i18n("You need to be a Premium User in order to login"),
+                                   i18n("Premium User access required"));
+                break;
+            default:
+                break;
+        }
     }
 
     static void loggedOut(sp_session *session)
@@ -102,9 +148,13 @@ namespace SpotifySession {
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
-    , m_progress(new QLabel(this))
+    , m_progress(new QProgressBar(this))
+    , m_trayIcon(new KSystemTrayIcon(this))
+    , m_loggedIn(false)
 {
     s_self = this;
+    m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
+    m_trayIcon->setVisible(true);
 
     setCentralWidget(new QWidget(this));
     setupActions();
@@ -123,8 +173,8 @@ MainWindow::MainWindow(QWidget *parent)
     }
     //END: Spotify session init
 
-    QMovie *movie = new QMovie(KStandardDirs::locate("appdata", "images/loading.gif"));
-    m_progress->setMovie(movie);
+    m_progress->setMinimum(0);
+    m_progress->setMaximum(0);
     m_progress->setVisible(false);
 
     startTimer(500);
@@ -145,6 +195,7 @@ MainWindow *MainWindow::self()
 
 void MainWindow::spotifyLoggedIn()
 {
+    m_loggedIn = true;
     m_login->setVisible(false);
     m_login->setEnabled(true);
     m_logout->setVisible(true);
@@ -153,6 +204,10 @@ void MainWindow::spotifyLoggedIn()
 
 void MainWindow::spotifyLoggedOut()
 {
+    if (!m_loggedIn) {
+        return;
+    }
+    m_loggedIn = false;
     m_login->setVisible(true);
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
@@ -161,7 +216,6 @@ void MainWindow::spotifyLoggedOut()
 
 void MainWindow::showTemporaryMessage(const QString &message)
 {
-    m_progress->movie()->stop();
     m_progress->setVisible(false);
     m_statusLabel->setText(message);
     QTimer::singleShot(2000, this, SLOT(restoreStatusBarSlot()));
@@ -169,9 +223,14 @@ void MainWindow::showTemporaryMessage(const QString &message)
 
 void MainWindow::showRequest(const QString &request)
 {
-    m_progress->movie()->start();
     m_progress->setVisible(true);
     m_statusLabel->setText(request);
+}
+
+void MainWindow::restoreStatusBarSlot()
+{
+    m_progress->setVisible(false);
+    m_statusLabel->setText(i18n("Ready"));
 }
 
 bool MainWindow::event(QEvent *event)
@@ -207,13 +266,6 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
-}
-
-void MainWindow::restoreStatusBarSlot()
-{
-    m_progress->movie()->stop();
-    m_progress->setVisible(false);
-    m_statusLabel->setText(i18n("Ready"));
 }
 
 void MainWindow::setupActions()

@@ -25,8 +25,10 @@
 #include <spotify/api.h>
 
 class QLabel;
+class QProgressBar;
 
 class KAction;
+class KSystemTrayIcon;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -46,13 +48,15 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
+public Q_SLOTS:
+    void restoreStatusBarSlot();
+
 protected:
     virtual bool event(QEvent *event);
 
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
-    void restoreStatusBarSlot();
 
 private:
     void setupActions();
@@ -63,7 +67,9 @@ private:
     KAction           *m_login;
     KAction           *m_logout;
     QLabel            *m_statusLabel;
-    QLabel            *m_progress;
+    QProgressBar      *m_progress;
+    KSystemTrayIcon   *m_trayIcon;
+    bool               m_loggedIn;
     static MainWindow *s_self;
 };
  
