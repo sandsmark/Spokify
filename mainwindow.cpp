@@ -18,6 +18,8 @@
 
 #include "mainwindow.h"
 #include "login.h"
+#include "trackmodel.h"
+#include "mainwidget.h"
 #include "playlistmodel.h"
 
 #include <QtCore/QTimer>
@@ -311,6 +313,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_progress(new QProgressBar(this))
     , m_trayIcon(new KSystemTrayIcon(this))
     , m_loggedIn(false)
+    , m_mainWidget(new MainWidget(this))
     , m_playlistModel(new PlaylistModel(this))
     , m_playlistView(new QListView(this))
 {
@@ -319,7 +322,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
 
-    setCentralWidget(new QWidget(this));
+    setCentralWidget(m_mainWidget);
     setupActions();
 
     //BEGIN: Spotify session init
@@ -340,8 +343,10 @@ MainWindow::MainWindow(QWidget *parent)
     {
         m_playlistView->setModel(m_playlistModel);
         QDockWidget *playlists = new QDockWidget(i18n("Playlists"), this);
+        playlists->setObjectName("playlists");
         playlists->setWidget(m_playlistView);
         addDockWidget(Qt::LeftDockWidgetArea, playlists);
+        connect(m_playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playListChanged(QModelIndex)));
     }
     //END: set up playlists widget
 
@@ -394,6 +399,7 @@ void MainWindow::spotifyLoggedOut()
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
     showTemporaryMessage(i18n("Logged out"));
+    clearAllWidgets();
 }
 
 void MainWindow::showTemporaryMessage(const QString &message)
@@ -451,16 +457,32 @@ void MainWindow::logoutSlot()
 {
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
-    clearAllWidgets();
     //BEGIN: Spotify logout
     sp_session_logout(m_session);
     //END: Spotify logout
+}
+
+void MainWindow::playListChanged(const QModelIndex &index)
+{
+    TrackModel *trackModel = m_mainWidget->trackModel();
+    trackModel->removeRows(0, trackModel->rowCount());
+
+    sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
+    const int numTracks = sp_playlist_num_tracks(curr);
+    trackModel->insertRows(0, numTracks);
+    for (int i = 0; i < numTracks; ++i) {
+        sp_track *tr = sp_playlist_track(curr, i);
+        const QModelIndex &index = trackModel->index(i);
+        trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
+    }
 }
 
 void MainWindow::clearAllWidgets()
 {
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistView->setEnabled(false);
+    TrackModel *trackModel = m_mainWidget->trackModel();
+    trackModel->removeRows(0, trackModel->rowCount());
 }
 
 void MainWindow::setupActions()
@@ -498,5 +520,6 @@ void MainWindow::fillPlaylistModel()
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
+        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
     }
 }

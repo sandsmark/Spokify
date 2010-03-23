@@ -55,20 +55,37 @@ bool PlaylistModel::removeRows(int row, int count, const QModelIndex & parent)
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || role != Qt::DisplayRole) {
+    if (!index.isValid()) {
         return false;
     }
-    m_playLists[index.row()].m_title = value.toString();
+    switch (role) {
+        case Qt::DisplayRole:
+            m_playLists[index.row()].m_title = value.toString();
+            break;
+        case SpotifyNativePlaylist:
+            m_playLists[index.row()].m_playlist = value.value<sp_playlist*>();
+            break;
+        default:
+            return false;
+    }
     emit dataChanged(index, index);
     return true;
 }
 
 QVariant PlaylistModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != Qt::DisplayRole) {
+    if (!index.isValid()) {
         return QVariant();
     }
-    return m_playLists[index.row()].m_title;
+    switch (role) {
+        case Qt::DisplayRole:
+            return m_playLists[index.row()].m_title;
+        case SpotifyNativePlaylist:
+            return QVariant::fromValue<sp_playlist*>(m_playLists[index.row()].m_playlist);
+        default:
+            break;
+    }
+    return QVariant();
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const

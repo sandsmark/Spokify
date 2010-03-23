@@ -16,24 +16,18 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PLAYLISTMODEL_H
-#define PLAYLISTMODEL_h
+#ifndef TRACKMODEL_H
+#define TRACKMODEL_h
 
 #include <QtCore/QList>
 #include <QtCore/QAbstractListModel>
 
-struct sp_playlist;
-
-class PlaylistModel
+class TrackModel
     : public QAbstractListModel
 {
 public:
-    enum OwnRoles {
-        SpotifyNativePlaylist = Qt::UserRole
-    };
-
-    PlaylistModel(QObject *parent = 0);
-    virtual ~PlaylistModel();
+    TrackModel(QObject *parent = 0);
+    virtual ~TrackModel();
 
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     virtual bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
@@ -43,14 +37,10 @@ public:
 
 private:
     struct Entry {
-        QString      m_title;
-        QString      m_owner;
-        bool         m_collaborative;
-        sp_playlist *m_playlist;
+        QString m_title;
+        QString m_artist;
     };
-    QList<Entry> m_playLists;
+    QList<Entry> m_tracks;
 };
-
-Q_DECLARE_METATYPE(sp_playlist*);
 
 #endif

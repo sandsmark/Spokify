@@ -21,6 +21,8 @@
 
 #include <KXmlGuiWindow>
 
+#include <QModelIndex>
+
 #include "api_key.h"
 #include <spotify/api.h>
 
@@ -36,6 +38,7 @@ class QProgressBar;
 class KAction;
 class KSystemTrayIcon;
 
+class MainWidget;
 class PlaylistModel;
 
 class MainWindow
@@ -68,6 +71,7 @@ protected:
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
+    void playListChanged(const QModelIndex &index);
 
 private:
     void setupActions();
@@ -88,6 +92,7 @@ private:
     audio_fifo_t          m_audioFifo;
     static MainWindow    *s_self;
 
+    MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
     QListView            *m_playlistView;
 };
