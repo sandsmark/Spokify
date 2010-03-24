@@ -660,6 +660,49 @@ void MainWindow::setupActions()
     actionCollection()->addAction("logout", m_logout);
     connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));    
 
+    m_previous = new KAction(this);
+    m_previous->setText(i18n("&Previous"));
+    m_previous->setIcon(KIcon("media-skip-backward"));
+    m_previous->setShortcut(Qt::CTRL + Qt::Key_P);
+    actionCollection()->addAction("previous", m_previous);
+    connect(m_previous, SIGNAL(triggered(bool)), this, SLOT(previousSlot()));
+
+    m_play = new KAction(this);
+    m_play->setText(i18n("P&lay"));
+    m_play->setIcon(KIcon("media-playback-start"));
+    m_play->setShortcut(Qt::CTRL + Qt::Key_L);
+    actionCollection()->addAction("play", m_play);
+    connect(m_play, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+
+    m_pause = new KAction(this);
+    m_pause->setVisible(false);
+    m_pause->setText(i18n("Pau&se"));
+    m_pause->setIcon(KIcon("media-playback-pause"));
+    m_pause->setShortcut(Qt::CTRL + Qt::Key_S);
+    actionCollection()->addAction("pause", m_pause);
+    connect(m_pause, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    
+    m_next = new KAction(this);
+    m_next->setText(i18n("&Next"));
+    m_next->setIcon(KIcon("media-skip-forward"));
+    m_next->setShortcut(Qt::CTRL + Qt::Key_N);
+    actionCollection()->addAction("next", m_next);
+    connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+
+    m_shuffle = new KAction(this);
+    m_shuffle->setText(i18n("Shu&ffle"));
+    m_shuffle->setIcon(KIcon("tools-wizard"));
+    m_shuffle->setShortcut(Qt::CTRL + Qt::Key_F);
+    actionCollection()->addAction("shuffle", m_shuffle);
+    connect(m_shuffle, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+
+    m_repeat = new KAction(this);
+    m_repeat->setText(i18n("R&epeat"));
+    m_repeat->setIcon(KIcon("view-refresh"));
+    m_repeat->setShortcut(Qt::CTRL + Qt::Key_E);
+    actionCollection()->addAction("repeat", m_repeat);
+    connect(m_repeat, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
     setupGUI(Default, "spokifyui.rc");
