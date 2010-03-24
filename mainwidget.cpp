@@ -18,6 +18,7 @@
 
 #include "mainwidget.h"
 #include "trackmodel.h"
+#include "proxymodel.h"
 #include "tabledelegate.h"
 
 #include <QtGui/QTableView>
@@ -26,6 +27,7 @@
 #include <QtGui/QHeaderView>
 
 #include <KLocale>
+#include <KLineEdit>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
@@ -49,7 +51,13 @@ TrackModel *MainWidget::trackModel() const
 
 QWidget *MainWidget::playlistTab()
 {
-    m_trackView = new QTableView(this);
+    QWidget *playlistWidget = new QWidget(this);
+
+    KLineEdit *filter = new KLineEdit(playlistWidget);
+    filter->setClickMessage(i18n("Filter by title, artist or album"));
+    filter->setClearButtonShown(true);
+
+    m_trackView = new QTableView(playlistWidget);
     m_trackView->verticalHeader()->hide();
     m_trackView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_trackView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -61,9 +69,20 @@ QWidget *MainWidget::playlistTab()
     m_trackView->setItemDelegate(new TableDelegate(this));
 
     m_trackModel = new TrackModel(this);
-    m_trackView->setModel(m_trackModel);
 
+    ProxyModel *proxyModel = new ProxyModel(this);
+    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel->setSourceModel(m_trackModel);
+
+    m_trackView->setModel(proxyModel);
+
+    connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
 
-    return m_trackView;
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(filter);
+    layout->addWidget(m_trackView);
+    playlistWidget->setLayout(layout);
+
+    return playlistWidget;
 }
