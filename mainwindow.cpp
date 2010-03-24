@@ -344,7 +344,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     //BEGIN: set up playlists widget
     {
+        m_playlistView->setAlternatingRowColors(true);
+        m_playlistView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_playlistView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        m_playlistView->setMouseTracking(true);
         m_playlistView->setModel(m_playlistModel);
         QDockWidget *playlists = new QDockWidget(i18n("Playlists"), this);
         playlists->setObjectName("playlists");
