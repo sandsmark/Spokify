@@ -323,6 +323,9 @@ namespace SpotifySearch {
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
+            if (!tr) {
+                continue;
+            }
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
                 trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
@@ -330,12 +333,16 @@ namespace SpotifySearch {
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
                 sp_artist *const artist = sp_track_artist(tr, 0);
-                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+                if (artist) {
+                    trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+                }
             }
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Album);
                 sp_album *const album = sp_track_album(tr);
-                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+                if (album) {
+                    trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+                }
             }
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
@@ -574,6 +581,9 @@ void MainWindow::playListChanged(const QModelIndex &index)
     trackModel->insertRows(0, numTracks);
     for (int i = 0; i < numTracks; ++i) {
         sp_track *const tr = sp_playlist_track(curr, i);
+        if (!tr) {
+            continue;
+        }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
             trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
@@ -581,12 +591,16 @@ void MainWindow::playListChanged(const QModelIndex &index)
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
             sp_artist *const artist = sp_track_artist(tr, 0);
-            trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+            if (artist) {
+                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+            }
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Album);
             sp_album *const album = sp_track_album(tr);
-            trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            if (album) {
+                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            }
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
