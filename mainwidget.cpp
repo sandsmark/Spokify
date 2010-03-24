@@ -62,5 +62,8 @@ QWidget *MainWidget::playlistTab()
 
     m_trackModel = new TrackModel(this);
     m_trackView->setModel(m_trackModel);
+
+    connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
+
     return m_trackView;
 }

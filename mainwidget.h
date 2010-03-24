@@ -19,6 +19,8 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+#include <QtCore/QModelIndex>
+
 #include <QtGui/QWidget>
 
 class QTableView;
@@ -28,11 +30,16 @@ class QTabWidget;
 class MainWidget
     : public QWidget
 {
+    Q_OBJECT
+
 public:
     MainWidget(QWidget *parent = 0);
     virtual ~MainWidget();
 
     TrackModel *trackModel() const;
+
+Q_SIGNALS:
+    void trackRequest(const QModelIndex &index);
 
 private:
     QWidget *playlistTab();

@@ -72,6 +72,7 @@ private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
     void playListChanged(const QModelIndex &index);
+    void trackRequested(const QModelIndex &index);
 
 private:
     void setupActions();

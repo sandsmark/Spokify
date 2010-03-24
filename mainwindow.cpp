@@ -322,6 +322,8 @@ MainWindow::MainWindow(QWidget *parent)
     m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
     m_trayIcon->setVisible(true);
 
+    connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+
     setCentralWidget(m_mainWidget);
     setupActions();
 
@@ -361,6 +363,10 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(2, m_progress);
 
     clearAllWidgets();
+
+    //BEGIN: init sound
+    audio_init(&m_audioFifo);
+    //END: init sound
 }
 
 MainWindow::~MainWindow()
@@ -473,8 +479,8 @@ void MainWindow::playListChanged(const QModelIndex &index)
     trackModel->insertRows(0, numTracks);
     for (int i = 0; i < numTracks; ++i) {
         sp_track *tr = sp_playlist_track(curr, i);
+        const QModelIndex &index = trackModel->index(i, TrackModel::Title);
         {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Title);
             trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
         }
         {
@@ -489,6 +495,15 @@ void MainWindow::playListChanged(const QModelIndex &index)
         }
         trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
     }
+}
+
+void MainWindow::trackRequested(const QModelIndex &index)
+{
+    sp_session_player_unload(m_session);
+    audio_fifo_flush(&m_audioFifo);
+    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+    sp_session_player_load(m_session, tr);
+    sp_session_player_play(m_session, 1);
 }
 
 void MainWindow::clearAllWidgets()
