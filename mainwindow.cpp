@@ -310,6 +310,16 @@ namespace SpotifyPlaylistContainer {
 }
 //END: SpotifyPlaylistContainer - application bridge
 
+//BEGIN: SpotifySearch - application bridge
+namespace SpotifySearch {
+
+    static void searchComplete(sp_search *result, void *userdata)
+    {
+    }
+
+}
+//END: SpotifySearch - application bridge
+
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_pc(0)
@@ -486,6 +496,10 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
 }
 
+void MainWindow::performSearch()
+{
+}
+
 void MainWindow::playListChanged(const QModelIndex &index)
 {
     TrackModel *trackModel = m_mainWidget->trackModel();
@@ -543,22 +557,23 @@ QWidget *MainWindow::createSearchWidget()
     QWidget *searchWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout;
     {
-        KComboBox *searchIn = new KComboBox(this);
-        searchIn->addItem(i18n("All"));
-        searchIn->addItem(i18n("Tracks"));
-        searchIn->addItem(i18n("Artists"));
-        searchIn->addItem(i18n("Album"));
-        searchIn->addItem(i18n("Year"));
-        searchIn->addItem(i18n("Record Company"));
-        KLineEdit *search = new KLineEdit(this);
-        search->setClickMessage(i18n("Search"));
-        search->setClearButtonShown(true);
-        layout->addWidget(searchIn);
-        layout->addWidget(search);
+        m_searchCategory = new KComboBox(this);
+        m_searchCategory->addItem(i18n("All"));
+        m_searchCategory->addItem(i18n("Tracks"));
+        m_searchCategory->addItem(i18n("Artists"));
+        m_searchCategory->addItem(i18n("Album"));
+        m_searchCategory->addItem(i18n("Year"));
+        m_searchCategory->addItem(i18n("Record Company"));
+        m_searchField = new KLineEdit(this);
+        m_searchField->setClickMessage(i18n("Search"));
+        m_searchField->setClearButtonShown(true);
+        layout->addWidget(m_searchCategory);
+        layout->addWidget(m_searchField);
     }
     {
         QHBoxLayout *innerLayout2 = new QHBoxLayout;
         KPushButton *searchButton = new KPushButton(KIcon(), i18n("Search"), this);
+        connect(searchButton, SIGNAL(clicked()), this, SLOT(performSearch()));
         innerLayout2->addStretch();
         innerLayout2->addWidget(searchButton);
         layout->addLayout(innerLayout2);

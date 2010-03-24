@@ -36,6 +36,8 @@ class QListView;
 class QProgressBar;
 
 class KAction;
+class KComboBox;
+class KLineEdit;
 class KStatusNotifierItem;
 
 class MainWidget;
@@ -71,6 +73,7 @@ protected:
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
+    void performSearch();
     void playListChanged(const QModelIndex &index);
     void trackRequested(const QModelIndex &index);
 
@@ -93,6 +96,9 @@ private:
     bool                  m_loggedIn;
     audio_fifo_t          m_audioFifo;
     static MainWindow    *s_self;
+
+    KComboBox            *m_searchCategory;
+    KLineEdit            *m_searchField;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
