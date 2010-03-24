@@ -37,9 +37,9 @@
 #include <KMessageBox>
 #include <KApplication>
 #include <KStandardDirs>
-#include <KSystemTrayIcon>
 #include <KStandardAction>
 #include <KActionCollection>
+#include <KStatusNotifierItem>
 
 MainWindow *MainWindow::s_self = 0;
 
@@ -311,7 +311,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
-    , m_trayIcon(new KSystemTrayIcon(this))
+    , m_notifierItem(new KStatusNotifierItem(this))
     , m_loggedIn(false)
     , m_mainWidget(new MainWidget(this))
     , m_playlistModel(new PlaylistModel(this))
@@ -319,8 +319,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     s_self = this;
 
-    m_trayIcon->setIcon(KIconLoader::global()->loadIcon("preferences-desktop-text-to-speech", KIconLoader::NoGroup));
-    m_trayIcon->setVisible(true);
+    m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
+    m_notifierItem->setCategory(KStatusNotifierItem::ApplicationStatus);
+    m_notifierItem->setAssociatedWidget(this);
 
     connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
 

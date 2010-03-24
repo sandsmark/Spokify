@@ -36,7 +36,7 @@ class QListView;
 class QProgressBar;
 
 class KAction;
-class KSystemTrayIcon;
+class KStatusNotifierItem;
 
 class MainWidget;
 class PlaylistModel;
@@ -88,7 +88,7 @@ private:
     KAction              *m_logout;
     QLabel               *m_statusLabel;
     QProgressBar         *m_progress;
-    KSystemTrayIcon      *m_trayIcon;
+    KStatusNotifierItem  *m_notifierItem;
     bool                  m_loggedIn;
     audio_fifo_t          m_audioFifo;
     static MainWindow    *s_self;
