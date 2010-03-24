@@ -478,22 +478,29 @@ void MainWindow::playListChanged(const QModelIndex &index)
     const int numTracks = sp_playlist_num_tracks(curr);
     trackModel->insertRows(0, numTracks);
     for (int i = 0; i < numTracks; ++i) {
-        sp_track *tr = sp_playlist_track(curr, i);
-        const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+        sp_track *const tr = sp_playlist_track(curr, i);
         {
+            const QModelIndex &index = trackModel->index(i, TrackModel::Title);
             trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
             sp_artist *const artist = sp_track_artist(tr, 0);
-            trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+            if (artist) {
+                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+            }
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Album);
             sp_album *const album = sp_track_album(tr);
-            trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            if (album) {
+                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            }
         }
-        trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+        {
+            const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+        }
     }
 }
 
