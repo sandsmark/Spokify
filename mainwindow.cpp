@@ -315,6 +315,30 @@ namespace SpotifySearch {
 
     static void searchComplete(sp_search *result, void *userdata)
     {
+        TrackModel *const trackModel = MainWindow::self()->mainWidget()->trackModel();
+        trackModel->removeRows(0, trackModel->rowCount());
+        trackModel->insertRows(0, sp_search_num_tracks(result));
+        for (int i = 0; i < sp_search_num_tracks(result); ++i) {
+            sp_track *const tr = sp_search_track(result, i);
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
+                sp_artist *const artist = sp_track_artist(tr, 0);
+                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Album);
+                sp_album *const album = sp_track_album(tr);
+                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+            }
+        }
     }
 
 }
@@ -413,6 +437,11 @@ MainWindow *MainWindow::self()
     return s_self;
 }
 
+MainWidget *MainWindow::mainWidget() const
+{
+    return m_mainWidget;
+}
+
 void MainWindow::spotifyLoggedIn()
 {
     m_loggedIn = true;
@@ -498,11 +527,36 @@ void MainWindow::logoutSlot()
 
 void MainWindow::performSearch()
 {
+    QString query;
+    switch (m_searchCategory->currentIndex()) {
+        case 0: // All
+            query = m_searchField->text();
+            break;
+        case 1: // Tracks
+            query = QString("track:%1").arg(m_searchField->text());
+            break;
+        case 2: // Artist
+            query = QString("artist:%1").arg(m_searchField->text());
+            break;
+        case 3: // Album
+            query = QString("album:%1").arg(m_searchField->text());
+            break;
+        case 4: // Year
+            query = QString("year:%1").arg(m_searchField->text());
+            break;
+        case 5: // Record Company
+            query = QString("label:%1").arg(m_searchField->text());
+            break;
+        default:
+            Q_ASSERT(false);
+            return;
+    }
+    m_search = sp_search_create(m_session, query.toUtf8().data(), 0, 10, 0, 0, 0, 0, &SpotifySearch::searchComplete, 0);
 }
 
 void MainWindow::playListChanged(const QModelIndex &index)
 {
-    TrackModel *trackModel = m_mainWidget->trackModel();
+    TrackModel *const trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
@@ -517,16 +571,12 @@ void MainWindow::playListChanged(const QModelIndex &index)
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
             sp_artist *const artist = sp_track_artist(tr, 0);
-            if (artist) {
-                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
-            }
+            trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Album);
             sp_album *const album = sp_track_album(tr);
-            if (album) {
-                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
-            }
+            trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
