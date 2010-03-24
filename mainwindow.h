@@ -93,6 +93,12 @@ private:
 
     KAction              *m_login;
     KAction              *m_logout;
+    KAction              *m_previous;
+    KAction              *m_play;
+    KAction              *m_pause;
+    KAction              *m_next;
+    KAction              *m_shuffle;
+    KAction              *m_repeat;
     QLabel               *m_statusLabel;
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;
