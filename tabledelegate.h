@@ -16,31 +16,19 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
+#ifndef TABLEDELEGATE_H
+#define TABLEDELEGATE_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QStyledItemDelegate>
 
-class QTableView;
-class TrackModel;
-class QTabWidget;
-
-class MainWidget
-    : public QWidget
+class TableDelegate
+    : public QStyledItemDelegate
 {
 public:
-    MainWidget(QWidget *parent = 0);
-    virtual ~MainWidget();
+    TableDelegate(QObject *parent = 0);
+    virtual ~TableDelegate();
 
-    TrackModel *trackModel() const;
-
-private:
-    QWidget *playlistTab();
-
-private:
-    QTableView *m_trackView;
-    TrackModel *m_trackModel;
-    QTabWidget *m_tabWidget;
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 };
 
-#endif
+#endif // TABLEDELEGATE_H

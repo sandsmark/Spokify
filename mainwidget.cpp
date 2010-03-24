@@ -18,10 +18,12 @@
 
 #include "mainwidget.h"
 #include "trackmodel.h"
+#include "tabledelegate.h"
 
-#include <QtGui/QListView>
+#include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
 #include <QtGui/QBoxLayout>
+#include <QtGui/QHeaderView>
 
 #include <KLocale>
 
@@ -47,8 +49,18 @@ TrackModel *MainWidget::trackModel() const
 
 QWidget *MainWidget::playlistTab()
 {
-    m_playlistView = new QListView(this);
+    m_trackView = new QTableView(this);
+    m_trackView->verticalHeader()->hide();
+    m_trackView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_trackView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_trackView->setAlternatingRowColors(true);
+    m_trackView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_trackView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+    m_trackView->setShowGrid(false);
+    m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_trackView->setItemDelegate(new TableDelegate(this));
+
     m_trackModel = new TrackModel(this);
-    m_playlistView->setModel(m_trackModel);
-    return m_playlistView;
+    m_trackView->setModel(m_trackModel);
+    return m_trackView;
 }

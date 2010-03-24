@@ -20,27 +20,47 @@
 #define TRACKMODEL_h
 
 #include <QtCore/QList>
-#include <QtCore/QAbstractListModel>
+#include <QtCore/QAbstractItemModel>
+
+struct sp_track;
 
 class TrackModel
-    : public QAbstractListModel
+    : public QAbstractItemModel
 {
 public:
+    enum Columns {
+        Title = 0,
+        Artist,
+        Album
+    };
+
+    enum OwnRoles {
+        SpotifyNativeTrack = Qt::UserRole
+    };
+
     TrackModel(QObject *parent = 0);
     virtual ~TrackModel();
 
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    virtual QModelIndex parent(const QModelIndex &index) const;
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     virtual bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole);
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
     struct Entry {
-        QString m_title;
-        QString m_artist;
+        QString   m_title;
+        QString   m_artist;
+        QString   m_album;
+        sp_track *m_track;
     };
     QList<Entry> m_tracks;
 };
+
+Q_DECLARE_METATYPE(sp_track*)
 
 #endif

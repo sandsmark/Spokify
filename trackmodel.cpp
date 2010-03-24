@@ -18,13 +18,50 @@
 
 #include "trackmodel.h"
 
+#include <KLocale>
+
 TrackModel::TrackModel(QObject *parent)
-    : QAbstractListModel(parent)
+    : QAbstractItemModel(parent)
 {
 }
 
 TrackModel::~TrackModel()
 {
+}
+
+QVariant TrackModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Vertical || role != Qt::DisplayRole) {
+        return QVariant();
+    }
+    switch (section) {
+        case 0:
+            return i18n("Title");
+            break;
+        case 1:
+            return i18n("Artist");
+            break;
+        case 2:
+            return i18n("Album");
+            break;
+        default:
+            break;
+    }
+    return QVariant();
+}
+
+QModelIndex TrackModel::index(int row, int column, const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+
+    return createIndex(row, column, 0);
+}
+
+QModelIndex TrackModel::parent(const QModelIndex &index) const
+{
+    Q_UNUSED(index);
+
+    return QModelIndex();
 }
 
 bool TrackModel::insertRows(int row, int count, const QModelIndex &parent)
@@ -55,20 +92,58 @@ bool TrackModel::removeRows(int row, int count, const QModelIndex & parent)
 
 bool TrackModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || role != Qt::DisplayRole) {
+    if (!index.isValid()) {
         return false;
     }
-    m_tracks[index.row()].m_title = value.toString();
+    switch (role) {
+        case Qt::DisplayRole:
+            switch (index.column()) {
+                case Title:
+                    m_tracks[index.row()].m_title = value.toString();
+                    break;
+                case Artist:
+                    m_tracks[index.row()].m_artist = value.toString();
+                    break;
+                case Album:
+                    m_tracks[index.row()].m_album = value.toString();
+                    break;
+                default:
+                    return false;
+            }
+            break;
+        case SpotifyNativeTrack:
+            m_tracks[index.row()].m_track = value.value<sp_track*>();
+            break;
+        default:
+            return false;
+    }
     emit dataChanged(index, index);
     return true;
 }
 
 QVariant TrackModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != Qt::DisplayRole) {
+    if (!index.isValid()) {
         return QVariant();
     }
-    return m_tracks[index.row()].m_title;
+    switch (role) {
+        case Qt::DisplayRole:
+            switch (index.column()) {
+                case Title:
+                    return m_tracks[index.row()].m_title;
+                case Artist:
+                    return m_tracks[index.row()].m_artist;
+                case Album:
+                    return m_tracks[index.row()].m_album;
+                default:
+                    break;
+            }
+        case SpotifyNativeTrack:
+            return QVariant::fromValue<sp_track*>(m_tracks[index.row()].m_track);
+        default:
+            break;
+    }
+    return QVariant();
 }
 
 int TrackModel::rowCount(const QModelIndex &parent) const
@@ -76,4 +151,11 @@ int TrackModel::rowCount(const QModelIndex &parent) const
     Q_UNUSED(parent);
 
     return m_tracks.count();
+}
+
+int TrackModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+
+    return 3;
 }

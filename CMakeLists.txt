@@ -13,6 +13,7 @@ set(spokify_SRCS
     mainwidget.cpp
     mainwindow.cpp
     playlistmodel.cpp
+    tabledelegate.cpp
     trackmodel.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})

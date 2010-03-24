@@ -51,6 +51,6 @@ private:
     QList<Entry> m_playLists;
 };
 
-Q_DECLARE_METATYPE(sp_playlist*);
+Q_DECLARE_METATYPE(sp_playlist*)
 
 #endif
