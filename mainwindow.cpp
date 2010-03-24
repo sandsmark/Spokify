@@ -27,13 +27,17 @@
 
 #include <QtGui/QLabel>
 #include <QtGui/QListView>
+#include <QtGui/QBoxLayout>
 #include <QtGui/QDockWidget>
 #include <QtGui/QProgressBar>
 
 #include <KDebug>
 #include <KAction>
 #include <KLocale>
+#include <KLineEdit>
+#include <KComboBox>
 #include <KStatusBar>
+#include <KPushButton>
 #include <KMessageBox>
 #include <KApplication>
 #include <KStandardDirs>
@@ -357,6 +361,15 @@ MainWindow::MainWindow(QWidget *parent)
     }
     //END: set up playlists widget
 
+    //BEGIN: set up search widget
+    {
+        QDockWidget *search = new QDockWidget(i18n("Search"), this);
+        search->setObjectName("search");
+        search->setWidget(createSearchWidget());
+        addDockWidget(Qt::LeftDockWidgetArea, search);
+    }
+    //END: set up search widget
+
     m_progress->setMinimum(0);
     m_progress->setMaximum(0);
     m_progress->setVisible(false);
@@ -523,6 +536,35 @@ void MainWindow::clearAllWidgets()
     m_playlistView->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
+}
+
+QWidget *MainWindow::createSearchWidget()
+{
+    QWidget *searchWidget = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout;
+    {
+        KComboBox *searchIn = new KComboBox(this);
+        searchIn->addItem(i18n("All"));
+        searchIn->addItem(i18n("Tracks"));
+        searchIn->addItem(i18n("Artists"));
+        searchIn->addItem(i18n("Album"));
+        searchIn->addItem(i18n("Year"));
+        searchIn->addItem(i18n("Record Company"));
+        KLineEdit *search = new KLineEdit(this);
+        search->setClickMessage(i18n("Search"));
+        search->setClearButtonShown(true);
+        layout->addWidget(searchIn);
+        layout->addWidget(search);
+    }
+    {
+        QHBoxLayout *innerLayout2 = new QHBoxLayout;
+        KPushButton *searchButton = new KPushButton(KIcon(), i18n("Search"), this);
+        innerLayout2->addStretch();
+        innerLayout2->addWidget(searchButton);
+        layout->addLayout(innerLayout2);
+    }
+    searchWidget->setLayout(layout);
+    return searchWidget;
 }
 
 void MainWindow::setupActions()
