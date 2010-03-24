@@ -55,6 +55,7 @@ public:
     sp_session *session() const;
 
     static MainWindow *self();
+    MainWidget *mainWidget() const;
 
     void spotifyLoggedIn();
     void spotifyLoggedOut();
@@ -87,6 +88,7 @@ private:
     sp_session_config     m_config;
     sp_session           *m_session;
     sp_playlistcontainer *m_pc;
+    sp_search            *m_search;
 
     KAction              *m_login;
     KAction              *m_logout;
