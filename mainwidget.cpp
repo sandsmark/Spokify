@@ -67,6 +67,7 @@ QWidget *MainWidget::playlistTab()
     m_trackView->setShowGrid(false);
     m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_trackView->setItemDelegate(new TableDelegate(this));
+    m_trackView->setMouseTracking(true);
 
     m_trackModel = new TrackModel(this);
 
