@@ -31,33 +31,12 @@
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
-    , m_tabWidget(new QTabWidget(this))
 {
-    m_tabWidget->addTab(playlistTab(), i18n("Current Playlist"));
-
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(m_tabWidget);
-    setLayout(layout);
-}
-
-MainWidget::~MainWidget()
-{
-}
-
-TrackModel *MainWidget::trackModel() const
-{
-    return m_trackModel;
-}
-
-QWidget *MainWidget::playlistTab()
-{
-    QWidget *playlistWidget = new QWidget(this);
-
-    KLineEdit *filter = new KLineEdit(playlistWidget);
+    KLineEdit *filter = new KLineEdit(this);
     filter->setClickMessage(i18n("Filter by title, artist or album"));
     filter->setClearButtonShown(true);
 
-    m_trackView = new QTableView(playlistWidget);
+    m_trackView = new QTableView(this);
     m_trackView->verticalHeader()->hide();
     m_trackView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_trackView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -66,7 +45,7 @@ QWidget *MainWidget::playlistTab()
     m_trackView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_trackView->setShowGrid(false);
     m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    m_trackView->setItemDelegate(new TableDelegate(this));
+    m_trackView->setItemDelegate(new TableDelegate(m_trackView));
     m_trackView->setMouseTracking(true);
 
     m_trackModel = new TrackModel(this);
@@ -83,7 +62,14 @@ QWidget *MainWidget::playlistTab()
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(filter);
     layout->addWidget(m_trackView);
-    playlistWidget->setLayout(layout);
+    setLayout(layout);
+}
 
-    return playlistWidget;
+MainWidget::~MainWidget()
+{
+}
+
+TrackModel *MainWidget::trackModel() const
+{
+    return m_trackModel;
 }

@@ -42,12 +42,8 @@ Q_SIGNALS:
     void trackRequest(const QModelIndex &index);
 
 private:
-    QWidget *playlistTab();
-
-private:
     QTableView *m_trackView;
     TrackModel *m_trackModel;
-    QTabWidget *m_tabWidget;
 };
 
 #endif
