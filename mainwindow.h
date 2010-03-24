@@ -56,6 +56,7 @@ public:
 
     static MainWindow *self();
     MainWidget *mainWidget() const;
+    QListView *playlistView() const;
 
     void spotifyLoggedIn();
     void spotifyLoggedOut();

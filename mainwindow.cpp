@@ -315,6 +315,9 @@ namespace SpotifySearch {
 
     static void searchComplete(sp_search *result, void *userdata)
     {
+        Q_UNUSED(userdata);
+
+        MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
         TrackModel *const trackModel = MainWindow::self()->mainWidget()->trackModel();
         trackModel->removeRows(0, trackModel->rowCount());
         trackModel->insertRows(0, sp_search_num_tracks(result));
@@ -339,6 +342,7 @@ namespace SpotifySearch {
                 trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
             }
         }
+        MainWindow::self()->showTemporaryMessage(i18n("Search complete"));
     }
 
 }
@@ -440,6 +444,11 @@ MainWindow *MainWindow::self()
 MainWidget *MainWindow::mainWidget() const
 {
     return m_mainWidget;
+}
+
+QListView *MainWindow::playlistView() const
+{
+    return m_playlistView;
 }
 
 void MainWindow::spotifyLoggedIn()
@@ -551,7 +560,8 @@ void MainWindow::performSearch()
             Q_ASSERT(false);
             return;
     }
-    m_search = sp_search_create(m_session, query.toUtf8().data(), 0, 10, 0, 0, 0, 0, &SpotifySearch::searchComplete, 0);
+    showRequest(i18n("Searching..."));
+    m_search = sp_search_create(m_session, query.toUtf8().data(), 0, 100, 0, 0, 0, 0, &SpotifySearch::searchComplete, 0);
 }
 
 void MainWindow::playListChanged(const QModelIndex &index)
@@ -628,6 +638,7 @@ QWidget *MainWindow::createSearchWidget()
         innerLayout2->addWidget(searchButton);
         layout->addLayout(innerLayout2);
     }
+    layout->addStretch();
     searchWidget->setLayout(layout);
     return searchWidget;
 }
