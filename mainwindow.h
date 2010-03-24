@@ -75,6 +75,7 @@ private Q_SLOTS:
     void trackRequested(const QModelIndex &index);
 
 private:
+    QWidget *createSearchWidget();
     void setupActions();
     void clearAllWidgets();
     void fillPlaylistModel();
