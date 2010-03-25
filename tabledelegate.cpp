@@ -32,6 +32,7 @@ TableDelegate::~TableDelegate()
 void TableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &_option, const QModelIndex &index) const
 {
     if (!index.isValid()) {
+        QStyledItemDelegate::paint(painter, _option, index);
         return;
     }
     QStyleOptionViewItemV4 option(*qstyleoption_cast<const QStyleOptionViewItemV4*>(&_option));
