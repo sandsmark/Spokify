@@ -73,6 +73,12 @@ protected:
 private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
+    void previousSlot();
+    void playSlot();
+    void pauseSlot();
+    void nextSlot();
+    void shuffleSlot();
+    void repeatSlot();
     void performSearch();
     void playListChanged(const QModelIndex &index);
     void trackRequested(const QModelIndex &index);
