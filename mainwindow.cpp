@@ -129,40 +129,20 @@ namespace SpotifySession {
         Q_UNUSED(session);
     }
 
-    static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames,
-                             int numFrames)
+    static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames, int numFrames)
     {
         Q_UNUSED(session);
 
-//         audio_fifo_t *af = MainWindow::self()->audioFifo();
-//         audio_fifo_data_t *afd;
-//         size_t s;
-// 
-//         if (numFrames == 0)
-//             return 0;
-// 
-//         pthread_mutex_lock(&af->mutex);
-// 
-//         if (af->qlen > format->sample_rate) {
-//             pthread_mutex_unlock(&af->mutex);
-//             return 0;
-//         }
-// 
-//         s = numFrames * sizeof(int16_t) * format->channels;
-// 
-//         afd = (audio_fifo_data_t*) malloc(sizeof(audio_fifo_data_t) + s);
-//         memcpy(afd->samples, frames, s);
-// 
-//         afd->nsamples = numFrames;
-// 
-//         afd->rate = format->sample_rate;
-//         afd->channels = format->channels;
-// 
-//         TAILQ_INSERT_TAIL(&af->q, afd, link);
-//         af->qlen += numFrames;
-// 
-//         pthread_cond_signal(&af->cond);
-//         pthread_mutex_unlock(&af->mutex);
+        if (!numFrames) {
+            return 0;
+        }
+
+        void *cframes = malloc(numFrames * sizeof(int16_t) * format->channels);
+        memcpy(cframes, frames, numFrames * sizeof(int16_t) * format->channels);
+
+        snd_pcm_writei(MainWindow::self()->pcmHandle(), cframes, numFrames);
+
+        free(cframes);
 
         return numFrames;
     }
@@ -425,9 +405,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(2, m_progress);
 
     clearAllWidgets();
-
-    //BEGIN: init sound
-    //END: init sound
+    initSound();
 }
 
 MainWindow::~MainWindow()
@@ -493,9 +471,9 @@ void MainWindow::showRequest(const QString &request)
     m_statusLabel->setText(request);
 }
 
-QBuffer *MainWindow::buffer()
+snd_pcm_t *MainWindow::pcmHandle() const
 {
-    return m_buffer;
+    return m_snd;
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -623,6 +601,28 @@ void MainWindow::clearAllWidgets()
     m_playlistView->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
+}
+
+void MainWindow::initSound()
+{
+    int d = 0;
+    snd_pcm_uframes_t periodSize = 1024;
+    snd_pcm_uframes_t bufferSize = periodSize * 4;
+
+    snd_pcm_hw_params_t *hwParams;
+    snd_pcm_open(&m_snd, "default", SND_PCM_STREAM_PLAYBACK, 0);
+    snd_pcm_hw_params_malloc(&hwParams);
+    snd_pcm_hw_params_any(m_snd, hwParams);
+    snd_pcm_hw_params_set_access(m_snd, hwParams, SND_PCM_ACCESS_RW_INTERLEAVED);
+    snd_pcm_hw_params_set_format(m_snd, hwParams, SND_PCM_FORMAT_S16_LE);
+    snd_pcm_hw_params_set_rate(m_snd, hwParams, 44100, 0);
+    snd_pcm_hw_params_set_channels(m_snd, hwParams, 2);
+    snd_pcm_hw_params_set_period_size_near(m_snd, hwParams, &periodSize, &d);
+    snd_pcm_hw_params_set_buffer_size_near(m_snd, hwParams, &bufferSize);
+    snd_pcm_hw_params(m_snd, hwParams);
+    snd_pcm_hw_params_free(hwParams);
+
+    snd_pcm_prepare(m_snd);
 }
 
 QWidget *MainWindow::createSearchWidget()

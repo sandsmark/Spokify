@@ -23,6 +23,8 @@
 
 #include <QtCore/QModelIndex>
 
+#include <alsa/asoundlib.h>
+
 #include "api_key.h"
 #include <spotify/api.h>
 
@@ -60,7 +62,7 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
-    QBuffer *buffer();
+    snd_pcm_t *pcmHandle() const;
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -76,12 +78,15 @@ private Q_SLOTS:
     void trackRequested(const QModelIndex &index);
 
 private:
+    void initSound();
     QWidget *createSearchWidget();
     void setupActions();
     void clearAllWidgets();
     void fillPlaylistModel();
 
 private:
+    snd_pcm_t            *m_snd;
+
     sp_session_config     m_config;
     sp_session           *m_session;
     sp_playlistcontainer *m_pc;
@@ -99,7 +104,6 @@ private:
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;
     bool                  m_loggedIn;
-    QBuffer              *m_buffer;
     static MainWindow    *s_self;
 
     KComboBox            *m_searchCategory;
