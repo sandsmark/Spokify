@@ -518,6 +518,30 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
 }
 
+void MainWindow::previousSlot()
+{
+}
+
+void MainWindow::playSlot()
+{
+}
+
+void MainWindow::pauseSlot()
+{
+}
+
+void MainWindow::nextSlot()
+{
+}
+
+void MainWindow::shuffleSlot()
+{
+}
+
+void MainWindow::repeatSlot()
+{
+}
+
 void MainWindow::performSearch()
 {
     QString query;
@@ -685,7 +709,7 @@ void MainWindow::setupActions()
     m_play->setIcon(KIcon("media-playback-start"));
     m_play->setShortcut(Qt::CTRL + Qt::Key_L);
     actionCollection()->addAction("play", m_play);
-    connect(m_play, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    connect(m_play, SIGNAL(triggered(bool)), this, SLOT(playSlot()));
 
     m_pause = new KAction(this);
     m_pause->setVisible(false);
@@ -693,28 +717,28 @@ void MainWindow::setupActions()
     m_pause->setIcon(KIcon("media-playback-pause"));
     m_pause->setShortcut(Qt::CTRL + Qt::Key_S);
     actionCollection()->addAction("pause", m_pause);
-    connect(m_pause, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    connect(m_pause, SIGNAL(triggered(bool)), this, SLOT(pauseSlot()));
     
     m_next = new KAction(this);
     m_next->setText(i18n("&Next"));
     m_next->setIcon(KIcon("media-skip-forward"));
     m_next->setShortcut(Qt::CTRL + Qt::Key_N);
     actionCollection()->addAction("next", m_next);
-    connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(nextSlot()));
 
     m_shuffle = new KAction(this);
     m_shuffle->setText(i18n("Shu&ffle"));
     m_shuffle->setIcon(KIcon("tools-wizard"));
     m_shuffle->setShortcut(Qt::CTRL + Qt::Key_F);
     actionCollection()->addAction("shuffle", m_shuffle);
-    connect(m_shuffle, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    connect(m_shuffle, SIGNAL(triggered(bool)), this, SLOT(shuffleSlot()));
 
     m_repeat = new KAction(this);
     m_repeat->setText(i18n("R&epeat"));
     m_repeat->setIcon(KIcon("view-refresh"));
     m_repeat->setShortcut(Qt::CTRL + Qt::Key_E);
     actionCollection()->addAction("repeat", m_repeat);
-    connect(m_repeat, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));
+    connect(m_repeat, SIGNAL(triggered(bool)), this, SLOT(repeatSlot()));
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
