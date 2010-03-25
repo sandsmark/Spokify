@@ -36,6 +36,7 @@
 #include <KLocale>
 #include <KLineEdit>
 #include <KComboBox>
+#include <KAboutData>
 #include <KStatusBar>
 #include <KPushButton>
 #include <KMessageBox>
@@ -348,9 +349,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     s_self = this;
 
-    m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
     m_notifierItem->setCategory(KStatusNotifierItem::ApplicationStatus);
     m_notifierItem->setAssociatedWidget(this);
+    m_notifierItem->setToolTip("spokify", "Spokify", KGlobal::mainComponent().aboutData()->shortDescription());
+    m_notifierItem->setStatus(KStatusNotifierItem::Active);
+    m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
     connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
 
