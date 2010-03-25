@@ -40,6 +40,8 @@ int main(int argc, char **argv)
 
     aboutData.setOtherText(ki18n("This product uses SPOTIFY CORE but is not endorsed, certified or otherwise approved in any way by Spotify. Spotify is the registered trade mark of the Spotify Group.\n\n<html><img src=\"%1\"></html>").subs(KStandardDirs::locate("appdata", "images/spotify-core-logo-128x128.png")));
 
+    KGlobal::activeComponent().setAboutData(aboutData);
+
     MainWindow *window = new MainWindow();
     window->show();
 
