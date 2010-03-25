@@ -7,7 +7,6 @@ find_package(libspotify REQUIRED)
 include_directories(${KDE4_INCLUDES} ${LIBSPOTIFY_INCLUDE_DIR})
  
 set(spokify_SRCS
-    alsa-audio.cpp
     login.cpp
     main.cpp
     mainwidget.cpp
