@@ -134,35 +134,35 @@ namespace SpotifySession {
     {
         Q_UNUSED(session);
 
-        audio_fifo_t *af = MainWindow::self()->audioFifo();
-        audio_fifo_data_t *afd;
-        size_t s;
-
-        if (numFrames == 0)
-            return 0;
-
-        pthread_mutex_lock(&af->mutex);
-
-        if (af->qlen > format->sample_rate) {
-            pthread_mutex_unlock(&af->mutex);
-            return 0;
-        }
-
-        s = numFrames * sizeof(int16_t) * format->channels;
-
-        afd = (audio_fifo_data_t*) malloc(sizeof(audio_fifo_data_t) + s);
-        memcpy(afd->samples, frames, s);
-
-        afd->nsamples = numFrames;
-
-        afd->rate = format->sample_rate;
-        afd->channels = format->channels;
-
-        TAILQ_INSERT_TAIL(&af->q, afd, link);
-        af->qlen += numFrames;
-
-        pthread_cond_signal(&af->cond);
-        pthread_mutex_unlock(&af->mutex);
+//         audio_fifo_t *af = MainWindow::self()->audioFifo();
+//         audio_fifo_data_t *afd;
+//         size_t s;
+// 
+//         if (numFrames == 0)
+//             return 0;
+// 
+//         pthread_mutex_lock(&af->mutex);
+// 
+//         if (af->qlen > format->sample_rate) {
+//             pthread_mutex_unlock(&af->mutex);
+//             return 0;
+//         }
+// 
+//         s = numFrames * sizeof(int16_t) * format->channels;
+// 
+//         afd = (audio_fifo_data_t*) malloc(sizeof(audio_fifo_data_t) + s);
+//         memcpy(afd->samples, frames, s);
+// 
+//         afd->nsamples = numFrames;
+// 
+//         afd->rate = format->sample_rate;
+//         afd->channels = format->channels;
+// 
+//         TAILQ_INSERT_TAIL(&af->q, afd, link);
+//         af->qlen += numFrames;
+// 
+//         pthread_cond_signal(&af->cond);
+//         pthread_mutex_unlock(&af->mutex);
 
         return numFrames;
     }
@@ -427,7 +427,6 @@ MainWindow::MainWindow(QWidget *parent)
     clearAllWidgets();
 
     //BEGIN: init sound
-    audio_init(&m_audioFifo);
     //END: init sound
 }
 
@@ -494,9 +493,9 @@ void MainWindow::showRequest(const QString &request)
     m_statusLabel->setText(request);
 }
 
-audio_fifo_t *MainWindow::audioFifo()
+QBuffer *MainWindow::buffer()
 {
-    return &m_audioFifo;
+    return m_buffer;
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -612,7 +611,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
 void MainWindow::trackRequested(const QModelIndex &index)
 {
     sp_session_player_unload(m_session);
-    audio_fifo_flush(&m_audioFifo);
+    //TODO: flush buffer
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, 1);

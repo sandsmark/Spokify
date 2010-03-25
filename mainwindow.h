@@ -21,14 +21,10 @@
 
 #include <KXmlGuiWindow>
 
-#include <QModelIndex>
+#include <QtCore/QModelIndex>
 
 #include "api_key.h"
 #include <spotify/api.h>
-
-#if 1
-#include "audio.h"
-#endif
 
 class QLabel;
 class QBuffer;
@@ -64,7 +60,7 @@ public:
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);
 
-    audio_fifo_t *audioFifo();
+    QBuffer *buffer();
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -103,7 +99,7 @@ private:
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;
     bool                  m_loggedIn;
-    audio_fifo_t          m_audioFifo;
+    QBuffer              *m_buffer;
     static MainWindow    *s_self;
 
     KComboBox            *m_searchCategory;
