@@ -20,6 +20,7 @@
 #include "login.h"
 #include "trackmodel.h"
 #include "mainwidget.h"
+#include "soundfeeder.h"
 #include "playlistmodel.h"
 
 #include <QtCore/QTimer>
@@ -138,12 +139,15 @@ namespace SpotifySession {
             return 0;
         }
 
-        void *cframes = malloc(numFrames * sizeof(int16_t) * format->channels);
-        memcpy(cframes, frames, numFrames * sizeof(int16_t) * format->channels);
-
-        snd_pcm_writei(MainWindow::self()->pcmHandle(), cframes, numFrames);
-
-        free(cframes);
+        QMutex &m = MainWindow::self()->pcmMutex();
+        m.lock();
+        Chunk c;
+        c.m_data = malloc(numFrames * sizeof(int16_t) * format->channels);
+        memcpy(c.m_data, frames, numFrames * sizeof(int16_t) * format->channels);
+        c.m_dataFrames = numFrames;
+        MainWindow::self()->newChunk(c);
+        m.unlock();
+        MainWindow::self()->pcmWaitCondition().wakeOne();
 
         return numFrames;
     }
@@ -338,6 +342,7 @@ namespace SpotifySearch {
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
+    , m_soundFeeder(new SoundFeeder(this))
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
@@ -408,7 +413,9 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(2, m_progress);
 
     clearAllWidgets();
+
     initSound();
+    m_soundFeeder->start();
 }
 
 MainWindow::~MainWindow()
@@ -477,6 +484,32 @@ void MainWindow::showRequest(const QString &request)
 snd_pcm_t *MainWindow::pcmHandle() const
 {
     return m_snd;
+}
+
+QMutex &MainWindow::pcmMutex()
+{
+    return m_pcmMutex;
+}
+
+QWaitCondition &MainWindow::pcmWaitCondition()
+{
+    return m_pcmWaitCondition;
+}
+
+void MainWindow::newChunk(const Chunk &chunk)
+{
+    m_data.enqueue(chunk);
+}
+
+Chunk MainWindow::nextChunk()
+{
+    kDebug() << "chunk queue size " << m_data.size();
+    return m_data.dequeue();
+}
+
+bool MainWindow::hasChunk() const
+{
+    return m_data.size() > 1;
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -616,7 +649,12 @@ void MainWindow::playListChanged(const QModelIndex &index)
 void MainWindow::trackRequested(const QModelIndex &index)
 {
     sp_session_player_unload(m_session);
-    //TODO: flush buffer
+    m_pcmMutex.lock();
+    while (!m_data.isEmpty()) {
+        Chunk c = m_data.dequeue();
+        free(c.m_data);
+    }
+    m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, 1);
@@ -648,6 +686,14 @@ void MainWindow::initSound()
     snd_pcm_hw_params_set_buffer_size_near(m_snd, hwParams, &bufferSize);
     snd_pcm_hw_params(m_snd, hwParams);
     snd_pcm_hw_params_free(hwParams);
+
+    snd_pcm_sw_params_t *swParams;
+    snd_pcm_sw_params_malloc(&swParams);
+    snd_pcm_sw_params_current(m_snd, swParams);
+    snd_pcm_sw_params_set_avail_min(m_snd, swParams, periodSize);
+    snd_pcm_sw_params_set_start_threshold(m_snd, swParams, 0);
+    snd_pcm_sw_params(m_snd, swParams);
+    snd_pcm_sw_params_free(swParams);
 
     snd_pcm_prepare(m_snd);
 }

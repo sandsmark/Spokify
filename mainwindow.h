@@ -21,7 +21,13 @@
 
 #include <KXmlGuiWindow>
 
+#include "chunk.h"
+
+#include <QtCore/QMutex>
+#include <QtCore/QQueue>
+#include <QtCore/QBuffer>
 #include <QtCore/QModelIndex>
+#include <QtCore/QWaitCondition>
 
 #include <alsa/asoundlib.h>
 
@@ -39,6 +45,7 @@ class KLineEdit;
 class KStatusNotifierItem;
 
 class MainWidget;
+class SoundFeeder;
 class PlaylistModel;
 
 class MainWindow
@@ -63,6 +70,11 @@ public:
     void showRequest(const QString &request);
 
     snd_pcm_t *pcmHandle() const;
+    QMutex &pcmMutex();
+    QWaitCondition &pcmWaitCondition();
+    void newChunk(const Chunk &chunk);
+    Chunk nextChunk();
+    bool hasChunk() const;
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -92,6 +104,10 @@ private:
 
 private:
     snd_pcm_t            *m_snd;
+    QMutex                m_pcmMutex;
+    QWaitCondition        m_pcmWaitCondition;
+    QQueue<Chunk>         m_data;
+    SoundFeeder          *m_soundFeeder;
 
     sp_session_config     m_config;
     sp_session           *m_session;
