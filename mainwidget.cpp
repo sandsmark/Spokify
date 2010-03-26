@@ -18,13 +18,13 @@
 
 #include "mainwidget.h"
 #include "trackmodel.h"
-#include "proxymodel.h"
 #include "tabledelegate.h"
 
 #include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
+#include <QtGui/QSortFilterProxyModel>
 
 #include <KLocale>
 #include <KLineEdit>
@@ -50,7 +50,8 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_trackModel = new TrackModel(this);
 
-    ProxyModel *proxyModel = new ProxyModel(this);
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setFilterKeyColumn(-1);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setSourceModel(m_trackModel);
 

@@ -13,6 +13,7 @@ set(spokify_SRCS
     mainwindow.cpp
     playlistmodel.cpp
     proxymodel.cpp
+    soundfeeder.cpp
     tabledelegate.cpp
     trackmodel.cpp)
  
