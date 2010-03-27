@@ -18,7 +18,6 @@
 
 #include "mainwidget.h"
 #include "trackmodel.h"
-#include "tabledelegate.h"
 
 #include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
@@ -45,8 +44,6 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_trackView->setShowGrid(false);
     m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    m_trackView->setItemDelegate(new TableDelegate(m_trackView));
-    m_trackView->setMouseTracking(true);
 
     m_trackModel = new TrackModel(this);
 

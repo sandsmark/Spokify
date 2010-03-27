@@ -40,6 +40,5 @@ void SoundFeeder::run()
         snd_pcm_writei(MainWindow::self()->pcmHandle(), c.m_data, c.m_dataFrames);
         m.unlock();
         free(c.m_data);
-        usleep(22.675);
     }
 }
