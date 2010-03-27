@@ -21,8 +21,8 @@
 
 struct Chunk
 {
-    void   *m_data;
-    quint64 m_dataFrames;
+    void *m_data;
+    int   m_dataFrames;
 };
 
 #endif
