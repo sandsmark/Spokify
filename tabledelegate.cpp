@@ -36,13 +36,6 @@ void TableDelegate::paint(QPainter *painter, const QStyleOptionViewItem &_option
         return;
     }
     QStyleOptionViewItemV4 option(*qstyleoption_cast<const QStyleOptionViewItemV4*>(&_option));
-    const QTableView *const view = qobject_cast<const QTableView*>(option.widget);
-    const QModelIndex currIndex = view->indexAt(view->viewport()->mapFromGlobal(QCursor::pos()));
-    if (currIndex.isValid() && currIndex.row() == index.row()) {
-        option.state |= QStyle::State_MouseOver;
-    } else {
-        option.state &= ~QStyle::State_MouseOver;
-    }
     if (!index.column()) {
         option.viewItemPosition = QStyleOptionViewItemV4::Beginning;
     } else if (index.column() == index.model()->columnCount() - 1) {
