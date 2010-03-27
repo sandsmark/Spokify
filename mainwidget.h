@@ -23,6 +23,7 @@
 
 #include <QtGui/QWidget>
 
+class QSlider;
 class QTableView;
 class TrackModel;
 class QTabWidget;
@@ -40,10 +41,15 @@ public:
 
 Q_SIGNALS:
     void trackRequest(const QModelIndex &index);
+    void seekPosition(int position);
+
+private Q_SLOTS:
+    void sliderReleasedSlot();
 
 private:
     QTableView *m_trackView;
     TrackModel *m_trackModel;
+    QSlider    *m_slider;
 };
 
 #endif

@@ -94,6 +94,7 @@ private Q_SLOTS:
     void performSearch();
     void playListChanged(const QModelIndex &index);
     void trackRequested(const QModelIndex &index);
+    void seekPosition(int position);
 
 private:
     void initSound();

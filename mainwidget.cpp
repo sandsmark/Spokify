@@ -19,6 +19,7 @@
 #include "mainwidget.h"
 #include "trackmodel.h"
 
+#include <QtGui/QSlider>
 #include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
 #include <QtGui/QBoxLayout>
@@ -54,12 +55,17 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_trackView->setModel(proxyModel);
 
+    m_slider = new QSlider(Qt::Horizontal, this);
+    m_slider->setMaximum(100000);
+
     connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
+    connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(filter);
     layout->addWidget(m_trackView);
+    layout->addWidget(m_slider);
     setLayout(layout);
 }
 
@@ -70,4 +76,9 @@ MainWidget::~MainWidget()
 TrackModel *MainWidget::trackModel() const
 {
     return m_trackModel;
+}
+
+void MainWidget::sliderReleasedSlot()
+{
+    emit seekPosition(m_slider->value());
 }

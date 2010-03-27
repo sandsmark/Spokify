@@ -362,6 +362,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
     connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+    connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
 
     setCentralWidget(m_mainWidget);
     setupActions();
@@ -660,6 +661,19 @@ void MainWindow::trackRequested(const QModelIndex &index)
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, 1);
+}
+
+void MainWindow::seekPosition(int position)
+{
+    m_pcmMutex.lock();
+    snd_pcm_drop(m_snd);
+    while (!m_data.isEmpty()) {
+        Chunk c = m_data.dequeue();
+        free(c.m_data);
+    }
+    snd_pcm_prepare(m_snd);
+    m_pcmMutex.unlock();
+    sp_session_player_seek(m_session, position);
 }
 
 void MainWindow::clearAllWidgets()
