@@ -147,7 +147,7 @@ namespace SpotifySession {
         c.m_dataFrames = numFrames;
         MainWindow::self()->newChunk(c);
         m.unlock();
-        MainWindow::self()->pcmWaitCondition().wakeOne();
+        MainWindow::self()->pcmWaitCondition().wakeAll();
 
         return numFrames;
     }
@@ -166,6 +166,7 @@ namespace SpotifySession {
     static void endOfTrack(sp_session *session)
     {
         Q_UNUSED(session);
+        kDebug() << "end of track";
     }
 
     static sp_session_callbacks spotifyCallbacks = {
@@ -346,7 +347,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
-    , m_notifierItem(new KStatusNotifierItem(this))
+    , m_notifierItem(new KStatusNotifierItem(i18n("Spokify"), this))
     , m_loggedIn(false)
     , m_mainWidget(new MainWidget(this))
     , m_playlistModel(new PlaylistModel(this))
@@ -503,13 +504,12 @@ void MainWindow::newChunk(const Chunk &chunk)
 
 Chunk MainWindow::nextChunk()
 {
-    kDebug() << "chunk queue size " << m_data.size();
     return m_data.dequeue();
 }
 
 bool MainWindow::hasChunk() const
 {
-    return m_data.size() > 1;
+    return !m_data.isEmpty();
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -650,10 +650,12 @@ void MainWindow::trackRequested(const QModelIndex &index)
 {
     sp_session_player_unload(m_session);
     m_pcmMutex.lock();
+    snd_pcm_drop(m_snd);
     while (!m_data.isEmpty()) {
         Chunk c = m_data.dequeue();
         free(c.m_data);
     }
+    snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
@@ -694,8 +696,6 @@ void MainWindow::initSound()
     snd_pcm_sw_params_set_start_threshold(m_snd, swParams, 0);
     snd_pcm_sw_params(m_snd, swParams);
     snd_pcm_sw_params_free(swParams);
-
-    snd_pcm_prepare(m_snd);
 }
 
 QWidget *MainWindow::createSearchWidget()
