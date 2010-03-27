@@ -696,6 +696,8 @@ void MainWindow::initSound()
     snd_pcm_sw_params_set_start_threshold(m_snd, swParams, 0);
     snd_pcm_sw_params(m_snd, swParams);
     snd_pcm_sw_params_free(swParams);
+
+    snd_pcm_prepare(m_snd);
 }
 
 QWidget *MainWindow::createSearchWidget()
