@@ -339,6 +339,18 @@ namespace SpotifySearch {
         MainWindow::self()->showTemporaryMessage(i18n("Search complete"));
     }
 
+    static void dummySearchComplete(sp_search *result, void *userdata)
+    {
+        Q_UNUSED(userdata);
+
+        QString *query = static_cast<QString*>(userdata);
+
+        const int res = sp_search_total_tracks(result);
+        sp_search_create(MainWindow::self()->session(), query->toUtf8().data(), 0, res, 0, 0, 0, 0, &SpotifySearch::searchComplete, 0);
+
+        delete query;
+    }
+
 }
 //END: SpotifySearch - application bridge
 
@@ -622,7 +634,7 @@ void MainWindow::performSearch()
             return;
     }
     showRequest(i18n("Searching..."));
-    m_search = sp_search_create(m_session, query.toUtf8().data(), 0, 100, 0, 0, 0, 0, &SpotifySearch::searchComplete, 0);
+    sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, &SpotifySearch::dummySearchComplete, new QString(query));
 }
 
 void MainWindow::playListChanged(const QModelIndex &index)
