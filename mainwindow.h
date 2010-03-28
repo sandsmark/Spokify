@@ -64,6 +64,7 @@ public:
     QListView *playlistView() const;
 
     void setIsPlaying(bool isPlaying);
+    void setCheckSpotifyEvents(bool checkSpotifyEvents);
 
     void spotifyLoggedIn();
     void spotifyLoggedOut();
@@ -112,6 +113,7 @@ private:
     QQueue<Chunk>         m_data;
     SoundFeeder          *m_soundFeeder;
     bool                  m_isPlaying;
+    bool                  m_checkSpotifyEvents;
 
     sp_session_config     m_config;
     sp_session           *m_session;

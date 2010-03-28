@@ -39,6 +39,8 @@ public:
 
     TrackModel *trackModel() const;
 
+    void setTrackTime(int trackTime);
+
 Q_SIGNALS:
     void trackRequest(const QModelIndex &index);
     void seekPosition(int position);

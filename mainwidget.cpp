@@ -56,7 +56,6 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setModel(proxyModel);
 
     m_slider = new QSlider(Qt::Horizontal, this);
-    m_slider->setMaximum(100000);
 
     connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
@@ -78,7 +77,12 @@ TrackModel *MainWidget::trackModel() const
     return m_trackModel;
 }
 
+void MainWidget::setTrackTime(int trackTime)
+{
+    m_slider->setRange(0, trackTime / 1000);
+}
+
 void MainWidget::sliderReleasedSlot()
 {
-    emit seekPosition(m_slider->value());
+    emit seekPosition(m_slider->value() * 1000);
 }
