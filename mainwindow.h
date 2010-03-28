@@ -63,6 +63,8 @@ public:
     MainWidget *mainWidget() const;
     QListView *playlistView() const;
 
+    void setIsPlaying(bool isPlaying);
+
     void spotifyLoggedIn();
     void spotifyLoggedOut();
 
@@ -109,6 +111,7 @@ private:
     QWaitCondition        m_pcmWaitCondition;
     QQueue<Chunk>         m_data;
     SoundFeeder          *m_soundFeeder;
+    bool                  m_isPlaying;
 
     sp_session_config     m_config;
     sp_session           *m_session;

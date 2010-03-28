@@ -166,7 +166,7 @@ namespace SpotifySession {
     static void endOfTrack(sp_session *session)
     {
         Q_UNUSED(session);
-        kDebug() << "end of track";
+        MainWindow::self()->setIsPlaying(false);
     }
 
     static sp_session_callbacks spotifyCallbacks = {
@@ -344,6 +344,7 @@ namespace SpotifySearch {
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_soundFeeder(new SoundFeeder(this))
+    , m_isPlaying(false)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
@@ -445,6 +446,11 @@ MainWidget *MainWindow::mainWidget() const
 QListView *MainWindow::playlistView() const
 {
     return m_playlistView;
+}
+
+void MainWindow::setIsPlaying(bool isPlaying)
+{
+    m_isPlaying = isPlaying;
 }
 
 void MainWindow::spotifyLoggedIn()
@@ -649,18 +655,22 @@ void MainWindow::playListChanged(const QModelIndex &index)
 
 void MainWindow::trackRequested(const QModelIndex &index)
 {
-    sp_session_player_unload(m_session);
     m_pcmMutex.lock();
-    snd_pcm_drop(m_snd);
-    while (!m_data.isEmpty()) {
-        Chunk c = m_data.dequeue();
-        free(c.m_data);
+    if (m_isPlaying) {
+        sp_session_player_play(m_session, false);
+        sp_session_player_unload(m_session);
+        snd_pcm_drop(m_snd);
+        while (!m_data.isEmpty()) {
+            Chunk c = m_data.dequeue();
+            free(c.m_data);
+        }
     }
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
-    sp_session_player_play(m_session, 1);
+    sp_session_player_play(m_session, true);
+    m_isPlaying = true;
 }
 
 void MainWindow::seekPosition(int position)
