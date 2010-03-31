@@ -39,7 +39,8 @@ public:
 
     TrackModel *trackModel() const;
 
-    void setTrackTime(int trackTime);
+    void setTotalTrackTime(int totalTrackTime);
+    void advanceCurrentTrackTime(int frames);
 
 Q_SIGNALS:
     void trackRequest(const QModelIndex &index);

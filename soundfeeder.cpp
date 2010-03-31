@@ -36,10 +36,14 @@ void SoundFeeder::run()
         while (!MainWindow::self()->hasChunk()) {
             MainWindow::self()->pcmWaitCondition().wait(&m);
         }
+        while (!MainWindow::self()->isPlaying()) {
+            MainWindow::self()->playCondition().wait(&m);
+        }
         Chunk c = MainWindow::self()->nextChunk();
         snd_pcm_writei(MainWindow::self()->pcmHandle(), c.m_data, c.m_dataFrames);
         m.unlock();
         free(c.m_data);
-        usleep(10000);
+        emit pcmWritten(c.m_dataFrames);
+        usleep(c.m_dataFrames / 44.1);
     }
 }
