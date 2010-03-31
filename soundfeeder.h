@@ -24,9 +24,14 @@
 class SoundFeeder
     : public QThread
 {
+    Q_OBJECT
+
 public:
     SoundFeeder(QObject *parent = 0);
     virtual ~SoundFeeder();
+
+Q_SIGNALS:
+    void pcmWritten(int frames);
 
 protected:
     virtual void run();

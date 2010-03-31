@@ -64,6 +64,7 @@ public:
     QListView *playlistView() const;
 
     void setIsPlaying(bool isPlaying);
+    bool isPlaying() const;
     void setCheckSpotifyEvents(bool checkSpotifyEvents);
 
     void spotifyLoggedIn();
@@ -75,6 +76,7 @@ public:
     snd_pcm_t *pcmHandle() const;
     QMutex &pcmMutex();
     QWaitCondition &pcmWaitCondition();
+    QWaitCondition &playCondition();
     void newChunk(const Chunk &chunk);
     Chunk nextChunk();
     bool hasChunk() const;
@@ -95,6 +97,7 @@ private Q_SLOTS:
     void shuffleSlot();
     void repeatSlot();
     void performSearch();
+    void pcmWrittenSlot(int frames);
     void playListChanged(const QModelIndex &index);
     void trackRequested(const QModelIndex &index);
     void seekPosition(int position);
@@ -110,6 +113,7 @@ private:
     snd_pcm_t            *m_snd;
     QMutex                m_pcmMutex;
     QWaitCondition        m_pcmWaitCondition;
+    QWaitCondition        m_playCondition;
     QQueue<Chunk>         m_data;
     SoundFeeder          *m_soundFeeder;
     bool                  m_isPlaying;

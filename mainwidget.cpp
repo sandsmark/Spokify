@@ -77,12 +77,18 @@ TrackModel *MainWidget::trackModel() const
     return m_trackModel;
 }
 
-void MainWidget::setTrackTime(int trackTime)
+void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
-    m_slider->setRange(0, trackTime / 1000);
+    m_slider->setRange(0, totalTrackTime * 44.1);
+    m_slider->setValue(0);
+}
+
+void MainWidget::advanceCurrentTrackTime(int frames)
+{
+    m_slider->setValue(m_slider->value() + frames);
 }
 
 void MainWidget::sliderReleasedSlot()
 {
-    emit seekPosition(m_slider->value() * 1000);
+    emit seekPosition(m_slider->value() / 44.1);
 }

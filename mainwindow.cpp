@@ -23,6 +23,8 @@
 #include "soundfeeder.h"
 #include "playlistmodel.h"
 
+#include <math.h>
+
 #include <QtCore/QTimer>
 #include <QtCore/QBuffer>
 
@@ -167,7 +169,6 @@ namespace SpotifySession {
     static void endOfTrack(sp_session *session)
     {
         Q_UNUSED(session);
-        MainWindow::self()->setIsPlaying(false);
     }
 
     static sp_session_callbacks spotifyCallbacks = {
@@ -376,6 +377,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setStatus(KStatusNotifierItem::Active);
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
+    connect(m_soundFeeder, SIGNAL(pcmWritten(int)), this, SLOT(pcmWrittenSlot(int)));
     connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
 
@@ -465,6 +467,16 @@ QListView *MainWindow::playlistView() const
 void MainWindow::setIsPlaying(bool isPlaying)
 {
     m_isPlaying = isPlaying;
+    m_play->setVisible(!isPlaying);
+    m_pause->setVisible(isPlaying);
+    if (isPlaying) {
+        snd_pcm_prepare(m_snd);
+    }
+}
+
+bool MainWindow::isPlaying() const
+{
+    return m_isPlaying;
 }
 
 void MainWindow::setCheckSpotifyEvents(bool checkSpotifyEvents)
@@ -521,6 +533,11 @@ QMutex &MainWindow::pcmMutex()
 QWaitCondition &MainWindow::pcmWaitCondition()
 {
     return m_pcmWaitCondition;
+}
+
+QWaitCondition &MainWindow::playCondition()
+{
+    return m_playCondition;
 }
 
 void MainWindow::newChunk(const Chunk &chunk)
@@ -589,10 +606,15 @@ void MainWindow::previousSlot()
 
 void MainWindow::playSlot()
 {
+    setIsPlaying(true);
+    m_playCondition.wakeAll();
+    sp_session_player_play(m_session, true);
 }
 
 void MainWindow::pauseSlot()
 {
+    sp_session_player_play(m_session, false);
+    setIsPlaying(false);
 }
 
 void MainWindow::nextSlot()
@@ -635,6 +657,11 @@ void MainWindow::performSearch()
     }
     showRequest(i18n("Searching..."));
     sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, &SpotifySearch::dummySearchComplete, new QString(query));
+}
+
+void MainWindow::pcmWrittenSlot(int frames)
+{
+    m_mainWidget->advanceCurrentTrackTime(frames);
 }
 
 void MainWindow::playListChanged(const QModelIndex &index)
@@ -691,9 +718,9 @@ void MainWindow::trackRequested(const QModelIndex &index)
     m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
-    m_mainWidget->setTrackTime(sp_track_duration(tr));
+    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
+    setIsPlaying(true);
     sp_session_player_play(m_session, true);
-    m_isPlaying = true;
 }
 
 void MainWindow::seekPosition(int position)
