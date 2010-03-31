@@ -19,6 +19,8 @@
 #include "mainwidget.h"
 #include "trackmodel.h"
 
+#include <math.h>
+
 #include <QtGui/QSlider>
 #include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
@@ -79,7 +81,7 @@ TrackModel *MainWidget::trackModel() const
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
-    m_slider->setRange(0, totalTrackTime * 44.1);
+    m_slider->setRange(0, floor(totalTrackTime * 44.1));
     m_slider->setValue(0);
 }
 
