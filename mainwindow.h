@@ -75,6 +75,7 @@ public:
 
     snd_pcm_t *pcmHandle() const;
     QMutex &pcmMutex();
+    QMutex &dataMutex();
     QWaitCondition &pcmWaitCondition();
     QWaitCondition &playCondition();
     void newChunk(const Chunk &chunk);
@@ -112,6 +113,7 @@ private:
 private:
     snd_pcm_t            *m_snd;
     QMutex                m_pcmMutex;
+    QMutex                m_dataMutex;
     QWaitCondition        m_pcmWaitCondition;
     QWaitCondition        m_playCondition;
     QQueue<Chunk>         m_data;

@@ -142,7 +142,7 @@ namespace SpotifySession {
             return 0;
         }
 
-        QMutex &m = MainWindow::self()->pcmMutex();
+        QMutex &m = MainWindow::self()->dataMutex();
         m.lock();
         Chunk c;
         c.m_data = malloc(numFrames * sizeof(int16_t) * format->channels);
@@ -469,9 +469,6 @@ void MainWindow::setIsPlaying(bool isPlaying)
     m_isPlaying = isPlaying;
     m_play->setVisible(!isPlaying);
     m_pause->setVisible(isPlaying);
-    if (isPlaying) {
-        snd_pcm_prepare(m_snd);
-    }
 }
 
 bool MainWindow::isPlaying() const
@@ -528,6 +525,11 @@ snd_pcm_t *MainWindow::pcmHandle() const
 QMutex &MainWindow::pcmMutex()
 {
     return m_pcmMutex;
+}
+
+QMutex &MainWindow::dataMutex()
+{
+    return m_dataMutex;
 }
 
 QWaitCondition &MainWindow::pcmWaitCondition()
@@ -704,22 +706,26 @@ void MainWindow::playListChanged(const QModelIndex &index)
 
 void MainWindow::trackRequested(const QModelIndex &index)
 {
-    m_pcmMutex.lock();
+    m_dataMutex.lock();
     if (m_isPlaying) {
         sp_session_player_play(m_session, false);
         sp_session_player_unload(m_session);
+        m_pcmMutex.lock();
         snd_pcm_drop(m_snd);
+        m_pcmMutex.unlock();
         while (!m_data.isEmpty()) {
             Chunk c = m_data.dequeue();
             free(c.m_data);
         }
     }
+    m_dataMutex.unlock();
+    setIsPlaying(true);
+    m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_session_player_load(m_session, tr);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
-    setIsPlaying(true);
     sp_session_player_play(m_session, true);
 }
 

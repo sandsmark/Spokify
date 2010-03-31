@@ -33,19 +33,24 @@ SoundFeeder::~SoundFeeder()
 void SoundFeeder::run()
 {
     Q_FOREVER {
-        QMutex &m = MainWindow::self()->pcmMutex();
+        QMutex &m = MainWindow::self()->dataMutex();
         m.lock();
         while (!MainWindow::self()->hasChunk()) {
             MainWindow::self()->pcmWaitCondition().wait(&m);
         }
-        while (!MainWindow::self()->isPlaying()) {
-            MainWindow::self()->playCondition().wait(&m);
-        }
         Chunk c = MainWindow::self()->nextChunk();
-        snd_pcm_writei(MainWindow::self()->pcmHandle(), c.m_data, c.m_dataFrames);
         m.unlock();
+        QMutex &m2 = MainWindow::self()->pcmMutex();
+        m2.lock();
+        while (!MainWindow::self()->isPlaying()) {
+            MainWindow::self()->playCondition().wait(&m2);
+        }
+        const int written = snd_pcm_writei(MainWindow::self()->pcmHandle(), c.m_data, c.m_dataFrames);
+        if (written < 0) {
+            snd_pcm_recover(MainWindow::self()->pcmHandle(), written, 1);
+        }
+        m2.unlock();
         free(c.m_data);
         emit pcmWritten(c.m_dataFrames);
-        usleep(ceil(c.m_dataFrames / 44.1));
     }
 }
