@@ -23,8 +23,6 @@
 #include "soundfeeder.h"
 #include "playlistmodel.h"
 
-#include <math.h>
-
 #include <QtCore/QTimer>
 #include <QtCore/QBuffer>
 
@@ -333,6 +331,10 @@ namespace SpotifySearch {
                 }
             }
             {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
+                trackModel->setData(index, sp_track_popularity(tr));
+            }
+            {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
                 trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
             }
@@ -373,7 +375,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_notifierItem->setCategory(KStatusNotifierItem::ApplicationStatus);
     m_notifierItem->setAssociatedWidget(this);
-    m_notifierItem->setToolTip("spokify", "Spokify", KGlobal::mainComponent().aboutData()->shortDescription());
+    m_notifierItem->setToolTip("preferences-desktop-text-to-speech", "Spokify", KGlobal::mainComponent().aboutData()->shortDescription());
     m_notifierItem->setStatus(KStatusNotifierItem::Active);
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
@@ -439,6 +441,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    m_soundFeeder->terminate();
     if (m_loggedIn) {
         sp_session_logout(m_session);
     }
@@ -698,6 +701,10 @@ void MainWindow::playListChanged(const QModelIndex &index)
             }
         }
         {
+            const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
+            trackModel->setData(index, sp_track_popularity(tr));
+        }
+        {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
             trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
         }
@@ -762,7 +769,7 @@ void MainWindow::initSound()
     snd_pcm_hw_params_any(m_snd, hwParams);
     snd_pcm_hw_params_set_access(m_snd, hwParams, SND_PCM_ACCESS_RW_INTERLEAVED);
     snd_pcm_hw_params_set_format(m_snd, hwParams, SND_PCM_FORMAT_S16_LE);
-    snd_pcm_hw_params_set_rate(m_snd, hwParams, 44100, 0);
+    snd_pcm_hw_params_set_rate(m_snd, hwParams, 44000, 0);
     snd_pcm_hw_params_set_channels(m_snd, hwParams, 2);
     snd_pcm_hw_params_set_period_size_near(m_snd, hwParams, &periodSize, &d);
     snd_pcm_hw_params_set_buffer_size_near(m_snd, hwParams, &bufferSize);
