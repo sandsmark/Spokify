@@ -23,6 +23,7 @@
 
 #include <QtGui/QWidget>
 
+class QLabel;
 class QSlider;
 class QTableView;
 class TrackModel;
@@ -53,6 +54,7 @@ private:
     QTableView *m_trackView;
     TrackModel *m_trackModel;
     QSlider    *m_slider;
+    QLabel     *m_currTotalTime;
 };
 
 #endif

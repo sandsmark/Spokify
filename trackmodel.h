@@ -31,7 +31,8 @@ public:
     enum Columns {
         Title = 0,
         Artist,
-        Album
+        Album,
+        Popularity
     };
 
     enum OwnRoles {
@@ -56,6 +57,7 @@ private:
         QString   m_title;
         QString   m_artist;
         QString   m_album;
+        int       m_popularity;
         sp_track *m_track;
     };
     QList<Entry> m_tracks;

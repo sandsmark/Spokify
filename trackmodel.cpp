@@ -37,13 +37,12 @@ QVariant TrackModel::headerData(int section, Qt::Orientation orientation, int ro
     switch (section) {
         case 0:
             return i18n("Title");
-            break;
         case 1:
             return i18n("Artist");
-            break;
         case 2:
             return i18n("Album");
-            break;
+        case 3:
+            return i18n("Popularity");
         default:
             break;
     }
@@ -107,6 +106,9 @@ bool TrackModel::setData(const QModelIndex &index, const QVariant &value, int ro
                 case Album:
                     m_tracks[index.row()].m_album = value.toString();
                     break;
+                case Popularity:
+                    m_tracks[index.row()].m_popularity = value.toInt();
+                    break;
                 default:
                     return false;
             }
@@ -135,6 +137,8 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                     return m_tracks[index.row()].m_artist;
                 case Album:
                     return m_tracks[index.row()].m_album;
+                case Popularity:
+                    return m_tracks[index.row()].m_popularity;
                 default:
                     break;
             }
@@ -157,5 +161,5 @@ int TrackModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 
-    return 3;
+    return 4;
 }

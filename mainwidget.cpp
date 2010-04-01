@@ -21,6 +21,7 @@
 
 #include <math.h>
 
+#include <QtGui/QLabel>
 #include <QtGui/QSlider>
 #include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
@@ -58,6 +59,7 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setModel(proxyModel);
 
     m_slider = new QSlider(Qt::Horizontal, this);
+    m_currTotalTime = new QLabel(this);
 
     connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
@@ -66,7 +68,10 @@ MainWidget::MainWidget(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(filter);
     layout->addWidget(m_trackView);
-    layout->addWidget(m_slider);
+    QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(m_slider);
+    hLayout->addWidget(m_currTotalTime);
+    layout->addLayout(hLayout);
     setLayout(layout);
 }
 
@@ -81,16 +86,18 @@ TrackModel *MainWidget::trackModel() const
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
-    m_slider->setRange(0, floor(totalTrackTime * 44.1));
+    m_slider->setRange(0, totalTrackTime * 44.0);
     m_slider->setValue(0);
+    m_currTotalTime->setText(i18n("00:00 - %1:%2").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
 }
 
 void MainWidget::advanceCurrentTrackTime(int frames)
 {
     m_slider->setValue(m_slider->value() + frames);
+    m_currTotalTime->setText(i18n("%1:%2 - %3:%4").arg((m_slider->value() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->value() / 44000) % 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) % 60, 2, 10, QLatin1Char('0')));
 }
 
 void MainWidget::sliderReleasedSlot()
 {
-    emit seekPosition(m_slider->value() / 44.1);
+    emit seekPosition(m_slider->value() / 44.0);
 }

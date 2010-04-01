@@ -19,8 +19,6 @@
 #include "soundfeeder.h"
 #include "mainwindow.h"
 
-#include <math.h>
-
 SoundFeeder::SoundFeeder(QObject *parent)
     : QThread(parent)
 {
@@ -52,5 +50,6 @@ void SoundFeeder::run()
         m2.unlock();
         free(c.m_data);
         emit pcmWritten(c.m_dataFrames);
+        usleep(1000);
     }
 }
