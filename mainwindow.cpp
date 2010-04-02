@@ -19,6 +19,7 @@
 #include "mainwindow.h"
 #include "login.h"
 #include "trackmodel.h"
+#include "coverlabel.h"
 #include "mainwidget.h"
 #include "soundfeeder.h"
 #include "playlistmodel.h"
@@ -843,15 +844,11 @@ QWidget *MainWindow::createSearchWidget()
 QWidget *MainWindow::createCoverWidget()
 {
     QWidget *coverWidget = new QWidget(this);
-    m_cover = new QLabel(coverWidget);
-    m_cover->setFixedSize(200, 200);
-    m_cover->setScaledContents(true);
+    m_cover = new CoverLabel(coverWidget);
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_coverLoading = new QMovie(KStandardDirs::locate("appdata", "images/cover-loading.gif"), QByteArray(), this);
     QHBoxLayout *layout = new QHBoxLayout;
-    layout->addStretch();
     layout->addWidget(m_cover);
-    layout->addStretch();
     coverWidget->setLayout(layout);
     return coverWidget;
 }
