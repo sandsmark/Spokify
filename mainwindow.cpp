@@ -854,7 +854,7 @@ QWidget *MainWindow::createCoverWidget()
 {
     QWidget *coverWidget = new QWidget(this);
     m_cover = new QLabel(coverWidget);
-    m_cover->setMinimumSize(1, 1);
+    m_cover->setFixedSize(200, 200);
     m_cover->setScaledContents(true);
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addStretch();
