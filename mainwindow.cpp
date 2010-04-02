@@ -396,7 +396,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(int)), this, SLOT(pcmWrittenSlot(int)));
-    connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+    connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
+    connect(m_mainWidget, SIGNAL(pause()), this, SLOT(pauseSlot()));
+    connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
 
     setCentralWidget(m_mainWidget);
@@ -500,8 +502,6 @@ void MainWindow::signalNotifyMainThread()
 void MainWindow::setIsPlaying(bool isPlaying)
 {
     m_isPlaying = isPlaying;
-    m_play->setVisible(!isPlaying);
-    m_pause->setVisible(isPlaying);
 }
 
 bool MainWindow::isPlaying() const
@@ -625,14 +625,34 @@ void MainWindow::logoutSlot()
     //END: Spotify logout
 }
 
-void MainWindow::previousSlot()
+void MainWindow::playSlot(const QModelIndex &index)
 {
-}
-
-void MainWindow::playSlot()
-{
+    m_dataMutex.lock();
+    if (m_isPlaying) {
+        sp_session_player_play(m_session, false);
+        sp_session_player_unload(m_session);
+        m_pcmMutex.lock();
+        snd_pcm_drop(m_snd);
+        m_pcmMutex.unlock();
+        while (!m_data.isEmpty()) {
+            Chunk c = m_data.dequeue();
+            free(c.m_data);
+        }
+    }
+    m_dataMutex.unlock();
     setIsPlaying(true);
-    m_playCondition.wakeAll();
+    m_pcmMutex.lock();
+    snd_pcm_prepare(m_snd);
+    m_pcmMutex.unlock();
+    m_coverLoading->start();
+    m_cover->setMovie(m_coverLoading);
+    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+    sp_album *const album = sp_track_album(tr);
+    const byte *image = sp_album_cover(album);
+    sp_image *const cover = sp_image_create(m_session, image);
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
+    sp_session_player_load(m_session, tr);
+    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
     sp_session_player_play(m_session, true);
 }
 
@@ -642,8 +662,11 @@ void MainWindow::pauseSlot()
     setIsPlaying(false);
 }
 
-void MainWindow::nextSlot()
+void MainWindow::resumeSlot()
 {
+    setIsPlaying(true);
+    m_playCondition.wakeAll();
+    sp_session_player_play(m_session, true);
 }
 
 void MainWindow::shuffleSlot()
@@ -733,37 +756,6 @@ void MainWindow::playListChanged(const QModelIndex &index)
             trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
         }
     }
-}
-
-void MainWindow::trackRequested(const QModelIndex &index)
-{
-    m_dataMutex.lock();
-    if (m_isPlaying) {
-        sp_session_player_play(m_session, false);
-        sp_session_player_unload(m_session);
-        m_pcmMutex.lock();
-        snd_pcm_drop(m_snd);
-        m_pcmMutex.unlock();
-        while (!m_data.isEmpty()) {
-            Chunk c = m_data.dequeue();
-            free(c.m_data);
-        }
-    }
-    m_dataMutex.unlock();
-    setIsPlaying(true);
-    m_pcmMutex.lock();
-    snd_pcm_prepare(m_snd);
-    m_pcmMutex.unlock();
-    m_coverLoading->start();
-    m_cover->setMovie(m_coverLoading);
-    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
-    sp_album *const album = sp_track_album(tr);
-    const byte *image = sp_album_cover(album);
-    sp_image *const cover = sp_image_create(m_session, image);
-    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
-    sp_session_player_load(m_session, tr);
-    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
-    sp_session_player_play(m_session, true);
 }
 
 void MainWindow::seekPosition(int position)
@@ -880,35 +872,6 @@ void MainWindow::setupActions()
     m_logout->setShortcut(Qt::CTRL + Qt::Key_O);
     actionCollection()->addAction("logout", m_logout);
     connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(logoutSlot()));    
-
-    m_previous = new KAction(this);
-    m_previous->setText(i18n("&Previous"));
-    m_previous->setIcon(KIcon("media-skip-backward"));
-    m_previous->setShortcut(Qt::CTRL + Qt::Key_P);
-    actionCollection()->addAction("previous", m_previous);
-    connect(m_previous, SIGNAL(triggered(bool)), this, SLOT(previousSlot()));
-
-    m_play = new KAction(this);
-    m_play->setText(i18n("P&lay"));
-    m_play->setIcon(KIcon("media-playback-start"));
-    m_play->setShortcut(Qt::CTRL + Qt::Key_L);
-    actionCollection()->addAction("play", m_play);
-    connect(m_play, SIGNAL(triggered(bool)), this, SLOT(playSlot()));
-
-    m_pause = new KAction(this);
-    m_pause->setVisible(false);
-    m_pause->setText(i18n("Pau&se"));
-    m_pause->setIcon(KIcon("media-playback-pause"));
-    m_pause->setShortcut(Qt::CTRL + Qt::Key_S);
-    actionCollection()->addAction("pause", m_pause);
-    connect(m_pause, SIGNAL(triggered(bool)), this, SLOT(pauseSlot()));
-    
-    m_next = new KAction(this);
-    m_next->setText(i18n("&Next"));
-    m_next->setIcon(KIcon("media-skip-forward"));
-    m_next->setShortcut(Qt::CTRL + Qt::Key_N);
-    actionCollection()->addAction("next", m_next);
-    connect(m_logout, SIGNAL(triggered(bool)), this, SLOT(nextSlot()));
 
     m_shuffle = new KAction(this);
     m_shuffle->setText(i18n("Shu&ffle"));

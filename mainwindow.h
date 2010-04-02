@@ -96,16 +96,14 @@ private Q_SLOTS:
     void notifyMainThread();
     void loginSlot();
     void logoutSlot();
-    void previousSlot();
-    void playSlot();
+    void playSlot(const QModelIndex &index);
     void pauseSlot();
-    void nextSlot();
+    void resumeSlot();
     void shuffleSlot();
     void repeatSlot();
     void performSearch();
     void pcmWrittenSlot(int frames);
     void playListChanged(const QModelIndex &index);
-    void trackRequested(const QModelIndex &index);
     void seekPosition(int position);
 
 private:
@@ -132,10 +130,6 @@ private:
 
     KAction              *m_login;
     KAction              *m_logout;
-    KAction              *m_previous;
-    KAction              *m_play;
-    KAction              *m_pause;
-    KAction              *m_next;
     KAction              *m_shuffle;
     KAction              *m_repeat;
     QLabel               *m_statusLabel;

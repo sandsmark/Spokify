@@ -11,11 +11,6 @@
       <Action name="login"/>
       <Action name="logout"/>
       <Separator/>
-      <Action name="previous"/>
-      <Action name="play"/>
-      <Action name="pause"/>
-      <Action name="next"/>
-      <Separator/>
       <Action name="shuffle"/>
       <Action name="repeat"/>
     </Menu>
@@ -25,11 +20,6 @@
 	<text>Main Toolbar</text>
     <Action name="login"/>
     <Action name="logout"/>
-    <Separator/>
-    <Action name="previous"/>
-    <Action name="play"/>
-    <Action name="pause"/>
-    <Action name="next"/>
     <Separator/>
     <Action name="shuffle"/>
     <Action name="repeat"/>

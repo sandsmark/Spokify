@@ -23,11 +23,14 @@
 
 #include <QtGui/QWidget>
 
+class TrackModel;
+
 class QLabel;
 class QSlider;
 class QTableView;
-class TrackModel;
 class QTabWidget;
+
+class KPushButton;
 
 class MainWidget
     : public QWidget
@@ -45,17 +48,23 @@ public:
     void advanceCurrentTrackTime(int frames);
 
 Q_SIGNALS:
-    void trackRequest(const QModelIndex &index);
+    void play(const QModelIndex &index);
+    void pause();
+    void resume();
     void seekPosition(int position);
 
 private Q_SLOTS:
     void sliderReleasedSlot();
+    void trackRequested(const QModelIndex &index);
+    void playPauseSlot();
 
 private:
-    QTableView *m_trackView;
-    TrackModel *m_trackModel;
-    QSlider    *m_slider;
-    QLabel     *m_currTotalTime;
+    QTableView  *m_trackView;
+    TrackModel  *m_trackModel;
+    KPushButton *m_playPauseButton;
+    bool         m_isPlaying;
+    QSlider     *m_slider;
+    QLabel      *m_currTotalTime;
 };
 
 #endif
