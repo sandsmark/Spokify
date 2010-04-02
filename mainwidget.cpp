@@ -29,11 +29,14 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QSortFilterProxyModel>
 
+#include <KIcon>
 #include <KLocale>
 #include <KLineEdit>
+#include <KPushButton>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
+    , m_isPlaying(false)
 {
     KLineEdit *filter = new KLineEdit(this);
     filter->setClickMessage(i18n("Filter by title, artist or album"));
@@ -58,17 +61,23 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_trackView->setModel(proxyModel);
 
+    m_playPauseButton = new KPushButton(KIcon("media-playback-start"), QString(), this);
+
     m_slider = new QSlider(Qt::Horizontal, this);
     m_currTotalTime = new QLabel(this);
 
+    m_currTotalTime->setText("00:00 - 00:00");
+
     connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
-    connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SIGNAL(trackRequest(QModelIndex)));
+    connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+    connect(m_playPauseButton, SIGNAL(clicked()), this, SLOT(playPauseSlot()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(filter);
     layout->addWidget(m_trackView);
     QHBoxLayout *hLayout = new QHBoxLayout;
+    hLayout->addWidget(m_playPauseButton);
     hLayout->addWidget(m_slider);
     hLayout->addWidget(m_currTotalTime);
     layout->addLayout(hLayout);
@@ -105,4 +114,23 @@ void MainWidget::advanceCurrentTrackTime(int frames)
 void MainWidget::sliderReleasedSlot()
 {
     emit seekPosition(m_slider->value() / 44.0);
+}
+
+void MainWidget::trackRequested(const QModelIndex &index)
+{
+    m_isPlaying = true;
+    m_playPauseButton->setIcon(KIcon("media-playback-pause"));
+    emit play(index);
+}
+
+void MainWidget::playPauseSlot()
+{
+    if (m_isPlaying) {
+        m_playPauseButton->setIcon(KIcon("media-playback-start"));
+        emit pause();
+    } else {
+        m_playPauseButton->setIcon(KIcon("media-playback-pause"));
+        emit resume();
+    }
+    m_isPlaying = !m_isPlaying;
 }
