@@ -84,6 +84,11 @@ TrackModel *MainWidget::trackModel() const
     return m_trackModel;
 }
 
+QTableView *MainWidget::trackView() const
+{
+    return m_trackView;
+}
+
 void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
     m_slider->setRange(0, totalTrackTime * 44.0);

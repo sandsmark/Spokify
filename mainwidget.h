@@ -39,6 +39,7 @@ public:
     virtual ~MainWidget();
 
     TrackModel *trackModel() const;
+    QTableView *trackView() const;
 
     void setTotalTrackTime(int totalTrackTime);
     void advanceCurrentTrackTime(int frames);

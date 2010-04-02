@@ -129,7 +129,8 @@ namespace SpotifySession {
     static void notifyMainThread(sp_session *session)
     {
         Q_UNUSED(session);
-        MainWindow::self()->setCheckSpotifyEvents(true);
+
+        MainWindow::self()->signalNotifyMainThread();
     }
 
     static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames, int numFrames)
@@ -375,7 +376,6 @@ MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_soundFeeder(new SoundFeeder(this))
     , m_isPlaying(false)
-    , m_checkSpotifyEvents(false)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
@@ -393,6 +393,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setStatus(KStatusNotifierItem::Active);
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
+    connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(int)), this, SLOT(pcmWrittenSlot(int)));
     connect(m_mainWidget, SIGNAL(trackRequest(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
@@ -490,6 +491,11 @@ QListView *MainWindow::playlistView() const
     return m_playlistView;
 }
 
+void MainWindow::signalNotifyMainThread()
+{
+    emit notifyMainThreadSignal();
+}
+
 void MainWindow::setIsPlaying(bool isPlaying)
 {
     m_isPlaying = isPlaying;
@@ -500,11 +506,6 @@ void MainWindow::setIsPlaying(bool isPlaying)
 bool MainWindow::isPlaying() const
 {
     return m_isPlaying;
-}
-
-void MainWindow::setCheckSpotifyEvents(bool checkSpotifyEvents)
-{
-    m_checkSpotifyEvents = checkSpotifyEvents;
 }
 
 void MainWindow::setCurrentCover(const QImage &cover)
@@ -594,24 +595,13 @@ void MainWindow::restoreStatusBarSlot()
     m_statusLabel->setText(i18n("Ready"));
 }
 
-bool MainWindow::event(QEvent *event)
+void MainWindow::notifyMainThread()
 {
-    //BEGIN: Spotify event processing
-    switch (event->type()) {
-        case QEvent::Timer: {
-            if (m_checkSpotifyEvents) {
-                m_checkSpotifyEvents = false;
-                int timeout = -1;
-                sp_session_process_events(m_session, &timeout);
-                event->accept();
-                return true;
-            }
-        }
-        default:
-            break;
-    }
-    //END: Spotify event processing
-    return KXmlGuiWindow::event(event);
+    int timeout;
+    do {
+        sp_session_process_events(m_session, &timeout);
+    } while (!timeout);
+    QTimer::singleShot(timeout, this, SLOT(notifyMainThread()));
 }
 
 void MainWindow::loginSlot()

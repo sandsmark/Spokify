@@ -63,9 +63,10 @@ public:
     MainWidget *mainWidget() const;
     QListView *playlistView() const;
 
+    void signalNotifyMainThread();
+
     void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
-    void setCheckSpotifyEvents(bool checkSpotifyEvents);
 
     void setCurrentCover(const QImage &cover);
 
@@ -87,10 +88,11 @@ public:
 public Q_SLOTS:
     void restoreStatusBarSlot();
 
-protected:
-    virtual bool event(QEvent *event);
+Q_SIGNALS:
+    void notifyMainThreadSignal();
 
 private Q_SLOTS:
+    void notifyMainThread();
     void loginSlot();
     void logoutSlot();
     void previousSlot();
@@ -122,7 +124,6 @@ private:
     QQueue<Chunk>         m_data;
     SoundFeeder          *m_soundFeeder;
     bool                  m_isPlaying;
-    bool                  m_checkSpotifyEvents;
 
     sp_session_config     m_config;
     sp_session           *m_session;
