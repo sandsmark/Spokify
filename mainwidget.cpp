@@ -18,6 +18,7 @@
 
 #include "mainwidget.h"
 #include "trackmodel.h"
+#include "playpausebutton.h"
 
 #include <math.h>
 
@@ -36,7 +37,6 @@
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
-    , m_isPlaying(false)
 {
     KLineEdit *filter = new KLineEdit(this);
     filter->setClickMessage(i18n("Filter by title, artist or album"));
@@ -61,7 +61,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_trackView->setModel(proxyModel);
 
-    m_playPauseButton = new KPushButton(KIcon("media-playback-start"), QString(), this);
+    m_playPauseButton = new PlayPauseButton(this);
 
     m_slider = new QSlider(Qt::Horizontal, this);
     m_currTotalTime = new QLabel(this);
@@ -70,7 +70,8 @@ MainWidget::MainWidget(QWidget *parent)
 
     connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
-    connect(m_playPauseButton, SIGNAL(clicked()), this, SLOT(playPauseSlot()));
+    connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
+    connect(m_playPauseButton, SIGNAL(pause()), this, SIGNAL(pause()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -118,19 +119,6 @@ void MainWidget::sliderReleasedSlot()
 
 void MainWidget::trackRequested(const QModelIndex &index)
 {
-    m_isPlaying = true;
-    m_playPauseButton->setIcon(KIcon("media-playback-pause"));
+    m_playPauseButton->setIsPlaying(true);
     emit play(index);
-}
-
-void MainWidget::playPauseSlot()
-{
-    if (m_isPlaying) {
-        m_playPauseButton->setIcon(KIcon("media-playback-start"));
-        emit pause();
-    } else {
-        m_playPauseButton->setIcon(KIcon("media-playback-pause"));
-        emit resume();
-    }
-    m_isPlaying = !m_isPlaying;
 }
