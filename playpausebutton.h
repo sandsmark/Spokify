@@ -16,53 +16,44 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
-
-#include <QtCore/QModelIndex>
+#ifndef PLAYPAUSEBUTTON_H
+#define PLAYPAUSEBUTTON_H
 
 #include <QtGui/QWidget>
 
-class TrackModel;
+#include <QtGui/QPixmap>
 
-class QLabel;
-class QSlider;
-class QTableView;
-class QTabWidget;
-
-class PlayPauseButton;
-
-class MainWidget
+class PlayPauseButton
     : public QWidget
 {
     Q_OBJECT
 
 public:
-    MainWidget(QWidget *parent = 0);
-    virtual ~MainWidget();
+    PlayPauseButton(QWidget *parent = 0);
+    virtual ~PlayPauseButton();
 
-    TrackModel *trackModel() const;
-    QTableView *trackView() const;
+    virtual QSize sizeHint() const;
 
-    void setTotalTrackTime(int totalTrackTime);
-    void advanceCurrentTrackTime(int frames);
+    void setIsPlaying(bool isPlaying);
+    bool isPlaying() const;
 
 Q_SIGNALS:
-    void play(const QModelIndex &index);
+    void play();
     void pause();
-    void resume();
-    void seekPosition(int position);
 
-private Q_SLOTS:
-    void sliderReleasedSlot();
-    void trackRequested(const QModelIndex &index);
+protected:
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
 
 private:
-    QTableView      *m_trackView;
-    TrackModel      *m_trackModel;
-    PlayPauseButton *m_playPauseButton;
-    QSlider         *m_slider;
-    QLabel          *m_currTotalTime;
+    bool    m_hovered;
+    bool    m_isPlaying;
+    QPixmap m_play;
+    QPixmap m_hoveredPlay;
+    QPixmap m_pause;
+    QPixmap m_hoveredPause;
 };
 
 #endif

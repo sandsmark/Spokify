@@ -13,7 +13,8 @@ set(spokify_SRCS
     mainwindow.cpp
     playlistmodel.cpp
     soundfeeder.cpp
-    trackmodel.cpp)
+    trackmodel.cpp
+    playpausebutton.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
@@ -24,4 +25,11 @@ install(FILES spokifyui.rc DESTINATION ${DATA_INSTALL_DIR}/spokify)
 install(FILES images/spotify-core-logo-128x128.png
               images/nocover-200x200.png
               images/nocover.svg
-              images/cover-loading.gif DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
+              images/cover-loading.gif
+              images/media-playback-pause.png
+              images/media-playback-start.png
+              images/media-playback-stop.png
+              images/media-seek-backward.png
+              images/media-seek-forward.png
+              images/media-skip-backward.png
+              images/media-skip-forward.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
