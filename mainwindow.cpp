@@ -689,6 +689,10 @@ void MainWindow::pcmWrittenSlot(int frames)
 
 void MainWindow::playListChanged(const QModelIndex &index)
 {
+    if (!index.isValid()) {
+        return;
+    }
+
     TrackModel *const trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
 
@@ -923,6 +927,7 @@ void MainWindow::fillPlaylistModel()
 {
     if (!m_pc) {
         m_pc = sp_session_playlistcontainer(m_session);
+        sp_playlistcontainer_add_callbacks(m_pc, &SpotifyPlaylistContainer::spotifyCallbacks, this);
     }
     m_playlistView->setEnabled(true);
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
@@ -930,6 +935,7 @@ void MainWindow::fillPlaylistModel()
     m_playlistModel->insertRows(0, numPlaylists);
     for (int i = 0; i < numPlaylists; ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
+        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
