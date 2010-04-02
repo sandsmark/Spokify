@@ -357,6 +357,20 @@ namespace SpotifySearch {
 }
 //END: SpotifySearch - application bridge
 
+//BEGIN: SpotifyImage - application bridge
+namespace SpotifyImage {
+
+    void imageLoaded(sp_image *image, void *userdata)
+    {
+        QModelIndex index = *static_cast<QModelIndex*>(userdata);
+        size_t dataSize = 0;
+        const void *imageData = sp_image_data(image, &dataSize);
+        MainWindow::self()->setCurrentCover(QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG"));
+    }
+
+}
+//END: SpotifyImage - application bridge
+
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_soundFeeder(new SoundFeeder(this))
@@ -424,6 +438,15 @@ MainWindow::MainWindow(QWidget *parent)
     }
     //END: set up search widget
 
+    //BEGIN: set up search widget
+    {
+        QDockWidget *cover = new QDockWidget(i18n("Cover"), this);
+        cover->setObjectName("cover");
+        cover->setWidget(createCoverWidget());
+        addDockWidget(Qt::LeftDockWidgetArea, cover);
+    }
+    //END: set up search widget
+
     m_progress->setMinimum(0);
     m_progress->setMaximum(0);
     m_progress->setVisible(false);
@@ -482,6 +505,11 @@ bool MainWindow::isPlaying() const
 void MainWindow::setCheckSpotifyEvents(bool checkSpotifyEvents)
 {
     m_checkSpotifyEvents = checkSpotifyEvents;
+}
+
+void MainWindow::setCurrentCover(const QImage &cover)
+{
+    m_cover->setPixmap(QPixmap::fromImage(cover));
 }
 
 void MainWindow::spotifyLoggedIn()
@@ -731,6 +759,10 @@ void MainWindow::trackRequested(const QModelIndex &index)
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+    sp_album *const album = sp_track_album(tr);
+    const byte *image = sp_album_cover(album);
+    sp_image *const cover = sp_image_create(m_session, image);
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
     sp_session_player_load(m_session, tr);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
     sp_session_player_play(m_session, true);
@@ -816,6 +848,20 @@ QWidget *MainWindow::createSearchWidget()
     layout->addStretch();
     searchWidget->setLayout(layout);
     return searchWidget;
+}
+
+QWidget *MainWindow::createCoverWidget()
+{
+    QWidget *coverWidget = new QWidget(this);
+    m_cover = new QLabel(coverWidget);
+    m_cover->setMinimumSize(1, 1);
+    m_cover->setScaledContents(true);
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->addStretch();
+    layout->addWidget(m_cover);
+    layout->addStretch();
+    coverWidget->setLayout(layout);
+    return coverWidget;
 }
 
 void MainWindow::setupActions()

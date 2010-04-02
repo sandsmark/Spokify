@@ -67,6 +67,8 @@ public:
     bool isPlaying() const;
     void setCheckSpotifyEvents(bool checkSpotifyEvents);
 
+    void setCurrentCover(const QImage &cover);
+
     void spotifyLoggedIn();
     void spotifyLoggedOut();
 
@@ -106,6 +108,7 @@ private Q_SLOTS:
 private:
     void initSound();
     QWidget *createSearchWidget();
+    QWidget *createCoverWidget();
     void setupActions();
     void clearAllWidgets();
     void fillPlaylistModel();
@@ -141,6 +144,8 @@ private:
 
     KComboBox            *m_searchCategory;
     KLineEdit            *m_searchField;
+
+    QLabel               *m_cover;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
