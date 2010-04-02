@@ -17,14 +17,15 @@
  */
 
 #include "mainwidget.h"
+#include "trackview.h"
 #include "trackmodel.h"
 #include "playpausebutton.h"
+#include "trackviewdelegate.h"
 
 #include <math.h>
 
 #include <QtGui/QLabel>
 #include <QtGui/QSlider>
-#include <QtGui/QTableView>
 #include <QtGui/QTabWidget>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
@@ -42,7 +43,7 @@ MainWidget::MainWidget(QWidget *parent)
     filter->setClickMessage(i18n("Filter by title, artist or album"));
     filter->setClearButtonShown(true);
 
-    m_trackView = new QTableView(this);
+    m_trackView = new TrackView(this);
     m_trackView->verticalHeader()->hide();
     m_trackView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_trackView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -51,6 +52,7 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_trackView->setShowGrid(false);
     m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    m_trackView->setItemDelegate(new TrackViewDelegate(m_trackView));
 
     m_trackModel = new TrackModel(this);
 
@@ -94,7 +96,7 @@ TrackModel *MainWidget::trackModel() const
     return m_trackModel;
 }
 
-QTableView *MainWidget::trackView() const
+TrackView *MainWidget::trackView() const
 {
     return m_trackView;
 }

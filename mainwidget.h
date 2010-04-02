@@ -23,11 +23,11 @@
 
 #include <QtGui/QWidget>
 
+class TrackView;
 class TrackModel;
 
 class QLabel;
 class QSlider;
-class QTableView;
 class QTabWidget;
 
 class PlayPauseButton;
@@ -42,7 +42,7 @@ public:
     virtual ~MainWidget();
 
     TrackModel *trackModel() const;
-    QTableView *trackView() const;
+    TrackView *trackView() const;
 
     void setTotalTrackTime(int totalTrackTime);
     void advanceCurrentTrackTime(int frames);
@@ -58,7 +58,7 @@ private Q_SLOTS:
     void trackRequested(const QModelIndex &index);
 
 private:
-    QTableView      *m_trackView;
+    TrackView       *m_trackView;
     TrackModel      *m_trackModel;
     PlayPauseButton *m_playPauseButton;
     QSlider         *m_slider;
