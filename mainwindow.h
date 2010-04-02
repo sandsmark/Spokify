@@ -34,6 +34,7 @@
 #include "api_key.h"
 #include <spotify/api.h>
 
+class QMovie;
 class QLabel;
 class QBuffer;
 class QListView;
@@ -147,6 +148,7 @@ private:
     KLineEdit            *m_searchField;
 
     QLabel               *m_cover;
+    QMovie               *m_coverLoading;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
