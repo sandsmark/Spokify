@@ -45,6 +45,7 @@ class KComboBox;
 class KLineEdit;
 class KStatusNotifierItem;
 
+class CoverLabel;
 class MainWidget;
 class SoundFeeder;
 class PlaylistModel;
@@ -141,7 +142,7 @@ private:
     KComboBox            *m_searchCategory;
     KLineEdit            *m_searchField;
 
-    QLabel               *m_cover;
+    CoverLabel           *m_cover;
     QMovie               *m_coverLoading;
 
     MainWidget           *m_mainWidget;

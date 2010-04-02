@@ -14,7 +14,8 @@ set(spokify_SRCS
     playlistmodel.cpp
     soundfeeder.cpp
     trackmodel.cpp
-    playpausebutton.cpp)
+    playpausebutton.cpp
+    coverlabel.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
