@@ -27,6 +27,7 @@
 #include <QtCore/QBuffer>
 
 #include <QtGui/QLabel>
+#include <QtGui/QMovie>
 #include <QtGui/QListView>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QDockWidget>
@@ -310,7 +311,7 @@ namespace SpotifySearch {
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
-            if (!tr) {
+            if (!tr || !sp_track_is_loaded(tr)) {
                 continue;
             }
             {
@@ -510,6 +511,7 @@ bool MainWindow::isPlaying() const
 
 void MainWindow::setCurrentCover(const QImage &cover)
 {
+    m_coverLoading->stop();
     m_cover->setPixmap(QPixmap::fromImage(cover));
 }
 
@@ -701,7 +703,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
     trackModel->insertRows(0, numTracks);
     for (int i = 0; i < numTracks; ++i) {
         sp_track *const tr = sp_playlist_track(curr, i);
-        if (!tr) {
+        if (!tr || !sp_track_is_loaded(tr)) {
             continue;
         }
         {
@@ -752,6 +754,8 @@ void MainWindow::trackRequested(const QModelIndex &index)
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
+    m_coverLoading->start();
+    m_cover->setMovie(m_coverLoading);
     sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
     sp_album *const album = sp_track_album(tr);
     const byte *image = sp_album_cover(album);
@@ -850,6 +854,8 @@ QWidget *MainWindow::createCoverWidget()
     m_cover = new QLabel(coverWidget);
     m_cover->setFixedSize(200, 200);
     m_cover->setScaledContents(true);
+    m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
+    m_coverLoading = new QMovie(KStandardDirs::locate("appdata", "images/cover-loading.gif"), QByteArray(), this);
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addStretch();
     layout->addWidget(m_cover);

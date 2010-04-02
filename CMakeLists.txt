@@ -21,4 +21,7 @@ target_link_libraries(spokify ${KDE4_KDEUI_LIBS} ${LIBSPOTIFY_LIBRARIES} phonon 
  
 install(TARGETS spokify DESTINATION ${BIN_INSTALL_DIR})
 install(FILES spokifyui.rc DESTINATION ${DATA_INSTALL_DIR}/spokify)
-install(FILES images/spotify-core-logo-128x128.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
+install(FILES images/spotify-core-logo-128x128.png
+              images/nocover-200x200.png
+              images/nocover.svg
+              images/cover-loading.gif DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
