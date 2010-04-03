@@ -31,7 +31,7 @@
 
 #include <alsa/asoundlib.h>
 
-#include "api_key.h"
+#include "appkey.h"
 #include <spotify/api.h>
 
 class QMovie;
