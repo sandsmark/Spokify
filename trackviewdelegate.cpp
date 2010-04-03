@@ -17,8 +17,13 @@
  */
 
 #include "trackviewdelegate.h"
+#include "trackmodel.h"
 
+#include <QtGui/QPainter>
 #include <QtGui/QTableView>
+#include <QtGui/QStyleOptionProgressBarV2>
+
+#include <KApplication>
 
 TrackViewDelegate::TrackViewDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -44,13 +49,38 @@ void TrackViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         }
     }
 
-    if (!index.column()) {
+    if (index.column() == TrackModel::Title) {
         opt.viewItemPosition = QStyleOptionViewItemV4::Beginning;
-    } else if (index.column() == index.model()->columnCount() - 1) {
+    } else if (index.column() == TrackModel::Popularity) {
         opt.viewItemPosition = QStyleOptionViewItemV4::End;
     } else {
         opt.viewItemPosition = QStyleOptionViewItemV4::Middle;
     }
 
-    QStyledItemDelegate::paint(painter, opt, index);
+    QStyle *const style = kapp->style();
+
+    opt.state &= ~QStyle::State_HasFocus;
+
+    if (index.column() == TrackModel::Popularity) {
+        painter->save();
+        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, 0);
+        painter->restore();
+    } else {
+        QStyledItemDelegate::paint(painter, opt, index);
+        return;
+    }
+
+    {
+        QStyleOptionProgressBarV2 opt;
+        opt.initFrom(tableView->viewport());
+        opt.minimum = 0;
+        opt.maximum = 100;
+        opt.progress = index.data().toInt();
+        opt.rect = option.rect;
+        opt.rect.setLeft(opt.rect.left() + 5);
+        opt.rect.setTop(opt.rect.top() + 5);
+        opt.rect.setRight(opt.rect.right() - 5);
+        opt.rect.setBottom(opt.rect.bottom() - 5);
+        style->drawControl(QStyle::CE_ProgressBar, &opt, painter, tableView->viewport());
+    }
 }
