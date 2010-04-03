@@ -50,6 +50,6 @@ void SoundFeeder::run()
         m2.unlock();
         free(c.m_data);
         emit pcmWritten(c.m_dataFrames);
-        usleep(1000);
+        usleep(10000);
     }
 }
