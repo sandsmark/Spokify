@@ -33,8 +33,12 @@ void SoundFeeder::run()
     Q_FOREVER {
         QMutex &m = MainWindow::self()->dataMutex();
         m.lock();
-        while (!MainWindow::self()->hasChunk()) {
+        while (!MainWindow::self()->hasChunk() && !MainWindow::self()->isExiting()) {
             MainWindow::self()->pcmWaitCondition().wait(&m);
+        }
+        if (MainWindow::self()->isExiting()) {
+            m.unlock();
+            break;
         }
         Chunk c = MainWindow::self()->nextChunk();
         m.unlock();

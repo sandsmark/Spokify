@@ -378,6 +378,7 @@ MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_soundFeeder(new SoundFeeder(this))
     , m_isPlaying(false)
+    , m_isExiting(false)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
@@ -469,10 +470,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    m_soundFeeder->terminate();
+    m_isExiting = true;
+    m_pcmWaitCondition.wakeAll();
     if (m_loggedIn) {
         sp_session_logout(m_session);
     }
+}
+
+bool MainWindow::isExiting() const
+{
+    return m_isExiting;
 }
 
 sp_session *MainWindow::session() const
