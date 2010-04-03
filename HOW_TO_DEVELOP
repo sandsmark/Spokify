@@ -1,16 +1,16 @@
-For being able to develop, you need to create a file called api_key.h in the root folder of the
-spokify project with the API Key that Spotify provided you.
+For being able to develop, you need to create a file called appkey.h in the root folder of the
+spokify project with the Application Key that Spotify provided you.
 
-Usually, API Keys are only provided to Premium Users, so you will need to be a premium user to
+Usually, Application Keys are only provided to Premium Users, so you will need to be a premium user to
 develop Spokify.
 
-This API Key provided by Spotify can be found at:
+This Application Key provided by Spotify can be found at:
 
 https://developer.spotify.com/en/libspotify/application-key/
 
 once you have logged in at the web as a Premium User.
 
-Click on "c-code", and download it as "api_key.h". Place it where has been told before, on the root
+Click on "c-code", and download it as "appkey.h". Place it where has been told before, on the root
 directory of the Spokify project.
 
 Its appearance is something like this:
