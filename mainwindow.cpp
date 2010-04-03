@@ -456,7 +456,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_progress->setMaximum(0);
     m_progress->setVisible(false);
 
-    startTimer(500);
     statusBar()->insertWidget(0, m_statusLabel);
     statusBar()->insertWidget(1, new QWidget(this), 1);
     statusBar()->insertWidget(2, m_progress);
