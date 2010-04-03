@@ -462,6 +462,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->insertWidget(2, m_progress);
 
     clearAllWidgets();
+    setAutoSaveSettings();
 
     initSound();
     m_soundFeeder->start();
