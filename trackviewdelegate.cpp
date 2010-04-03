@@ -71,6 +71,7 @@ void TrackViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     }
 
     {
+        painter->save();
         QStyleOptionProgressBarV2 opt;
         opt.initFrom(tableView->viewport());
         opt.minimum = 0;
@@ -81,6 +82,7 @@ void TrackViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         opt.rect.setTop(opt.rect.top() + 5);
         opt.rect.setRight(opt.rect.right() - 5);
         opt.rect.setBottom(opt.rect.bottom() - 5);
-        style->drawControl(QStyle::CE_ProgressBar, &opt, painter, tableView->viewport());
+        style->drawControl(QStyle::CE_ProgressBar, &opt, painter, 0);
+        painter->restore();
     }
 }
