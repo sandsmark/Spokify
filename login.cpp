@@ -22,8 +22,9 @@
 #include <QtGui/QLabel>
 #include <QtGui/QFormLayout>
 
-#include <KLineEdit>
 #include <KLocale>
+#include <KLineEdit>
+#include <kwallet.h>
 
 Login::Login(MainWindow *mainWindow)
     : KDialog(mainWindow)
@@ -48,10 +49,43 @@ Login::Login(MainWindow *mainWindow)
     connect(this, SIGNAL(okClicked()), SLOT(loginSlot()));
 
     setMainWidget(main);
+
+    m_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(), winId());
+    if (m_wallet) {
+        if (!m_wallet->hasFolder("spokify")) {
+            m_wallet->createFolder("spokify");
+        }
+        m_wallet->setFolder("spokify");
+    }
 }
 
 Login::~Login()
 {
+}
+
+void Login::accept()
+{
+    if (m_wallet) {
+        QMap<QString, QString> authInfo;
+        authInfo["username"] = m_username->text();
+        authInfo["password"] = m_password->text();
+        m_wallet->writeMap("spokify", authInfo);
+        m_wallet->sync();
+    }
+
+    KDialog::accept();
+}
+
+void Login::showEvent(QShowEvent *event)
+{
+    if (m_wallet) {
+        QMap<QString, QString> authInfo;
+        m_wallet->readMap("spokify", authInfo);
+        m_username->setText(authInfo["username"]);
+        m_password->setText(authInfo["password"]);
+    }
+
+    KDialog::showEvent(event);
 }
 
 void Login::loginSlot()

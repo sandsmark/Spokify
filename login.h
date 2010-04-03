@@ -24,6 +24,10 @@
 class KLineEdit;
 class MainWindow;
 
+namespace KWallet {
+    class Wallet;
+}
+
 class Login
     : public KDialog
 {
@@ -33,13 +37,19 @@ public:
     Login(MainWindow *mainWindow);
     virtual ~Login();
 
+    virtual void accept();
+
+protected:
+    virtual void showEvent(QShowEvent *event);
+
 private Q_SLOTS:
     void loginSlot();
 
 private:
-    KLineEdit  *m_username;
-    KLineEdit  *m_password;
-    MainWindow *m_mainWindow;
+    KLineEdit       *m_username;
+    KLineEdit       *m_password;
+    MainWindow      *m_mainWindow;
+    KWallet::Wallet *m_wallet;
 };
  
 #endif
