@@ -103,6 +103,7 @@ void MainWidget::loggedIn()
 void MainWidget::loggedOut()
 {
     m_filter->setEnabled(false);
+    m_filter->setText(QString());
     m_trackView->setEnabled(false);
     m_playPauseButton->setEnabled(false);
     m_playPauseButton->setIsPlaying(false);
