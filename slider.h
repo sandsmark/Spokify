@@ -37,19 +37,26 @@ public:
     void setValue(int value);
     int value() const;
 
+    void setCacheValue(int value);
+    int cacheValue() const;
+
 protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
     QPixmap m_leftBackground;
+    QPixmap m_leftForeground;
     QPixmap m_rightBackground;
+    QPixmap m_rightForeground;
     QPixmap m_bodyBackground;
+    QPixmap m_bodyForeground;
     QPixmap m_slider;
     QPixmap m_disabledSlider;
 
     int     m_minimum;
     int     m_maximum;
     int     m_value;
+    int     m_cacheValue;
 };
 
 #endif

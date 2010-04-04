@@ -125,7 +125,7 @@ TrackView *MainWidget::trackView() const
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
-    m_slider->setRange(0, totalTrackTime * 44.0);
+    m_slider->setRange(0, totalTrackTime * 44);
     m_slider->setValue(0);
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
 }
@@ -134,6 +134,11 @@ void MainWidget::advanceCurrentTrackTime(int frames)
 {
     m_slider->setValue(m_slider->value() + frames);
     m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((m_slider->value() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->value() / 44000) % 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) % 60, 2, 10, QLatin1Char('0')));
+}
+
+void MainWidget::advanceCurrentCacheTrackTime(int frames)
+{
+    m_slider->setCacheValue(m_slider->cacheValue() + frames);
 }
 
 void MainWidget::sliderReleasedSlot()
