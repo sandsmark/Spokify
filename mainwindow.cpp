@@ -532,6 +532,10 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     m_playlistView->setEnabled(true);
+    m_searchCategory->setEnabled(true);
+    m_searchField->setEnabled(true);
+    m_searchButton->setEnabled(true);
+    m_cover->setEnabled(true);
     m_mainWidget->loggedIn();
     fillPlaylistModel();
 }
@@ -783,6 +787,10 @@ void MainWindow::clearAllWidgets()
 {
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistView->setEnabled(false);
+    m_searchCategory->setEnabled(false);
+    m_searchField->setEnabled(false);
+    m_searchButton->setEnabled(false);
+    m_cover->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
@@ -856,10 +864,10 @@ QWidget *MainWindow::createSearchWidget()
     }
     {
         QHBoxLayout *innerLayout2 = new QHBoxLayout;
-        KPushButton *searchButton = new KPushButton(KIcon(), i18n("Search"), this);
-        connect(searchButton, SIGNAL(clicked()), this, SLOT(performSearch()));
+        m_searchButton = new KPushButton(KIcon(), i18n("Search"), this);
+        connect(m_searchButton, SIGNAL(clicked()), this, SLOT(performSearch()));
         innerLayout2->addStretch();
-        innerLayout2->addWidget(searchButton);
+        innerLayout2->addWidget(m_searchButton);
         layout->addLayout(innerLayout2);
     }
     layout->addStretch();

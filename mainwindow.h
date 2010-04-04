@@ -43,6 +43,7 @@ class QProgressBar;
 class KAction;
 class KComboBox;
 class KLineEdit;
+class KPushButton;
 class KStatusNotifierItem;
 
 class CoverLabel;
@@ -148,6 +149,7 @@ private:
 
     CoverLabel           *m_cover;
     QMovie               *m_coverLoading;
+    KPushButton          *m_searchButton;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;

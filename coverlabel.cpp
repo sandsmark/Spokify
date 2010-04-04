@@ -22,6 +22,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 
+#include <KIconEffect>
+
 CoverLabel::CoverLabel(QWidget *parent)
     : QLabel(parent)
 {
@@ -50,5 +52,8 @@ void CoverLabel::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
+    if (!isEnabled()) {
+        KIconEffect::semiTransparent(labelPixmap);
+    }
     p.drawPixmap(x, y, pSize, pSize, labelPixmap);
 }

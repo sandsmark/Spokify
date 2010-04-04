@@ -99,6 +99,7 @@ void MainWidget::loggedIn()
     m_trackView->setEnabled(true);
     m_playPauseButton->setEnabled(true);
     m_slider->setEnabled(true);
+    m_currTotalTime->setEnabled(true);
 }
 
 void MainWidget::loggedOut()
@@ -110,6 +111,7 @@ void MainWidget::loggedOut()
     m_slider->setEnabled(false);
     m_slider->setValue(0);
     m_currTotalTime->setText("00:00 - 00:00");
+    m_currTotalTime->setEnabled(false);
 }
 
 TrackModel *MainWidget::trackModel() const
