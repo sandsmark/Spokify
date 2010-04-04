@@ -525,12 +525,13 @@ void MainWindow::setCurrentCover(const QImage &cover)
 
 void MainWindow::spotifyLoggedIn()
 {
+    showTemporaryMessage(i18n("Logged in"));
+
     m_loggedIn = true;
     m_login->setVisible(false);
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     m_playlistView->setEnabled(true);
-    showTemporaryMessage(i18n("Logged in"));
     m_mainWidget->loggedIn();
     fillPlaylistModel();
 }
@@ -540,11 +541,12 @@ void MainWindow::spotifyLoggedOut()
     if (!m_loggedIn) {
         return;
     }
+    showTemporaryMessage(i18n("Logged out"));
+
     m_loggedIn = false;
     m_login->setVisible(true);
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
-    showTemporaryMessage(i18n("Logged out"));
 }
 
 void MainWindow::showTemporaryMessage(const QString &message)
@@ -629,6 +631,7 @@ void MainWindow::logoutSlot()
 {
     showRequest(i18n("Logging out..."));
 
+    setIsPlaying(false);
     clearSoundQueue();
     m_logout->setEnabled(false);
     clearAllWidgets();
