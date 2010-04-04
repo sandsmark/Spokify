@@ -109,6 +109,7 @@ void MainWidget::loggedOut()
     m_playPauseButton->setIsPlaying(false);
     m_slider->setEnabled(false);
     m_slider->setValue(0);
+    m_slider->setCacheValue(0);
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>00:00</b>"));
     m_currTotalTime->setEnabled(false);
 }
