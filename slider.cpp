@@ -159,4 +159,18 @@ void Slider::paintEvent(QPaintEvent *event)
         }
     }
     //END: slider element
+
+    //BEGIN: overlay
+    {
+        p.save();
+        p.setOpacity(0.5);
+        QRect overlayRect(event->rect());
+        overlayRect.setTop(overlayRect.top() + 2);
+        overlayRect.setLeft(overlayRect.left() + 3);
+        overlayRect.setWidth(overlayRect.width() - 3);
+        overlayRect.setHeight(overlayRect.height() / 2);
+        p.fillRect(overlayRect, Qt::white);
+        p.restore();
+    }
+    //END: overlay
 }
