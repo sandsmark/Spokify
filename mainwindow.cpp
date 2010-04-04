@@ -545,7 +545,6 @@ void MainWindow::spotifyLoggedOut()
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
     showTemporaryMessage(i18n("Logged out"));
-    clearAllWidgets();
 }
 
 void MainWindow::showTemporaryMessage(const QString &message)
@@ -620,17 +619,20 @@ void MainWindow::loginSlot()
 {
     Login *login = new Login(this);
     if (login->exec() == KDialog::Accepted) {
-        m_login->setEnabled(false);
         showRequest(i18n("Logging in..."));
+        m_login->setEnabled(false);
     }
     delete login;
 }
 
 void MainWindow::logoutSlot()
 {
+    showRequest(i18n("Logging out..."));
+
     clearSoundQueue();
     m_logout->setEnabled(false);
-    showRequest(i18n("Logging out..."));
+    clearAllWidgets();
+
     //BEGIN: Spotify logout
     sp_session_logout(m_session);
     //END: Spotify logout
@@ -681,6 +683,8 @@ void MainWindow::repeatSlot()
 
 void MainWindow::performSearch()
 {
+    showRequest(i18n("Searching..."));
+
     QString query;
     switch (m_searchCategory->currentIndex()) {
         case 0: // All
@@ -705,7 +709,6 @@ void MainWindow::performSearch()
             Q_ASSERT(false);
             return;
     }
-    showRequest(i18n("Searching..."));
     sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, &SpotifySearch::dummySearchComplete, new QString(query));
 }
 

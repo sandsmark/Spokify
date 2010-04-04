@@ -22,6 +22,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
 
+#include <KIconEffect>
 #include <KStandardDirs>
 
 Slider::Slider(QWidget *parent)
@@ -39,7 +40,11 @@ Slider::Slider(QWidget *parent)
     m_leftBackground = m_leftBackground.scaledToHeight(24, Qt::SmoothTransformation);
     m_rightBackground = m_rightBackground.scaledToHeight(24, Qt::SmoothTransformation);
     m_bodyBackground = m_bodyBackground.scaledToHeight(24, Qt::SmoothTransformation);
+
     m_slider = m_slider.scaledToHeight(20, Qt::SmoothTransformation);
+
+    m_disabledSlider = m_slider;
+    KIconEffect::semiTransparent(m_disabledSlider);
 }
 
 Slider::~Slider()
@@ -102,7 +107,11 @@ void Slider::paintEvent(QPaintEvent *event)
     //BEGIN: slider element
     {
         double pos = (double) m_value / ((double) m_maximum - (double) m_minimum + 1.0);
-        p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
+        if (isEnabled()) {
+            p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
+        } else {
+            p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_disabledSlider);
+        }
     }
     //END: slider element
 }
