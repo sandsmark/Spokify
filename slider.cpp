@@ -36,6 +36,7 @@ Slider::Slider(QWidget *parent)
     , m_value(0)
 {
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    setMinimumSize(100, 24);
 
     m_leftBackground = m_leftBackground.scaledToHeight(24, Qt::SmoothTransformation);
     m_rightBackground = m_rightBackground.scaledToHeight(24, Qt::SmoothTransformation);

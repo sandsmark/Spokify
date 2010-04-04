@@ -32,8 +32,6 @@ public:
     PlayPauseButton(QWidget *parent = 0);
     virtual ~PlayPauseButton();
 
-    virtual QSize sizeHint() const;
-
     void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
 
