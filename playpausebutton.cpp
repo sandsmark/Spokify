@@ -32,8 +32,8 @@ PlayPauseButton::PlayPauseButton(QWidget *parent)
     const QString startPath = KStandardDirs::locate("appdata", "images/media-playback-start.png");
     const QString pausePath = KStandardDirs::locate("appdata", "images/media-playback-pause.png");
 
-    m_play = QPixmap::fromImage(QImage(startPath));
-    m_pause = QPixmap::fromImage(QImage(pausePath));
+    m_play = QPixmap(startPath);
+    m_pause = QPixmap(pausePath);
 
     QImage play(startPath);
     KIconEffect::toGamma(play, 0.5);

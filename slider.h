@@ -45,6 +45,7 @@ private:
     QPixmap m_rightBackground;
     QPixmap m_bodyBackground;
     QPixmap m_slider;
+    QPixmap m_disabledSlider;
 
     int     m_minimum;
     int     m_maximum;
