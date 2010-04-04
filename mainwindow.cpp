@@ -594,6 +594,7 @@ QWaitCondition &MainWindow::playCondition()
 void MainWindow::newChunk(const Chunk &chunk)
 {
     m_data.enqueue(chunk);
+    m_mainWidget->advanceCurrentCacheTrackTime(chunk.m_dataFrames);
 }
 
 Chunk MainWindow::nextChunk()

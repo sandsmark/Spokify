@@ -52,6 +52,7 @@ public:
 
     void setTotalTrackTime(int totalTrackTime);
     void advanceCurrentTrackTime(int frames);
+    void advanceCurrentCacheTrackTime(int frames);
 
 Q_SIGNALS:
     void play(const QModelIndex &index);

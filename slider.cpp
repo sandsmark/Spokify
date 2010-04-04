@@ -28,19 +28,26 @@
 Slider::Slider(QWidget *parent)
     : QWidget(parent)
     , m_leftBackground(KStandardDirs::locate("appdata", "images/slider_left.png"))
+    , m_leftForeground(KStandardDirs::locate("appdata", "images/slider_body_left.png"))
     , m_rightBackground(KStandardDirs::locate("appdata", "images/slider_right.png"))
+    , m_rightForeground(KStandardDirs::locate("appdata", "images/slider_body_right.png"))
     , m_bodyBackground(KStandardDirs::locate("appdata", "images/slider_body_background.png"))
+    , m_bodyForeground(KStandardDirs::locate("appdata", "images/slider_body.png"))
     , m_slider(KStandardDirs::locate("appdata", "images/slider.png"))
     , m_minimum(0)
     , m_maximum(0)
     , m_value(0)
+    , m_cacheValue(0)
 {
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     setMinimumSize(100, 24);
 
     m_leftBackground = m_leftBackground.scaledToHeight(24, Qt::SmoothTransformation);
+    m_leftForeground = m_leftForeground.scaledToHeight(10, Qt::SmoothTransformation);
     m_rightBackground = m_rightBackground.scaledToHeight(24, Qt::SmoothTransformation);
+    m_rightForeground = m_rightForeground.scaledToHeight(10, Qt::SmoothTransformation);
     m_bodyBackground = m_bodyBackground.scaledToHeight(24, Qt::SmoothTransformation);
+    m_bodyForeground = m_bodyForeground.scaledToHeight(10, Qt::SmoothTransformation);
 
     m_slider = m_slider.scaledToHeight(20, Qt::SmoothTransformation);
 
@@ -59,8 +66,12 @@ QSize Slider::sizeHint() const
 
 void Slider::setRange(int minimum, int maximum)
 {
+    const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
+    const double pos2 = ((double) m_cacheValue - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
     m_minimum = minimum;
     m_maximum = maximum;
+    m_value = ((double) pos * ((double) m_maximum - (double) m_minimum)) + (double) m_minimum;
+    m_cacheValue = ((double) pos2 * ((double) m_maximum - (double) m_minimum)) + (double) m_minimum;
     update();
 }
 
@@ -88,6 +99,20 @@ int Slider::value() const
     return m_value;
 }
 
+void Slider::setCacheValue(int value)
+{
+    if (value < m_minimum || value > m_maximum) {
+        return;
+    }
+    m_cacheValue = value;
+    update();
+}
+
+int Slider::cacheValue() const
+{
+    return m_cacheValue;
+}
+
 void Slider::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
@@ -105,9 +130,28 @@ void Slider::paintEvent(QPaintEvent *event)
     }
     //END: background painting
 
+    //BEGIN: cache painting
+    {
+        p.save();
+        p.translate(0, 7);
+        QRect clipRect(event->rect());
+        const double pos = ((double) m_cacheValue - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
+        clipRect.setWidth(clipRect.width() * pos);
+        p.setClipRect(clipRect);
+        QRect foregroundRect(event->rect());
+        foregroundRect.setLeft(foregroundRect.left() + m_leftForeground.width() + 7);
+        foregroundRect.setRight(foregroundRect.right() - m_rightForeground.width() - 7);
+        foregroundRect.setHeight(m_leftForeground.height());
+        p.fillRect(foregroundRect, m_bodyForeground);
+        p.drawPixmap(7, 0, m_leftForeground);
+        p.drawPixmap(foregroundRect.right() + 1, 0, m_rightForeground);
+        p.restore();
+    }
+    //END: cache painting
+
     //BEGIN: slider element
     {
-        double pos = (double) m_value / ((double) m_maximum - (double) m_minimum + 1.0);
+        const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
         if (isEnabled()) {
             p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
         } else {
