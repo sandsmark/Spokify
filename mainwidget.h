@@ -30,6 +30,8 @@ class QLabel;
 class QSlider;
 class QTabWidget;
 
+class KLineEdit;
+
 class Slider;
 class PlayPauseButton;
 
@@ -41,6 +43,9 @@ class MainWidget
 public:
     MainWidget(QWidget *parent = 0);
     virtual ~MainWidget();
+
+    void loggedIn();
+    void loggedOut();
 
     TrackModel *trackModel() const;
     TrackView *trackView() const;
@@ -59,6 +64,7 @@ private Q_SLOTS:
     void trackRequested(const QModelIndex &index);
 
 private:
+    KLineEdit       *m_filter;
     TrackView       *m_trackView;
     TrackModel      *m_trackModel;
     PlayPauseButton *m_playPauseButton;

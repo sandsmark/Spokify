@@ -111,6 +111,7 @@ private Q_SLOTS:
 
 private:
     void initSound();
+    void clearSoundQueue();
     QWidget *createSearchWidget();
     QWidget *createCoverWidget();
     void setupActions();

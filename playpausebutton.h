@@ -52,8 +52,10 @@ private:
     bool    m_isPlaying;
     QPixmap m_play;
     QPixmap m_hoveredPlay;
+    QPixmap m_disabledPlay;
     QPixmap m_pause;
     QPixmap m_hoveredPause;
+    QPixmap m_disabledPause;
 };
 
 #endif

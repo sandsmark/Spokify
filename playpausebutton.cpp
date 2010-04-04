@@ -28,16 +28,28 @@ PlayPauseButton::PlayPauseButton(QWidget *parent)
     : QWidget(parent)
     , m_hovered(false)
     , m_isPlaying(false)
-    , m_play(QPixmap::fromImage(QImage(KStandardDirs::locate("appdata", "images/media-playback-start.png"))))
-    , m_pause(QPixmap::fromImage(QImage(KStandardDirs::locate("appdata", "images/media-playback-pause.png"))))
 {
-    QImage play(KStandardDirs::locate("appdata", "images/media-playback-start.png"));
+    const QString startPath = KStandardDirs::locate("appdata", "images/media-playback-start.png");
+    const QString pausePath = KStandardDirs::locate("appdata", "images/media-playback-pause.png");
+
+    m_play = QPixmap::fromImage(QImage(startPath));
+    m_pause = QPixmap::fromImage(QImage(pausePath));
+
+    QImage play(startPath);
     KIconEffect::toGamma(play, 0.5);
     m_hoveredPlay = QPixmap::fromImage(play);
 
-    QImage pause(KStandardDirs::locate("appdata", "images/media-playback-pause.png"));
+    QImage disabledPlay(startPath);
+    KIconEffect::semiTransparent(disabledPlay);
+    m_disabledPlay = QPixmap::fromImage(disabledPlay);
+
+    QImage pause(pausePath);
     KIconEffect::toGamma(pause, 0.5);
     m_hoveredPause = QPixmap::fromImage(pause);
+
+    QImage disabledPause(pausePath);
+    KIconEffect::semiTransparent(disabledPause);
+    m_disabledPause = QPixmap::fromImage(disabledPause);
 }
 
 PlayPauseButton::~PlayPauseButton()
@@ -80,14 +92,26 @@ void PlayPauseButton::paintEvent(QPaintEvent *event)
 
     QPixmap pixmap;
 
-    if (m_isPlaying && m_hovered) {
-        pixmap = m_hoveredPause;
-    } else if (m_isPlaying && !m_hovered) {
-        pixmap = m_pause;
-    } else if (m_hovered) {
-        pixmap = m_hoveredPlay;
+    if (m_isPlaying) {
+        if (isEnabled()) {
+            if (m_hovered) {
+                pixmap = m_hoveredPause;
+            } else {
+                pixmap = m_pause;
+            }
+        } else {
+            pixmap = m_disabledPause;
+        }
     } else {
-        pixmap = m_play;
+        if (isEnabled()) {
+            if (m_hovered) {
+                pixmap = m_hoveredPlay;
+            } else {
+                pixmap = m_play;
+            }
+        } else {
+            pixmap = m_disabledPlay;
+        }
     }
 
     QPainter p(this);
@@ -96,6 +120,10 @@ void PlayPauseButton::paintEvent(QPaintEvent *event)
 
 void PlayPauseButton::mousePressEvent(QMouseEvent *event)
 {
+    if (!isEnabled()) {
+        return;
+    }
+
     if (m_isPlaying) {
         emit pause();
     } else {
