@@ -787,7 +787,9 @@ void MainWindow::clearAllWidgets()
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistView->setEnabled(false);
     m_searchCategory->setEnabled(false);
+    m_searchCategory->setCurrentIndex(0);
     m_searchField->setEnabled(false);
+    m_searchField->setText(QString());
     m_searchButton->setEnabled(false);
     m_cover->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
