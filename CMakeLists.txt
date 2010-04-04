@@ -17,7 +17,8 @@ set(spokify_SRCS
     playpausebutton.cpp
     coverlabel.cpp
     trackviewdelegate.cpp
-    trackview.cpp)
+    trackview.cpp
+    slider.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
@@ -35,4 +36,11 @@ install(FILES images/spotify-core-logo-128x128.png
               images/media-seek-backward.png
               images/media-seek-forward.png
               images/media-skip-backward.png
-              images/media-skip-forward.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
+              images/media-skip-forward.png
+              images/slider_left.png
+              images/slider_right.png
+              images/slider_body_background.png
+              images/slider_body_left.png
+              images/slider_body_right.png
+              images/slider_body.png
+              images/slider.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)

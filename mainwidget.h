@@ -30,6 +30,7 @@ class QLabel;
 class QSlider;
 class QTabWidget;
 
+class Slider;
 class PlayPauseButton;
 
 class MainWidget
@@ -61,7 +62,7 @@ private:
     TrackView       *m_trackView;
     TrackModel      *m_trackModel;
     PlayPauseButton *m_playPauseButton;
-    QSlider         *m_slider;
+    Slider          *m_slider;
     QLabel          *m_currTotalTime;
 };
 
