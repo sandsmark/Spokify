@@ -21,26 +21,9 @@
 TrackView::TrackView(QWidget *parent)
     : QTableView(parent)
 {
+    viewport()->setMouseTracking(true);
 }
 
 TrackView::~TrackView()
 {
-}
-
-void TrackView::enterEvent(QEvent *event)
-{
-    viewport()->update();
-    QTableView::enterEvent(event);
-}
-
-void TrackView::leaveEvent(QEvent *event)
-{
-    viewport()->update();
-    QTableView::leaveEvent(event);
-}
-
-void TrackView::mouseMoveEvent(QMouseEvent *event)
-{
-    viewport()->update();
-    QTableView::mouseMoveEvent(event);
 }
