@@ -635,7 +635,6 @@ void MainWindow::logoutSlot()
 {
     showRequest(i18n("Logging out..."));
 
-    setIsPlaying(false);
     clearSoundQueue();
     m_logout->setEnabled(false);
     clearAllWidgets();
@@ -831,6 +830,7 @@ void MainWindow::clearSoundQueue()
 {
     m_dataMutex.lock();
     if (m_isPlaying) {
+        m_isPlaying = false;
         sp_session_player_play(m_session, false);
         sp_session_player_unload(m_session);
         m_pcmMutex.lock();
