@@ -27,11 +27,6 @@ class TrackView
 public:
     TrackView(QWidget *parent = 0);
     virtual ~TrackView();
-
-protected:
-    virtual void enterEvent(QEvent *event);
-    virtual void leaveEvent(QEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
 };
 
 #endif
