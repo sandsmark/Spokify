@@ -529,7 +529,9 @@ void MainWindow::spotifyLoggedIn()
     m_login->setVisible(false);
     m_login->setEnabled(true);
     m_logout->setVisible(true);
+    m_playlistView->setEnabled(true);
     showTemporaryMessage(i18n("Logged in"));
+    m_mainWidget->loggedIn();
     fillPlaylistModel();
 }
 
@@ -626,6 +628,7 @@ void MainWindow::loginSlot()
 
 void MainWindow::logoutSlot()
 {
+    clearSoundQueue();
     m_logout->setEnabled(false);
     showRequest(i18n("Logging out..."));
     //BEGIN: Spotify logout
@@ -635,19 +638,10 @@ void MainWindow::logoutSlot()
 
 void MainWindow::playSlot(const QModelIndex &index)
 {
-    m_dataMutex.lock();
-    if (m_isPlaying) {
-        sp_session_player_play(m_session, false);
-        sp_session_player_unload(m_session);
-        m_pcmMutex.lock();
-        snd_pcm_drop(m_snd);
-        m_pcmMutex.unlock();
-        while (!m_data.isEmpty()) {
-            Chunk c = m_data.dequeue();
-            free(c.m_data);
-        }
+    if (!index.isValid()) {
+        return;
     }
-    m_dataMutex.unlock();
+    clearSoundQueue();
     setIsPlaying(true);
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
@@ -785,6 +779,8 @@ void MainWindow::clearAllWidgets()
     m_playlistView->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
     trackModel->removeRows(0, trackModel->rowCount());
+    m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
+    m_mainWidget->loggedOut();
 }
 
 void MainWindow::initSound()
@@ -815,6 +811,23 @@ void MainWindow::initSound()
     snd_pcm_sw_params_free(swParams);
 
     snd_pcm_prepare(m_snd);
+}
+
+void MainWindow::clearSoundQueue()
+{
+    m_dataMutex.lock();
+    if (m_isPlaying) {
+        sp_session_player_play(m_session, false);
+        sp_session_player_unload(m_session);
+        m_pcmMutex.lock();
+        snd_pcm_drop(m_snd);
+        m_pcmMutex.unlock();
+        while (!m_data.isEmpty()) {
+            Chunk c = m_data.dequeue();
+            free(c.m_data);
+        }
+    }
+    m_dataMutex.unlock();
 }
 
 QWidget *MainWindow::createSearchWidget()
@@ -902,7 +915,6 @@ void MainWindow::fillPlaylistModel()
         m_pc = sp_session_playlistcontainer(m_session);
         sp_playlistcontainer_add_callbacks(m_pc, &SpotifyPlaylistContainer::spotifyCallbacks, this);
     }
-    m_playlistView->setEnabled(true);
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistModel->insertRows(0, numPlaylists);

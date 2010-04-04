@@ -39,9 +39,9 @@
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
 {
-    KLineEdit *filter = new KLineEdit(this);
-    filter->setClickMessage(i18n("Filter by title, artist or album"));
-    filter->setClearButtonShown(true);
+    m_filter = new KLineEdit(this);
+    m_filter->setClickMessage(i18n("Filter by title, artist or album"));
+    m_filter->setClearButtonShown(true);
 
     m_trackView = new TrackView(this);
     m_trackView->verticalHeader()->hide();
@@ -71,14 +71,14 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_currTotalTime->setText("00:00 - 00:00");
 
-    connect(filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
+    connect(m_filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
     connect(m_playPauseButton, SIGNAL(pause()), this, SIGNAL(pause()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
 
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(filter);
+    layout->addWidget(m_filter);
     layout->addWidget(m_trackView);
     QHBoxLayout *hLayout = new QHBoxLayout;
     hLayout->addWidget(m_playPauseButton);
@@ -91,6 +91,25 @@ MainWidget::MainWidget(QWidget *parent)
 
 MainWidget::~MainWidget()
 {
+}
+
+void MainWidget::loggedIn()
+{
+    m_filter->setEnabled(true);
+    m_trackView->setEnabled(true);
+    m_playPauseButton->setEnabled(true);
+    m_slider->setEnabled(true);
+}
+
+void MainWidget::loggedOut()
+{
+    m_filter->setEnabled(false);
+    m_trackView->setEnabled(false);
+    m_playPauseButton->setEnabled(false);
+    m_playPauseButton->setIsPlaying(false);
+    m_slider->setEnabled(false);
+    m_slider->setValue(0);
+    m_currTotalTime->setText("00:00 - 00:00");
 }
 
 TrackModel *MainWidget::trackModel() const
