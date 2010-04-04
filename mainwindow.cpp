@@ -669,7 +669,6 @@ void MainWindow::playSlot(const QModelIndex &index)
 
 void MainWindow::pauseSlot()
 {
-    sp_session_player_play(m_session, false);
     setIsPlaying(false);
 }
 
@@ -677,7 +676,6 @@ void MainWindow::resumeSlot()
 {
     setIsPlaying(true);
     m_playCondition.wakeAll();
-    sp_session_player_play(m_session, true);
 }
 
 void MainWindow::shuffleSlot()
