@@ -29,6 +29,8 @@ PlayPauseButton::PlayPauseButton(QWidget *parent)
     , m_hovered(false)
     , m_isPlaying(false)
 {
+    setFixedSize(48, 48);
+
     const QString startPath = KStandardDirs::locate("appdata", "images/media-playback-start.png");
     const QString pausePath = KStandardDirs::locate("appdata", "images/media-playback-pause.png");
 
@@ -54,11 +56,6 @@ PlayPauseButton::PlayPauseButton(QWidget *parent)
 
 PlayPauseButton::~PlayPauseButton()
 {
-}
-
-QSize PlayPauseButton::sizeHint() const
-{
-    return QSize(48, 48);
 }
 
 void PlayPauseButton::setIsPlaying(bool isPlaying)
