@@ -127,6 +127,7 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
     m_slider->setRange(0, totalTrackTime * 44);
     m_slider->setValue(0);
+    m_slider->setCacheValue(0);
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
 }
 
