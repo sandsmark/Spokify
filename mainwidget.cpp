@@ -69,8 +69,6 @@ MainWidget::MainWidget(QWidget *parent)
     m_slider = new Slider(this);
     m_currTotalTime = new QLabel(this);
 
-    m_currTotalTime->setText("00:00 - 00:00");
-
     connect(m_filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
@@ -110,7 +108,7 @@ void MainWidget::loggedOut()
     m_playPauseButton->setIsPlaying(false);
     m_slider->setEnabled(false);
     m_slider->setValue(0);
-    m_currTotalTime->setText("00:00 - 00:00");
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>00:00</b>"));
     m_currTotalTime->setEnabled(false);
 }
 
@@ -128,13 +126,13 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
     m_slider->setRange(0, totalTrackTime * 44.0);
     m_slider->setValue(0);
-    m_currTotalTime->setText(i18n("00:00 - %1:%2").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
 }
 
 void MainWidget::advanceCurrentTrackTime(int frames)
 {
     m_slider->setValue(m_slider->value() + frames);
-    m_currTotalTime->setText(i18n("%1:%2 - %3:%4").arg((m_slider->value() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->value() / 44000) % 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) % 60, 2, 10, QLatin1Char('0')));
+    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((m_slider->value() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->value() / 44000) % 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) % 60, 2, 10, QLatin1Char('0')));
 }
 
 void MainWidget::sliderReleasedSlot()
