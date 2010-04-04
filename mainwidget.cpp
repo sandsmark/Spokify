@@ -17,6 +17,7 @@
  */
 
 #include "mainwidget.h"
+#include "slider.h"
 #include "trackview.h"
 #include "trackmodel.h"
 #include "playpausebutton.h"
@@ -25,7 +26,6 @@
 #include <math.h>
 
 #include <QtGui/QLabel>
-#include <QtGui/QSlider>
 #include <QtGui/QTabWidget>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
@@ -66,7 +66,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     m_playPauseButton = new PlayPauseButton(this);
 
-    m_slider = new QSlider(Qt::Horizontal, this);
+    m_slider = new Slider(this);
     m_currTotalTime = new QLabel(this);
 
     m_currTotalTime->setText("00:00 - 00:00");
@@ -84,6 +84,7 @@ MainWidget::MainWidget(QWidget *parent)
     hLayout->addWidget(m_playPauseButton);
     hLayout->addWidget(m_slider);
     hLayout->addWidget(m_currTotalTime);
+    hLayout->setStretchFactor(m_slider, 1);
     layout->addLayout(hLayout);
     setLayout(layout);
 }
