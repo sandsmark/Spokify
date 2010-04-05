@@ -48,7 +48,7 @@ void TrackView::paintEvent(QPaintEvent *event)
         QPainter p(viewport());
         QFont f(kapp->font());
         f.setBold(true);
-        f.setPointSize(f.pointSize() + 2);
+        f.setPointSize(f.pointSize() + 4);
         QFontMetrics fm(f);
         const QRect r = event->rect();
         if (isEnabled()) {
@@ -63,7 +63,7 @@ void TrackView::paintEvent(QPaintEvent *event)
         QRect textRect = event->rect();
         textRect.setTop(textRect.top() + m_information.height() / 2 + textRect.height() / 2 - fm.height());
         p.setFont(f);
-        p.drawText(textRect, Qt::AlignHCenter | Qt::AlignTop, i18n("Empty tracklist"));
+        p.drawText(textRect, Qt::AlignHCenter | Qt::AlignTop, i18n("Empty track list"));
         return;
     }
 
