@@ -18,12 +18,54 @@
 
 #include "trackview.h"
 
+#include <QtGui/QPainter>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QFontMetrics>
+
+#include <KLocale>
+#include <KIconEffect>
+#include <KApplication>
+#include <KStandardDirs>
+
 TrackView::TrackView(QWidget *parent)
     : QTableView(parent)
+    , m_information(KStandardDirs::locate("appdata", "images/dialog-information.png"))
 {
     viewport()->setMouseTracking(true);
+
+    QImage disabledInformation(KStandardDirs::locate("appdata", "images/dialog-information.png"));
+    KIconEffect::semiTransparent(disabledInformation);
+    m_disabledInformation = QPixmap::fromImage(disabledInformation);
 }
 
 TrackView::~TrackView()
 {
+}
+
+void TrackView::paintEvent(QPaintEvent *event)
+{
+    if (!model()->rowCount()) {
+        QPainter p(viewport());
+        QFont f(kapp->font());
+        f.setBold(true);
+        f.setPointSize(f.pointSize() + 2);
+        QFontMetrics fm(f);
+        const QRect r = event->rect();
+        if (isEnabled()) {
+            p.drawPixmap(r.width() / 2 - m_information.width() / 2,
+                         r.height() / 2 - m_information.height() / 2 - fm.height(),
+                         m_information);
+        } else {
+            p.drawPixmap(r.width() / 2 - m_information.width() / 2,
+                         r.height() / 2 - m_information.height() / 2 - fm.height(),
+                         m_disabledInformation);
+        }
+        QRect textRect = event->rect();
+        textRect.setTop(textRect.top() + m_information.height() / 2 + textRect.height() / 2 - fm.height());
+        p.setFont(f);
+        p.drawText(textRect, Qt::AlignHCenter | Qt::AlignTop, i18n("Empty tracklist"));
+        return;
+    }
+
+    QTableView::paintEvent(event);
 }
