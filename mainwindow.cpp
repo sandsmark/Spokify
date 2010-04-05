@@ -336,6 +336,10 @@ namespace SpotifySearch {
                 }
             }
             {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Duration);
+                trackModel->setData(index, sp_track_duration(tr));
+            }
+            {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
                 trackModel->setData(index, sp_track_popularity(tr));
             }
@@ -777,6 +781,10 @@ void MainWindow::playListChanged(const QModelIndex &index)
             if (album) {
                 trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
             }
+        }
+        {
+            const QModelIndex &index = trackModel->index(i, TrackModel::Duration);
+            trackModel->setData(index, sp_track_duration(tr));
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
