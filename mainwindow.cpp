@@ -432,9 +432,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     //BEGIN: Spotify session init
     {
+        const QByteArray settingsPath = KStandardDirs::locateLocal("appdata", "").toUtf8();
         m_config.api_version = SPOTIFY_API_VERSION;
-        m_config.cache_location = "tmp";
-        m_config.settings_location = "tmp";
+        m_config.cache_location = settingsPath.constData();
+        m_config.settings_location = settingsPath.constData();
         m_config.application_key = g_appkey;
         m_config.application_key_size = g_appkey_size;
         m_config.user_agent = "spokify";
