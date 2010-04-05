@@ -43,11 +43,11 @@ Slider::Slider(QWidget *parent)
     setMinimumSize(100, 24);
 
     m_leftBackground = m_leftBackground.scaledToHeight(24, Qt::SmoothTransformation);
-    m_leftForeground = m_leftForeground.scaledToHeight(10, Qt::SmoothTransformation);
+    m_leftForeground = m_leftForeground.scaledToHeight(12, Qt::SmoothTransformation);
     m_rightBackground = m_rightBackground.scaledToHeight(24, Qt::SmoothTransformation);
-    m_rightForeground = m_rightForeground.scaledToHeight(10, Qt::SmoothTransformation);
+    m_rightForeground = m_rightForeground.scaledToHeight(12, Qt::SmoothTransformation);
     m_bodyBackground = m_bodyBackground.scaledToHeight(24, Qt::SmoothTransformation);
-    m_bodyForeground = m_bodyForeground.scaledToHeight(10, Qt::SmoothTransformation);
+    m_bodyForeground = m_bodyForeground.scaledToHeight(12, Qt::SmoothTransformation);
 
     m_slider = m_slider.scaledToHeight(20, Qt::SmoothTransformation);
 
@@ -133,7 +133,7 @@ void Slider::paintEvent(QPaintEvent *event)
     //BEGIN: cache painting
     {
         p.save();
-        p.translate(0, 7);
+        p.translate(0, 6);
         QRect clipRect(event->rect());
         const double pos = ((double) m_cacheValue - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
         clipRect.setWidth(clipRect.width() * pos);
