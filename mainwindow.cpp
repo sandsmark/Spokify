@@ -161,6 +161,8 @@ namespace SpotifySession {
     static void playTokenLost(sp_session *session)
     {
         Q_UNUSED(session);
+
+        MainWindow::self()->spotifyPlayTokenLost();
     }
 
     static void logMessage(sp_session *session, const char *data)
@@ -517,11 +519,6 @@ void MainWindow::signalNotifyMainThread()
     emit notifyMainThreadSignal();
 }
 
-void MainWindow::setIsPlaying(bool isPlaying)
-{
-    m_isPlaying = isPlaying;
-}
-
 bool MainWindow::isPlaying() const
 {
     return m_isPlaying;
@@ -561,6 +558,11 @@ void MainWindow::spotifyLoggedOut()
     m_login->setVisible(true);
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
+}
+
+void MainWindow::spotifyPlayTokenLost()
+{
+    KMessageBox::sorry(this, i18n("Music is being played with this account at other client"), i18n("Account already being used"));
 }
 
 void MainWindow::showTemporaryMessage(const QString &message)
@@ -678,7 +680,7 @@ void MainWindow::playSlot(const QModelIndex &index)
         return;
     }
     clearSoundQueue();
-    setIsPlaying(true);
+    m_isPlaying = true;
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
@@ -690,18 +692,18 @@ void MainWindow::playSlot(const QModelIndex &index)
     sp_image *const cover = sp_image_create(m_session, image);
     sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
     sp_session_player_load(m_session, tr);
-    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
     sp_session_player_play(m_session, true);
+    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
 }
 
 void MainWindow::pauseSlot()
 {
-    setIsPlaying(false);
+    m_isPlaying = false;
 }
 
 void MainWindow::resumeSlot()
 {
-    setIsPlaying(true);
+    m_isPlaying = true;
     m_playCondition.wakeAll();
 }
 
