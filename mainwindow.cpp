@@ -171,6 +171,8 @@ namespace SpotifySession {
 
     static void endOfTrack(sp_session *session)
     {
+        Q_UNUSED(session);
+
         MainWindow::self()->endOfTrack();
     }
 

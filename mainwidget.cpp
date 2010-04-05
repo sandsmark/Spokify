@@ -136,10 +136,10 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
 void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
 {
     m_slider->setValue(m_slider->value() + chunk.m_dataFrames * 1000);
-    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((quint64) ((m_slider->value() / 44100000.0)) / 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->value() / 44100000.0)) % 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->maximum() / 44100000.0)) / 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->maximum() / 44100000.0)) % 60, 2, 10, QLatin1Char('0')));
+    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((quint64) ((m_slider->value() / (chunk.m_rate * 1000))) / 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->value() / (chunk.m_rate * 1000))) % 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->maximum() / (chunk.m_rate * 1000))) / 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->maximum() / (chunk.m_rate * 1000))) % 60, 2, 10, QLatin1Char('0')));
 }
 
 void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
