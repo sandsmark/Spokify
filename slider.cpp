@@ -64,7 +64,7 @@ QSize Slider::sizeHint() const
     return QSize(1, 24);
 }
 
-void Slider::setRange(int minimum, int maximum)
+void Slider::setRange(quint64 minimum, quint64 maximum)
 {
     const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
     const double pos2 = ((double) m_cacheValue - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
@@ -75,17 +75,17 @@ void Slider::setRange(int minimum, int maximum)
     update();
 }
 
-int Slider::maximum() const
+quint64 Slider::maximum() const
 {
     return m_maximum;
 }
 
-int Slider::minimum() const
+quint64 Slider::minimum() const
 {
     return m_minimum;
 }
 
-void Slider::setValue(int value)
+void Slider::setValue(quint64 value)
 {
     if (value < m_minimum || value > m_maximum) {
         return;
@@ -94,12 +94,12 @@ void Slider::setValue(int value)
     update();
 }
 
-int Slider::value() const
+quint64 Slider::value() const
 {
     return m_value;
 }
 
-void Slider::setCacheValue(int value)
+void Slider::setCacheValue(quint64 value)
 {
     if (value < m_minimum || value > m_maximum) {
         return;
@@ -108,7 +108,7 @@ void Slider::setCacheValue(int value)
     update();
 }
 
-int Slider::cacheValue() const
+quint64 Slider::cacheValue() const
 {
     return m_cacheValue;
 }

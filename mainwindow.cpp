@@ -150,6 +150,7 @@ namespace SpotifySession {
         c.m_data = malloc(numFrames * sizeof(int16_t) * format->channels);
         memcpy(c.m_data, frames, numFrames * sizeof(int16_t) * format->channels);
         c.m_dataFrames = numFrames;
+        c.m_rate = format->sample_rate;
         MainWindow::self()->newChunk(c);
         m.unlock();
         MainWindow::self()->pcmWaitCondition().wakeAll();
@@ -170,7 +171,7 @@ namespace SpotifySession {
 
     static void endOfTrack(sp_session *session)
     {
-        Q_UNUSED(session);
+        MainWindow::self()->endOfTrack();
     }
 
     static sp_session_callbacks spotifyCallbacks = {
@@ -389,6 +390,8 @@ MainWindow::MainWindow(QWidget *parent)
     , m_playlistModel(new PlaylistModel(this))
     , m_playlistView(new QListView(this))
 {
+    qRegisterMetaType<Chunk>();
+
     s_self = this;
 
     m_notifierItem->setCategory(KStatusNotifierItem::ApplicationStatus);
@@ -398,7 +401,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
-    connect(m_soundFeeder, SIGNAL(pcmWritten(int)), this, SLOT(pcmWrittenSlot(int)));
+    connect(m_soundFeeder, SIGNAL(pcmWritten(Chunk)), this, SLOT(pcmWrittenSlot(Chunk)));
     connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
     connect(m_mainWidget, SIGNAL(pause()), this, SLOT(pauseSlot()));
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
@@ -595,7 +598,7 @@ QWaitCondition &MainWindow::playCondition()
 void MainWindow::newChunk(const Chunk &chunk)
 {
     m_data.enqueue(chunk);
-    m_mainWidget->advanceCurrentCacheTrackTime(chunk.m_dataFrames);
+    m_mainWidget->advanceCurrentCacheTrackTime(chunk);
 }
 
 Chunk MainWindow::nextChunk()
@@ -606,6 +609,13 @@ Chunk MainWindow::nextChunk()
 bool MainWindow::hasChunk() const
 {
     return !m_data.isEmpty();
+}
+
+void MainWindow::endOfTrack()
+{
+    Chunk c;
+    c.m_dataFrames = -1;
+    m_mainWidget->advanceCurrentCacheTrackTime(c);
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -728,9 +738,9 @@ void MainWindow::performSearch()
     sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, &SpotifySearch::dummySearchComplete, new QString(query));
 }
 
-void MainWindow::pcmWrittenSlot(int frames)
+void MainWindow::pcmWrittenSlot(const Chunk &chunk)
 {
-    m_mainWidget->advanceCurrentTrackTime(frames);
+    m_mainWidget->advanceCurrentTrackTime(chunk);
 }
 
 void MainWindow::playListChanged(const QModelIndex &index)
@@ -820,7 +830,7 @@ void MainWindow::initSound()
     snd_pcm_hw_params_any(m_snd, hwParams);
     snd_pcm_hw_params_set_access(m_snd, hwParams, SND_PCM_ACCESS_RW_INTERLEAVED);
     snd_pcm_hw_params_set_format(m_snd, hwParams, SND_PCM_FORMAT_S16_LE);
-    snd_pcm_hw_params_set_rate(m_snd, hwParams, 44000, 0);
+    snd_pcm_hw_params_set_rate(m_snd, hwParams, 44100, 0);
     snd_pcm_hw_params_set_channels(m_snd, hwParams, 2);
     snd_pcm_hw_params_set_period_size_near(m_snd, hwParams, &periodSize, &d);
     snd_pcm_hw_params_set_buffer_size_near(m_snd, hwParams, &bufferSize);

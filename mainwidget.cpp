@@ -126,26 +126,34 @@ TrackView *MainWidget::trackView() const
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
 {
-    m_slider->setRange(0, totalTrackTime * 44);
+    m_slider->setRange(0, totalTrackTime * (quint64) 44100);
     m_slider->setValue(0);
     m_slider->setCacheValue(0);
-    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0')).arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
 }
 
-void MainWidget::advanceCurrentTrackTime(int frames)
+void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
 {
-    m_slider->setValue(m_slider->value() + frames);
-    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((m_slider->value() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->value() / 44000) % 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) / 60, 2, 10, QLatin1Char('0')).arg((m_slider->maximum() / 44000) % 60, 2, 10, QLatin1Char('0')));
+    m_slider->setValue(m_slider->value() + chunk.m_dataFrames * 1000);
+    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((quint64) ((m_slider->value() / 44100000.0)) / 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->value() / 44100000.0)) % 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->maximum() / 44100000.0)) / 60, 2, 10, QLatin1Char('0'))
+                                                                  .arg((quint64) ((m_slider->maximum() / 44100000.0)) % 60, 2, 10, QLatin1Char('0')));
 }
 
-void MainWidget::advanceCurrentCacheTrackTime(int frames)
+void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
 {
-    m_slider->setCacheValue(m_slider->cacheValue() + frames);
+    if (chunk.m_dataFrames != -1) {
+        m_slider->setCacheValue(m_slider->cacheValue() + chunk.m_dataFrames * 1000);
+    } else {
+        m_slider->setCacheValue(m_slider->maximum());
+    }
 }
 
 void MainWidget::sliderReleasedSlot()
 {
-    emit seekPosition(m_slider->value() / 44.0);
+    emit seekPosition(m_slider->value() / (quint64) 44100);
 }
 
 void MainWidget::trackRequested(const QModelIndex &index)

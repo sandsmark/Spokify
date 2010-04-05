@@ -21,8 +21,6 @@
 
 #include <QtGui/QTableView>
 
-class QSvgRenderer;
-
 class TrackView
     : public QTableView
 {

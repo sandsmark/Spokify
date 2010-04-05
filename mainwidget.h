@@ -19,6 +19,8 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
+#include "chunk.h"
+
 #include <QtCore/QModelIndex>
 
 #include <QtGui/QWidget>
@@ -51,8 +53,8 @@ public:
     TrackView *trackView() const;
 
     void setTotalTrackTime(int totalTrackTime);
-    void advanceCurrentTrackTime(int frames);
-    void advanceCurrentCacheTrackTime(int frames);
+    void advanceCurrentTrackTime(const Chunk &c);
+    void advanceCurrentCacheTrackTime(const Chunk &c);
 
 Q_SIGNALS:
     void play(const QModelIndex &index);
