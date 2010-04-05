@@ -118,7 +118,7 @@ bool TrackModel::setData(const QModelIndex &index, const QVariant &value, int ro
                     return false;
             }
             break;
-        case SpotifyNativeTrack:
+        case SpotifyNativeTrackRole:
             m_tracks[index.row()].m_track = value.value<sp_track*>();
             break;
         default:
@@ -142,6 +142,26 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                     return m_tracks[index.row()].m_artist;
                 case Album:
                     return m_tracks[index.row()].m_album;
+                case Duration: {
+                        const int duration = m_tracks[index.row()].m_duration;
+                        return i18n("%1:%2").arg((duration / 1000) / 60, 2, 10, QLatin1Char('0'))
+                                            .arg((duration / 1000) % 60, 2, 10, QLatin1Char('0'));
+                    }
+                case Popularity:
+                    return QString();
+                default:
+                    break;
+            }
+        case SpotifyNativeTrackRole:
+            return QVariant::fromValue<sp_track*>(m_tracks[index.row()].m_track);
+        case SortRole:
+            switch (index.column()) {
+                case Title:
+                    return m_tracks[index.row()].m_title;
+                case Artist:
+                    return m_tracks[index.row()].m_artist;
+                case Album:
+                    return m_tracks[index.row()].m_album;
                 case Duration:
                     return m_tracks[index.row()].m_duration;
                 case Popularity:
@@ -149,8 +169,6 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                 default:
                     break;
             }
-        case SpotifyNativeTrack:
-            return QVariant::fromValue<sp_track*>(m_tracks[index.row()].m_track);
         default:
             break;
     }
