@@ -384,7 +384,7 @@ namespace SpotifyImage {
 
         sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
         KNotification *notification = new KNotification("nowListening");
-        notification->setTitle(i18n("Now Playing"));
+        notification->setTitle(i18n("Spokify - Now Listening"));
         notification->setPixmap(QPixmap::fromImage(cover));
         notification->setText(i18n("Track: %1\nArtist: %2\nAlbum: %3\nPopularity: %4%").arg(QString::fromUtf8(sp_track_name(tr)))
                                                                                        .arg(QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0))))
