@@ -32,6 +32,7 @@ public:
         Title = 0,
         Artist,
         Album,
+        Duration,
         Popularity
     };
 
@@ -57,6 +58,7 @@ private:
         QString   m_title;
         QString   m_artist;
         QString   m_album;
+        int       m_duration;
         int       m_popularity;
         sp_track *m_track;
     };

@@ -42,6 +42,8 @@ QVariant TrackModel::headerData(int section, Qt::Orientation orientation, int ro
         case 2:
             return i18n("Album");
         case 3:
+            return i18n("Duration");
+        case 4:
             return i18n("Popularity");
         default:
             break;
@@ -106,6 +108,9 @@ bool TrackModel::setData(const QModelIndex &index, const QVariant &value, int ro
                 case Album:
                     m_tracks[index.row()].m_album = value.toString();
                     break;
+                case Duration:
+                    m_tracks[index.row()].m_duration = value.toInt();
+                    break;
                 case Popularity:
                     m_tracks[index.row()].m_popularity = value.toInt();
                     break;
@@ -137,6 +142,8 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                     return m_tracks[index.row()].m_artist;
                 case Album:
                     return m_tracks[index.row()].m_album;
+                case Duration:
+                    return m_tracks[index.row()].m_duration;
                 case Popularity:
                     return m_tracks[index.row()].m_popularity;
                 default:
@@ -161,5 +168,5 @@ int TrackModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 
-    return 4;
+    return 5;
 }
