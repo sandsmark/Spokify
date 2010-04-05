@@ -61,6 +61,7 @@ MainWidget::MainWidget(QWidget *parent)
     proxyModel->setFilterKeyColumn(-1);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setSourceModel(m_trackModel);
+    proxyModel->setSortRole(TrackModel::SortRole);
 
     m_trackView->setModel(proxyModel);
 

@@ -350,7 +350,7 @@ namespace SpotifySearch {
             }
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
             }
         }
         MainWindow::self()->showTemporaryMessage(i18n("Search complete"));
@@ -382,7 +382,7 @@ namespace SpotifyImage {
         const QImage cover = QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG");
         MainWindow::self()->setCurrentCover(cover);
 
-        sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+        sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
         KNotification *notification = new KNotification("nowListening");
         notification->setTitle(i18n("Spokify - Now Listening"));
         notification->setPixmap(QPixmap::fromImage(cover));
@@ -698,7 +698,7 @@ void MainWindow::playSlot(const QModelIndex &index)
     m_pcmMutex.unlock();
     m_coverLoading->start();
     m_cover->setMovie(m_coverLoading);
-    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     sp_album *const album = sp_track_album(tr);
     const byte *image = sp_album_cover(album);
     sp_image *const cover = sp_image_create(m_session, image);
@@ -808,7 +808,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
         }
     }
 }
