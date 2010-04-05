@@ -32,6 +32,7 @@
 #include <QtGui/QListView>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QDockWidget>
+#include <QtGui/QCloseEvent>
 #include <QtGui/QProgressBar>
 
 #include <KDebug>
@@ -611,6 +612,16 @@ void MainWindow::restoreStatusBarSlot()
 {
     m_progress->setVisible(false);
     m_statusLabel->setText(i18n("Ready"));
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    KMessageBox::information(this,
+                i18n( "<qt>Closing the main window will keep Spokify running in the System Tray. "
+                      "Use <B>Quit</B> from the menu, or the Spokify tray icon to exit the application.</qt>" ),
+                i18n( "Docking in System Tray" ), "hideOnCloseInfo" );
+    hide();
+    event->ignore();
 }
 
 void MainWindow::notifyMainThread()
