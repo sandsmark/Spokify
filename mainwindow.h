@@ -96,6 +96,9 @@ public Q_SLOTS:
 Q_SIGNALS:
     void notifyMainThreadSignal();
 
+protected:
+    virtual void closeEvent(QCloseEvent *event);
+
 private Q_SLOTS:
     void notifyMainThread();
     void loginSlot();
