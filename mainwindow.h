@@ -70,13 +70,13 @@ public:
 
     void signalNotifyMainThread();
 
-    void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
 
     void setCurrentCover(const QImage &cover);
 
     void spotifyLoggedIn();
     void spotifyLoggedOut();
+    void spotifyPlayTokenLost();
 
     void showTemporaryMessage(const QString &message);
     void showRequest(const QString &request);

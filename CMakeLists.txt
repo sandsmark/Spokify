@@ -25,7 +25,8 @@ kde4_add_executable(spokify ${spokify_SRCS})
 target_link_libraries(spokify ${KDE4_KDEUI_LIBS} ${LIBSPOTIFY_LIBRARIES} asound)
  
 install(TARGETS spokify DESTINATION ${BIN_INSTALL_DIR})
-install(FILES spokifyui.rc DESTINATION ${DATA_INSTALL_DIR}/spokify)
+install(FILES spokifyui.rc
+              spokify.notifyrc DESTINATION ${DATA_INSTALL_DIR}/spokify)
 install(FILES images/spotify-core-logo-128x128.png
               images/nocover-200x200.png
               images/nocover.svg

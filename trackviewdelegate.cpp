@@ -61,22 +61,15 @@ void TrackViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     opt.state &= ~QStyle::State_HasFocus;
 
-    if (index.column() == TrackModel::Popularity) {
-        painter->save();
-        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, 0);
-        painter->restore();
-    } else {
-        QStyledItemDelegate::paint(painter, opt, index);
-        return;
-    }
+    QStyledItemDelegate::paint(painter, opt, index);
 
-    {
+    if (index.column() == TrackModel::Popularity) {
         painter->save();
         QStyleOptionProgressBarV2 opt;
         opt.initFrom(tableView->viewport());
         opt.minimum = 0;
         opt.maximum = 100;
-        opt.progress = index.data().toInt();
+        opt.progress = index.data(TrackModel::SortRole).toInt();
         opt.rect = option.rect;
         opt.rect.setLeft(opt.rect.left() + 5);
         opt.rect.setTop(opt.rect.top() + 5);

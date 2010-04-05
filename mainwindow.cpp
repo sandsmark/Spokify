@@ -45,6 +45,7 @@
 #include <KPushButton>
 #include <KMessageBox>
 #include <KApplication>
+#include <KNotification>
 #include <KStandardDirs>
 #include <KStandardAction>
 #include <KActionCollection>
@@ -161,6 +162,8 @@ namespace SpotifySession {
     static void playTokenLost(sp_session *session)
     {
         Q_UNUSED(session);
+
+        MainWindow::self()->spotifyPlayTokenLost();
     }
 
     static void logMessage(sp_session *session, const char *data)
@@ -347,7 +350,7 @@ namespace SpotifySearch {
             }
             {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
             }
         }
         MainWindow::self()->showTemporaryMessage(i18n("Search complete"));
@@ -376,7 +379,18 @@ namespace SpotifyImage {
         QModelIndex index = *static_cast<QModelIndex*>(userdata);
         size_t dataSize = 0;
         const void *imageData = sp_image_data(image, &dataSize);
-        MainWindow::self()->setCurrentCover(QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG"));
+        const QImage cover = QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG");
+        MainWindow::self()->setCurrentCover(cover);
+
+        sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+        KNotification *notification = new KNotification("nowListening");
+        notification->setTitle(i18n("Spokify - Now Listening"));
+        notification->setPixmap(QPixmap::fromImage(cover));
+        notification->setText(i18n("Track: %1\nArtist: %2\nAlbum: %3\nPopularity: %4%").arg(QString::fromUtf8(sp_track_name(tr)))
+                                                                                       .arg(QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0))))
+                                                                                       .arg(QString::fromUtf8(sp_album_name(sp_track_album(tr))))
+                                                                                       .arg(sp_track_popularity(tr)));
+        notification->sendEvent();
     }
 
 }
@@ -518,11 +532,6 @@ void MainWindow::signalNotifyMainThread()
     emit notifyMainThreadSignal();
 }
 
-void MainWindow::setIsPlaying(bool isPlaying)
-{
-    m_isPlaying = isPlaying;
-}
-
 bool MainWindow::isPlaying() const
 {
     return m_isPlaying;
@@ -562,6 +571,11 @@ void MainWindow::spotifyLoggedOut()
     m_login->setVisible(true);
     m_logout->setVisible(false);
     m_logout->setEnabled(true);
+}
+
+void MainWindow::spotifyPlayTokenLost()
+{
+    KMessageBox::sorry(this, i18n("Music is being played with this account at other client"), i18n("Account already being used"));
 }
 
 void MainWindow::showTemporaryMessage(const QString &message)
@@ -679,30 +693,30 @@ void MainWindow::playSlot(const QModelIndex &index)
         return;
     }
     clearSoundQueue();
-    setIsPlaying(true);
+    m_isPlaying = true;
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     m_coverLoading->start();
     m_cover->setMovie(m_coverLoading);
-    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     sp_album *const album = sp_track_album(tr);
     const byte *image = sp_album_cover(album);
     sp_image *const cover = sp_image_create(m_session, image);
-    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, const_cast<QModelIndex*>(&index));
     sp_session_player_load(m_session, tr);
-    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
     sp_session_player_play(m_session, true);
+    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
 }
 
 void MainWindow::pauseSlot()
 {
-    setIsPlaying(false);
+    m_isPlaying = false;
 }
 
 void MainWindow::resumeSlot()
 {
-    setIsPlaying(true);
+    m_isPlaying = true;
     m_playCondition.wakeAll();
 }
 
@@ -795,7 +809,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
         }
         {
             const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrack);
+            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
         }
     }
 }
