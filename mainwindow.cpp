@@ -45,6 +45,7 @@
 #include <KPushButton>
 #include <KMessageBox>
 #include <KApplication>
+#include <KNotification>
 #include <KStandardDirs>
 #include <KStandardAction>
 #include <KActionCollection>
@@ -378,7 +379,18 @@ namespace SpotifyImage {
         QModelIndex index = *static_cast<QModelIndex*>(userdata);
         size_t dataSize = 0;
         const void *imageData = sp_image_data(image, &dataSize);
-        MainWindow::self()->setCurrentCover(QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG"));
+        const QImage cover = QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG");
+        MainWindow::self()->setCurrentCover(cover);
+
+        sp_track *const tr = index.data(TrackModel::SpotifyNativeTrack).value<sp_track*>();
+        KNotification *notification = new KNotification("nowListening");
+        notification->setTitle(i18n("Now Playing"));
+        notification->setPixmap(QPixmap::fromImage(cover));
+        notification->setText(i18n("Track: %1\nArtist: %2\nAlbum: %3\nPopularity: %4%").arg(QString::fromUtf8(sp_track_name(tr)))
+                                                                                       .arg(QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0))))
+                                                                                       .arg(QString::fromUtf8(sp_album_name(sp_track_album(tr))))
+                                                                                       .arg(sp_track_popularity(tr)));
+        notification->sendEvent();
     }
 
 }
@@ -690,7 +702,7 @@ void MainWindow::playSlot(const QModelIndex &index)
     sp_album *const album = sp_track_album(tr);
     const byte *image = sp_album_cover(album);
     sp_image *const cover = sp_image_create(m_session, image);
-    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, m_session);
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, const_cast<QModelIndex*>(&index));
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, true);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));

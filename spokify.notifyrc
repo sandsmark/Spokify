@@ -1,0 +1,8 @@
+[Global]
+IconName=preferences-desktop-text-to-speech
+Comment=Spokify
+
+[Event/nowListening]
+Name=Now Listening
+Comment=Now Listening
+Action=Popup
