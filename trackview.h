@@ -21,12 +21,21 @@
 
 #include <QtGui/QTableView>
 
+class QSvgRenderer;
+
 class TrackView
     : public QTableView
 {
 public:
     TrackView(QWidget *parent = 0);
     virtual ~TrackView();
+
+protected:
+    virtual void paintEvent(QPaintEvent *event);
+
+private:
+    QPixmap m_information;
+    QPixmap m_disabledInformation;
 };
 
 #endif
