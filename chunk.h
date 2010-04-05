@@ -19,10 +19,15 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+#include <QtCore/QMetaType>
+
 struct Chunk
 {
     void *m_data;
     int   m_dataFrames;
+    int   m_rate;
 };
+
+Q_DECLARE_METATYPE(Chunk)
 
 #endif

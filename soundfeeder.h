@@ -21,6 +21,8 @@
 
 #include <QtCore/QThread>
 
+#include "chunk.h"
+
 class SoundFeeder
     : public QThread
 {
@@ -31,7 +33,7 @@ public:
     virtual ~SoundFeeder();
 
 Q_SIGNALS:
-    void pcmWritten(int frames);
+    void pcmWritten(const Chunk &chunk);
 
 protected:
     virtual void run();

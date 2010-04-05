@@ -30,15 +30,15 @@ public:
 
     virtual QSize sizeHint() const;
 
-    void setRange(int minimum, int maximum);
-    int maximum() const;
-    int minimum() const;
+    void setRange(quint64 minimum, quint64 maximum);
+    quint64 maximum() const;
+    quint64 minimum() const;
 
-    void setValue(int value);
-    int value() const;
+    void setValue(quint64 value);
+    quint64 value() const;
 
-    void setCacheValue(int value);
-    int cacheValue() const;
+    void setCacheValue(quint64 value);
+    quint64 cacheValue() const;
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -53,10 +53,10 @@ private:
     QPixmap m_slider;
     QPixmap m_disabledSlider;
 
-    int     m_minimum;
-    int     m_maximum;
-    int     m_value;
-    int     m_cacheValue;
+    quint64 m_minimum;
+    quint64 m_maximum;
+    quint64 m_value;
+    quint64 m_cacheValue;
 };
 
 #endif

@@ -89,6 +89,7 @@ public:
     void newChunk(const Chunk &chunk);
     Chunk nextChunk();
     bool hasChunk() const;
+    void endOfTrack();
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -109,7 +110,7 @@ private Q_SLOTS:
     void shuffleSlot();
     void repeatSlot();
     void performSearch();
-    void pcmWrittenSlot(int frames);
+    void pcmWrittenSlot(const Chunk &chunk);
     void playListChanged(const QModelIndex &index);
     void seekPosition(int position);
 

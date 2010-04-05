@@ -54,7 +54,7 @@ void SoundFeeder::run()
         m2.unlock();
         free(c.m_data);
         if (MainWindow::self()->isPlaying()) {
-            emit pcmWritten(c.m_dataFrames);
+            emit pcmWritten(c);
         }
         usleep(10000);
     }
