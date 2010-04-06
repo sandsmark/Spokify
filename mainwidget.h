@@ -24,6 +24,7 @@
 #include <QtCore/QModelIndex>
 
 #include <QtGui/QWidget>
+#include <QtGui/QItemSelection>
 
 class TrackView;
 class TrackModel;
@@ -50,6 +51,8 @@ public:
     void loggedIn();
     void loggedOut();
 
+    void clearFilter();
+
     TrackModel *newTrackModel();
     TrackModel *trackModel() const;
     TrackModel *trackPlayingModel() const;
@@ -68,7 +71,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void pauseSlot();
     void sliderReleasedSlot();
-    void trackRequested(const QModelIndex &index);
+    void trackRequested(const QItemSelection &selection);
 
 private:
     KLineEdit             *m_filter;

@@ -71,11 +71,10 @@ public:
     QListView *playlistView() const;
 
     void signalNotifyMainThread();
+    void signalCoverLoaded(const QImage &cover);
 
     void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
-
-    void setCurrentCover(const QImage &cover);
 
     void spotifyLoggedIn();
 
@@ -113,6 +112,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void notifyMainThreadSignal();
     void newChunkReceived(const Chunk &chunk);
+    void coverLoaded(const QImage &cover);
 
 protected:
     virtual void closeEvent(QCloseEvent *event);
@@ -120,6 +120,7 @@ protected:
 private Q_SLOTS:
     void notifyMainThread();
     void newChunkReceivedSlot(const Chunk &chunk);
+    void coverLoadedSlot(const QImage &cover);
     void loginSlot();
     void logoutSlot();
     void playSlot(const QModelIndex &index);

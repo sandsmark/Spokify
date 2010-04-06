@@ -72,7 +72,7 @@ MainWidget::MainWidget(QWidget *parent)
     m_currTotalTime = new QLabel(this);
 
     connect(m_filter, SIGNAL(textChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString))); 
-    connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+    connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(trackRequested(QItemSelection)));
     connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
     connect(m_playPauseButton, SIGNAL(pause()), this, SLOT(pauseSlot()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
@@ -115,6 +115,11 @@ void MainWidget::loggedOut()
     m_slider->setCacheValue(0);
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>00:00</b>"));
     m_currTotalTime->setEnabled(false);
+}
+
+void MainWidget::clearFilter()
+{
+    m_filter->clear();
 }
 
 TrackModel *MainWidget::newTrackModel()
@@ -180,7 +185,7 @@ void MainWidget::sliderReleasedSlot()
     emit seekPosition(m_slider->value() / (quint64) 44100);
 }
 
-void MainWidget::trackRequested(const QModelIndex &index)
+void MainWidget::trackRequested(const QItemSelection &selection)
 {
     if (m_trackPlayingModel != m_trackModel) {
         delete m_trackPlayingModel;
@@ -188,5 +193,5 @@ void MainWidget::trackRequested(const QModelIndex &index)
     m_trackPlayingModel = m_trackModel;
     m_trackPlayingModel->setIsPlaying(true);
     m_playPauseButton->setIsPlaying(true);
-    emit play(index);
+    emit play(selection.indexes().first());
 }

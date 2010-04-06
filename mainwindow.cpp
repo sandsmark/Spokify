@@ -18,6 +18,7 @@
 
 #include "mainwindow.h"
 #include "login.h"
+#include "trackview.h"
 #include "trackmodel.h"
 #include "coverlabel.h"
 #include "mainwidget.h"
@@ -381,13 +382,13 @@ namespace SpotifyImage {
 
     void imageLoaded(sp_image *image, void *userdata)
     {
-        QModelIndex index = *static_cast<QModelIndex*>(userdata);
         size_t dataSize = 0;
         const void *imageData = sp_image_data(image, &dataSize);
         const QImage cover = QImage::fromData(static_cast<const uchar*>(imageData), dataSize, "JPEG");
-        MainWindow::self()->setCurrentCover(cover);
 
-        sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+        MainWindow::self()->signalCoverLoaded(cover);
+
+        sp_track *const tr = static_cast<sp_track*>(userdata);
         KNotification *notification = new KNotification("nowListening");
         notification->setTitle(i18n("Spokify - Now Listening"));
         notification->setPixmap(QPixmap::fromImage(cover));
@@ -427,6 +428,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
     connect(this, SIGNAL(newChunkReceived(Chunk)), this, SLOT(newChunkReceivedSlot(Chunk)), Qt::QueuedConnection);
+    connect(this, SIGNAL(coverLoaded(QImage)), this, SLOT(coverLoadedSlot(QImage)), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(Chunk)), this, SLOT(pcmWrittenSlot(Chunk)));
     connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
@@ -543,12 +545,6 @@ bool MainWindow::isPlaying() const
     return m_mainWidget->trackPlayingModel() && m_mainWidget->trackPlayingModel()->isPlaying();
 }
 
-void MainWindow::setCurrentCover(const QImage &cover)
-{
-    m_coverLoading->stop();
-    m_cover->setPixmap(QPixmap::fromImage(cover));
-}
-
 void MainWindow::spotifyLoggedIn()
 {
     showTemporaryMessage(i18n("Logged in"));
@@ -628,6 +624,12 @@ void MainWindow::newChunk(const Chunk &chunk)
     emit newChunkReceived(chunk);
 }
 
+void MainWindow::coverLoadedSlot(const QImage &cover)
+{
+    m_coverLoading->stop();
+    m_cover->setPixmap(QPixmap::fromImage(cover));
+}
+
 Chunk MainWindow::nextChunk()
 {
     return m_data.dequeue();
@@ -697,6 +699,11 @@ void MainWindow::notifyMainThread()
     QTimer::singleShot(timeout, this, SLOT(notifyMainThread()));
 }
 
+void MainWindow::signalCoverLoaded(const QImage &cover)
+{
+    emit coverLoaded(cover);
+}
+
 void MainWindow::newChunkReceivedSlot(const Chunk &chunk)
 {
     m_mainWidget->advanceCurrentCacheTrackTime(chunk);
@@ -740,7 +747,7 @@ void MainWindow::playSlot(const QModelIndex &index)
     sp_album *const album = sp_track_album(tr);
     const byte *image = sp_album_cover(album);
     sp_image *const cover = sp_image_create(m_session, image);
-    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, const_cast<QModelIndex*>(&index));
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, tr);
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, true);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
@@ -802,6 +809,8 @@ void MainWindow::playListChanged(const QModelIndex &index)
         return;
     }
 
+    m_mainWidget->clearFilter();
+
     TrackModel *const trackModel = m_mainWidget->newTrackModel();
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
@@ -859,9 +868,14 @@ void MainWindow::seekPosition(int position)
     sp_session_player_seek(m_session, position);
 }
 
-
 void MainWindow::currentTrackFinishedSlot()
 {
+    if (!m_mainWidget->trackPlayingModel()) {
+        return;
+    }
+    TrackView *const trackView = m_mainWidget->trackView();
+    const QModelIndex &currentIndex = trackView->currentIndex();
+    trackView->setCurrentIndex(trackView->model()->index(currentIndex.row() + 1, 0));
 }
 
 void MainWindow::clearAllWidgets()
