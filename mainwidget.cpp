@@ -38,6 +38,7 @@
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
+    , m_state(Stopped)
 {
     m_filter = new KLineEdit(this);
     m_filter->setClickMessage(i18n("Filter by title, artist or album"));
@@ -72,8 +73,9 @@ MainWidget::MainWidget(QWidget *parent)
     m_currTotalTime = new QLabel(this);
 
     connect(m_filter, SIGNAL(textChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString))); 
-    connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(trackRequested(QItemSelection)));
-    connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
+    connect(m_trackView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
+    connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+    connect(m_playPauseButton, SIGNAL(play()), this, SLOT(playSlot()));
     connect(m_playPauseButton, SIGNAL(pause()), this, SLOT(pauseSlot()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
     connect(m_slider, SIGNAL(maximumReached()), this, SIGNAL(currentTrackFinished()));
@@ -98,13 +100,13 @@ void MainWidget::loggedIn()
 {
     m_filter->setEnabled(true);
     m_trackView->setEnabled(true);
-    m_playPauseButton->setEnabled(true);
     m_slider->setEnabled(true);
     m_currTotalTime->setEnabled(true);
 }
 
 void MainWidget::loggedOut()
 {
+    m_state = Stopped;
     m_filter->setEnabled(false);
     m_filter->setText(QString());
     m_trackView->setEnabled(false);
@@ -174,9 +176,25 @@ void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
     }
 }
 
+void MainWidget::playSlot()
+{
+    if (!m_trackView->currentIndex().isValid()) {
+        return;
+    }
+    if (m_state == Stopped) {
+        trackRequested(m_trackView->currentIndex());
+    } else {
+        m_state = Playing;
+        emit resume();
+    }
+}
+
 void MainWidget::pauseSlot()
 {
-    Q_ASSERT(m_trackPlayingModel);
+    if (!m_trackPlayingModel) {
+        return;
+    }
+    m_state = Paused;
     m_trackPlayingModel->setIsPlaying(false);
 }
 
@@ -185,15 +203,22 @@ void MainWidget::sliderReleasedSlot()
     emit seekPosition(m_slider->value() / (quint64) 44100);
 }
 
-void MainWidget::trackRequested(const QItemSelection &selection)
+void MainWidget::trackRequested(const QModelIndex &index)
 {
-    if (!selection.isEmpty()) {
-        if (m_trackPlayingModel != m_trackModel) {
-            delete m_trackPlayingModel;
-        }
-        m_trackPlayingModel = m_trackModel;
-        m_trackPlayingModel->setIsPlaying(true);
-        m_playPauseButton->setIsPlaying(true);
-        emit play(selection.indexes().first());
+    if (!index.isValid()) {
+        return;
     }
+    m_state = Playing;
+    if (m_trackPlayingModel != m_trackModel) {
+        delete m_trackPlayingModel;
+    }
+    m_trackPlayingModel = m_trackModel;
+    m_trackPlayingModel->setIsPlaying(true);
+    m_playPauseButton->setIsPlaying(true);
+    emit play(index);
+}
+
+void MainWidget::selectionChangedSlot(const QItemSelection &selection)
+{
+    m_playPauseButton->setEnabled(!selection.isEmpty());
 }

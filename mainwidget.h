@@ -69,11 +69,20 @@ Q_SIGNALS:
     void currentTrackFinished();
 
 private Q_SLOTS:
+    void playSlot();
     void pauseSlot();
     void sliderReleasedSlot();
-    void trackRequested(const QItemSelection &selection);
+    void trackRequested(const QModelIndex &index);
+    void selectionChangedSlot(const QItemSelection &selection);
 
 private:
+    enum State {
+        Stopped = 0,
+        Playing,
+        Paused
+    };
+
+    State                  m_state;
     KLineEdit             *m_filter;
     TrackView             *m_trackView;
     TrackModel            *m_trackModel;
