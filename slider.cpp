@@ -23,6 +23,7 @@
 #include <QtGui/QPaintEvent>
 
 #include <KIconEffect>
+#include <KApplication>
 #include <KStandardDirs>
 
 #define LIBSPOTIFY_BUG 1
@@ -164,7 +165,7 @@ void Slider::paintEvent(QPaintEvent *event)
             const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
             clipRect.setWidth(pos * (event->rect().width() - m_slider.width() - 6) + 3);
             p.setClipRect(clipRect);
-            p.fillRect(event->rect(), Qt::blue);
+            p.fillRect(event->rect(), kapp->palette().highlight());
             p.restore();
         }
     }
