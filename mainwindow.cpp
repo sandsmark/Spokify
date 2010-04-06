@@ -314,8 +314,7 @@ namespace SpotifySearch {
         Q_UNUSED(userdata);
 
         MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
-        TrackModel *const trackModel = MainWindow::self()->mainWidget()->trackModel();
-        trackModel->removeRows(0, trackModel->rowCount());
+        TrackModel *const trackModel = MainWindow::self()->mainWidget()->newTrackModel();
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
@@ -399,7 +398,6 @@ namespace SpotifyImage {
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
     , m_soundFeeder(new SoundFeeder(this))
-    , m_isPlaying(false)
     , m_isExiting(false)
     , m_pc(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
@@ -423,9 +421,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(Chunk)), this, SLOT(pcmWrittenSlot(Chunk)));
     connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
-    connect(m_mainWidget, SIGNAL(pause()), this, SLOT(pauseSlot()));
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
+    connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
 
     setCentralWidget(m_mainWidget);
     setupActions();
@@ -534,7 +532,7 @@ void MainWindow::signalNotifyMainThread()
 
 bool MainWindow::isPlaying() const
 {
-    return m_isPlaying;
+    return m_mainWidget->trackPlayingModel() && m_mainWidget->trackPlayingModel()->isPlaying();
 }
 
 void MainWindow::setCurrentCover(const QImage &cover)
@@ -693,7 +691,6 @@ void MainWindow::playSlot(const QModelIndex &index)
         return;
     }
     clearSoundQueue();
-    m_isPlaying = true;
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
@@ -709,14 +706,9 @@ void MainWindow::playSlot(const QModelIndex &index)
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
 }
 
-void MainWindow::pauseSlot()
-{
-    m_isPlaying = false;
-}
-
 void MainWindow::resumeSlot()
 {
-    m_isPlaying = true;
+    m_mainWidget->trackPlayingModel()->setIsPlaying(true);
     m_playCondition.wakeAll();
 }
 
@@ -770,8 +762,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
         return;
     }
 
-    TrackModel *const trackModel = m_mainWidget->trackModel();
-    trackModel->removeRows(0, trackModel->rowCount());
+    TrackModel *const trackModel = m_mainWidget->newTrackModel();
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
     const int numTracks = sp_playlist_num_tracks(curr);
@@ -827,6 +818,11 @@ void MainWindow::seekPosition(int position)
     sp_session_player_seek(m_session, position);
 }
 
+
+void MainWindow::currentTrackFinishedSlot()
+{
+}
+
 void MainWindow::clearAllWidgets()
 {
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
@@ -876,8 +872,7 @@ void MainWindow::initSound()
 void MainWindow::clearSoundQueue()
 {
     m_dataMutex.lock();
-    if (m_isPlaying) {
-        m_isPlaying = false;
+    if (isPlaying()) {
         sp_session_player_play(m_session, false);
         sp_session_player_unload(m_session);
         m_pcmMutex.lock();

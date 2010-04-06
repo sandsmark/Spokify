@@ -56,25 +56,27 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setSortingEnabled(true);
 
     m_trackModel = new TrackModel(this);
+    m_trackPlayingModel = 0;
 
-    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setFilterKeyColumn(-1);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    proxyModel->setSourceModel(m_trackModel);
-    proxyModel->setSortRole(TrackModel::SortRole);
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setFilterKeyColumn(-1);
+    m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxyModel->setSourceModel(m_trackModel);
+    m_proxyModel->setSortRole(TrackModel::SortRole);
 
-    m_trackView->setModel(proxyModel);
+    m_trackView->setModel(m_proxyModel);
 
     m_playPauseButton = new PlayPauseButton(this);
 
     m_slider = new Slider(this);
     m_currTotalTime = new QLabel(this);
 
-    connect(m_filter, SIGNAL(textChanged(QString)), proxyModel, SLOT(setFilterFixedString(QString))); 
+    connect(m_filter, SIGNAL(textChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString))); 
     connect(m_trackView, SIGNAL(activated(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_playPauseButton, SIGNAL(play()), this, SIGNAL(resume()));
-    connect(m_playPauseButton, SIGNAL(pause()), this, SIGNAL(pause()));
+    connect(m_playPauseButton, SIGNAL(pause()), this, SLOT(pauseSlot()));
     connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
+    connect(m_slider, SIGNAL(maximumReached()), this, SIGNAL(currentTrackFinished()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(m_filter);
@@ -115,9 +117,24 @@ void MainWidget::loggedOut()
     m_currTotalTime->setEnabled(false);
 }
 
+TrackModel *MainWidget::newTrackModel()
+{
+    if (m_trackModel && m_trackModel != m_trackPlayingModel) {
+        m_trackModel->deleteLater();
+    }
+    m_trackModel = new TrackModel(this);
+    m_proxyModel->setSourceModel(m_trackModel);
+    return m_trackModel;
+}
+
 TrackModel *MainWidget::trackModel() const
 {
     return m_trackModel;
+}
+
+TrackModel *MainWidget::trackPlayingModel() const
+{
+    return m_trackPlayingModel;
 }
 
 TrackView *MainWidget::trackView() const
@@ -152,6 +169,12 @@ void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
     }
 }
 
+void MainWidget::pauseSlot()
+{
+    Q_ASSERT(m_trackPlayingModel);
+    m_trackPlayingModel->setIsPlaying(false);
+}
+
 void MainWidget::sliderReleasedSlot()
 {
     emit seekPosition(m_slider->value() / (quint64) 44100);
@@ -159,6 +182,9 @@ void MainWidget::sliderReleasedSlot()
 
 void MainWidget::trackRequested(const QModelIndex &index)
 {
+    delete m_trackPlayingModel;
+    m_trackPlayingModel = m_trackModel;
+    m_trackPlayingModel->setIsPlaying(true);
     m_playPauseButton->setIsPlaying(true);
     emit play(index);
 }

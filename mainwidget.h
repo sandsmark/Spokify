@@ -31,6 +31,7 @@ class TrackModel;
 class QLabel;
 class QSlider;
 class QTabWidget;
+class QSortFilterProxyModel;
 
 class KLineEdit;
 
@@ -49,7 +50,9 @@ public:
     void loggedIn();
     void loggedOut();
 
+    TrackModel *newTrackModel();
     TrackModel *trackModel() const;
+    TrackModel *trackPlayingModel() const;
     TrackView *trackView() const;
 
     void setTotalTrackTime(int totalTrackTime);
@@ -58,21 +61,24 @@ public:
 
 Q_SIGNALS:
     void play(const QModelIndex &index);
-    void pause();
     void resume();
     void seekPosition(int position);
+    void currentTrackFinished();
 
 private Q_SLOTS:
+    void pauseSlot();
     void sliderReleasedSlot();
     void trackRequested(const QModelIndex &index);
 
 private:
-    KLineEdit       *m_filter;
-    TrackView       *m_trackView;
-    TrackModel      *m_trackModel;
-    PlayPauseButton *m_playPauseButton;
-    Slider          *m_slider;
-    QLabel          *m_currTotalTime;
+    KLineEdit             *m_filter;
+    TrackView             *m_trackView;
+    TrackModel            *m_trackModel;
+    TrackModel            *m_trackPlayingModel;
+    QSortFilterProxyModel *m_proxyModel;
+    PlayPauseButton       *m_playPauseButton;
+    Slider                *m_slider;
+    QLabel                *m_currTotalTime;
 };
 
 #endif
