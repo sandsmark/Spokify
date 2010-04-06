@@ -187,11 +187,13 @@ void MainWidget::sliderReleasedSlot()
 
 void MainWidget::trackRequested(const QItemSelection &selection)
 {
-    if (m_trackPlayingModel != m_trackModel) {
-        delete m_trackPlayingModel;
+    if (!selection.isEmpty()) {
+        if (m_trackPlayingModel != m_trackModel) {
+            delete m_trackPlayingModel;
+        }
+        m_trackPlayingModel = m_trackModel;
+        m_trackPlayingModel->setIsPlaying(true);
+        m_playPauseButton->setIsPlaying(true);
+        emit play(selection.indexes().first());
     }
-    m_trackPlayingModel = m_trackModel;
-    m_trackPlayingModel->setIsPlaying(true);
-    m_playPauseButton->setIsPlaying(true);
-    emit play(selection.indexes().first());
 }
