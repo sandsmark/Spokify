@@ -16,4 +16,4 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#error YOU NEED TO COPY YOUR OWN API KEY HERE. PLEASE, READ HOW_TO_DEVELOP FILE
+#error YOU NEED TO COPY YOUR OWN APPLICATION KEY HERE. PLEASE, READ HOW_TO_DEVELOP FILE
