@@ -154,6 +154,8 @@ private:
     sp_session           *m_session;
     sp_playlistcontainer *m_pc;
 
+    sp_playlist          *m_currentPlaylist;
+
     KAction              *m_login;
     KAction              *m_logout;
     KAction              *m_shuffle;
