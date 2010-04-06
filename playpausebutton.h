@@ -21,8 +21,6 @@
 
 #include <QtGui/QWidget>
 
-#include <QtGui/QPixmap>
-
 class PlayPauseButton
     : public QWidget
 {
@@ -48,12 +46,12 @@ protected:
 private:
     bool    m_hovered;
     bool    m_isPlaying;
-    QPixmap m_play;
-    QPixmap m_hoveredPlay;
-    QPixmap m_disabledPlay;
-    QPixmap m_pause;
-    QPixmap m_hoveredPause;
-    QPixmap m_disabledPause;
+    QImage  m_play;
+    QImage  m_hoveredPlay;
+    QImage  m_disabledPlay;
+    QImage  m_pause;
+    QImage  m_hoveredPause;
+    QImage  m_disabledPause;
 };
 
 #endif
