@@ -139,13 +139,15 @@ namespace SpotifySession {
         MainWindow::self()->signalNotifyMainThread();
     }
 
-    static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames, int numFrames)
+    static int musicDelivery(sp_session *session, const sp_audioformat *format, const void *frames, int numFrames_)
     {
         Q_UNUSED(session);
 
-        if (!numFrames) {
+        if (!numFrames_) {
             return 0;
         }
+
+        const int numFrames = qMin(numFrames_, 44100);
 
         QMutex &m = MainWindow::self()->dataMutex();
         m.lock();
