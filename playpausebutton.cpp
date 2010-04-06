@@ -117,13 +117,14 @@ void PlayPauseButton::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (m_isPlaying) {
+    const bool isPlaying = m_isPlaying;
+    m_isPlaying = !m_isPlaying;
+
+    if (isPlaying) {
         emit pause();
     } else {
         emit play();
     }
-
-    m_isPlaying = !m_isPlaying;
 
     QWidget::mousePressEvent(event);
     update();
