@@ -118,6 +118,8 @@ namespace SpotifySession {
     static void metadataUpdated(sp_session *session)
     {
         Q_UNUSED(session);
+
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static void connectionError(sp_session *session, sp_error error)
@@ -147,7 +149,7 @@ namespace SpotifySession {
             return 0;
         }
 
-        const int numFrames = qMin(numFrames_, 44100);
+        const int numFrames = qMin(numFrames_, 8192);
 
         QMutex &m = MainWindow::self()->dataMutex();
         m.lock();
@@ -644,6 +646,24 @@ void MainWindow::endOfTrack()
 #endif
 }
 
+void MainWindow::fillPlaylistModel()
+{
+    if (!m_pc) {
+        m_pc = sp_session_playlistcontainer(m_session);
+        sp_playlistcontainer_add_callbacks(m_pc, &SpotifyPlaylistContainer::spotifyCallbacks, this);
+    }
+    const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
+    m_playlistModel->removeRows(0, m_playlistModel->rowCount());
+    m_playlistModel->insertRows(0, numPlaylists);
+    for (int i = 0; i < numPlaylists; ++i) {
+        sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
+        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
+        const QModelIndex &index = m_playlistModel->index(i);
+        m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
+        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
+    }
+}
+
 void MainWindow::restoreStatusBarSlot()
 {
     m_progress->setVisible(false);
@@ -975,22 +995,4 @@ void MainWindow::setupActions()
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
     setupGUI(Default, "spokifyui.rc");
-}
-
-void MainWindow::fillPlaylistModel()
-{
-    if (!m_pc) {
-        m_pc = sp_session_playlistcontainer(m_session);
-        sp_playlistcontainer_add_callbacks(m_pc, &SpotifyPlaylistContainer::spotifyCallbacks, this);
-    }
-    const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
-    m_playlistModel->removeRows(0, m_playlistModel->rowCount());
-    m_playlistModel->insertRows(0, numPlaylists);
-    for (int i = 0; i < numPlaylists; ++i) {
-        sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
-        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
-        const QModelIndex &index = m_playlistModel->index(i);
-        m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
-        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
-    }
 }
