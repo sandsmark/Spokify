@@ -25,6 +25,8 @@
 #include <KIconEffect>
 #include <KStandardDirs>
 
+#define LIBSPOTIFY_BUG 1
+
 Slider::Slider(QWidget *parent)
     : QWidget(parent)
     , m_leftBackground(KStandardDirs::locate("appdata", "images/slider_left.png"))
@@ -91,6 +93,15 @@ void Slider::setValue(quint64 value)
         return;
     }
     m_value = value;
+#if LIBSPOTIFY_BUG
+    if (m_value >= m_maximum * 0.99) {
+        emit maximumReached();
+    }
+#else
+    if (m_value == m_maximum) {
+        emit maximumReached();
+    }
+#endif
     update();
 }
 

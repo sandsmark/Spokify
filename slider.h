@@ -24,6 +24,8 @@
 class Slider
     : public QWidget
 {
+    Q_OBJECT
+
 public:
     Slider(QWidget *parent = 0);
     virtual ~Slider();
@@ -39,6 +41,10 @@ public:
 
     void setCacheValue(quint64 value);
     quint64 cacheValue() const;
+
+Q_SIGNALS:
+    void sliderReleased();
+    void maximumReached();
 
 protected:
     virtual void paintEvent(QPaintEvent *event);

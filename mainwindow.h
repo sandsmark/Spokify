@@ -70,6 +70,7 @@ public:
 
     void signalNotifyMainThread();
 
+    void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
 
     void setCurrentCover(const QImage &cover);
@@ -105,7 +106,6 @@ private Q_SLOTS:
     void loginSlot();
     void logoutSlot();
     void playSlot(const QModelIndex &index);
-    void pauseSlot();
     void resumeSlot();
     void shuffleSlot();
     void repeatSlot();
@@ -113,6 +113,7 @@ private Q_SLOTS:
     void pcmWrittenSlot(const Chunk &chunk);
     void playListChanged(const QModelIndex &index);
     void seekPosition(int position);
+    void currentTrackFinishedSlot();
 
 private:
     void initSound();
@@ -131,7 +132,6 @@ private:
     QWaitCondition        m_playCondition;
     QQueue<Chunk>         m_data;
     SoundFeeder          *m_soundFeeder;
-    bool                  m_isPlaying;
     bool                  m_isExiting;
 
     sp_session_config     m_config;
@@ -157,6 +157,7 @@ private:
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
+    int                   m_currentTrack;
     QListView            *m_playlistView;
 };
  

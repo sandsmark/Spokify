@@ -44,6 +44,9 @@ public:
     TrackModel(QObject *parent = 0);
     virtual ~TrackModel();
 
+    void setIsPlaying(bool isPlaying);
+    bool isPlaying() const;
+
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex parent(const QModelIndex &index) const;
@@ -64,6 +67,7 @@ private:
         sp_track *m_track;
     };
     QList<Entry> m_tracks;
+    bool         m_isPlaying;
 };
 
 Q_DECLARE_METATYPE(sp_track*)
