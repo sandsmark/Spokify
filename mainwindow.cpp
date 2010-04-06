@@ -406,6 +406,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_soundFeeder(new SoundFeeder(this))
     , m_isExiting(false)
     , m_pc(0)
+    , m_currentPlaylist(0)
     , m_statusLabel(new QLabel(i18n("Ready"), this))
     , m_progress(new QProgressBar(this))
     , m_notifierItem(new KStatusNotifierItem(i18n("Spokify"), this))
@@ -655,12 +656,19 @@ void MainWindow::fillPlaylistModel()
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistModel->insertRows(0, numPlaylists);
+    int currRow = -1;
     for (int i = 0; i < numPlaylists; ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
+        if (pl == m_currentPlaylist) {
+            currRow = i;
+        }
         sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
+    }
+    if (currRow != -1) {
+        m_playlistView->setCurrentIndex(m_playlistModel->index(currRow, 0));
     }
 }
 
@@ -797,6 +805,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
     TrackModel *const trackModel = m_mainWidget->newTrackModel();
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
+    m_currentPlaylist = curr;
     const int numTracks = sp_playlist_num_tracks(curr);
     trackModel->insertRows(0, numTracks);
     for (int i = 0; i < numTracks; ++i) {
