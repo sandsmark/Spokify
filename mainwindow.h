@@ -105,6 +105,8 @@ public:
 
     void endOfTrack();
 
+    void fillPlaylistModel();
+
 public Q_SLOTS:
     void restoreStatusBarSlot();
 
@@ -137,7 +139,6 @@ private:
     QWidget *createCoverWidget();
     void setupActions();
     void clearAllWidgets();
-    void fillPlaylistModel();
 
 private:
     snd_pcm_t            *m_snd;
