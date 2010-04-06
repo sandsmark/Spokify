@@ -182,7 +182,9 @@ void MainWidget::sliderReleasedSlot()
 
 void MainWidget::trackRequested(const QModelIndex &index)
 {
-    delete m_trackPlayingModel;
+    if (m_trackPlayingModel != m_trackModel) {
+        delete m_trackPlayingModel;
+    }
     m_trackPlayingModel = m_trackModel;
     m_trackPlayingModel->setIsPlaying(true);
     m_playPauseButton->setIsPlaying(true);

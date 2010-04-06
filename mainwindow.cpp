@@ -51,6 +51,8 @@
 #include <KActionCollection>
 #include <KStatusNotifierItem>
 
+#define LIBSPOTIFY_BUG 1
+
 MainWindow *MainWindow::s_self = 0;
 
 //BEGIN: SpotifySession - application bridge
@@ -419,6 +421,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
+    connect(this, SIGNAL(newChunkReceived(Chunk)), this, SLOT(newChunkReceivedSlot(Chunk)), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(Chunk)), this, SLOT(pcmWrittenSlot(Chunk)));
     connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
@@ -617,7 +620,7 @@ QWaitCondition &MainWindow::playCondition()
 void MainWindow::newChunk(const Chunk &chunk)
 {
     m_data.enqueue(chunk);
-    m_mainWidget->advanceCurrentCacheTrackTime(chunk);
+    emit newChunkReceived(chunk);
 }
 
 Chunk MainWindow::nextChunk()
@@ -632,9 +635,11 @@ bool MainWindow::hasChunk() const
 
 void MainWindow::endOfTrack()
 {
+#if LIBSPOTIFY_BUG
     Chunk c;
     c.m_dataFrames = -1;
     m_mainWidget->advanceCurrentCacheTrackTime(c);
+#endif
 }
 
 void MainWindow::restoreStatusBarSlot()
@@ -660,6 +665,11 @@ void MainWindow::notifyMainThread()
         sp_session_process_events(m_session, &timeout);
     } while (!timeout);
     QTimer::singleShot(timeout, this, SLOT(notifyMainThread()));
+}
+
+void MainWindow::newChunkReceivedSlot(const Chunk &chunk)
+{
+    m_mainWidget->advanceCurrentCacheTrackTime(chunk);
 }
 
 void MainWindow::loginSlot()

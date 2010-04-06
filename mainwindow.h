@@ -65,7 +65,9 @@ public:
     sp_session *session() const;
 
     static MainWindow *self();
+
     MainWidget *mainWidget() const;
+
     QListView *playlistView() const;
 
     void signalNotifyMainThread();
@@ -76,20 +78,31 @@ public:
     void setCurrentCover(const QImage &cover);
 
     void spotifyLoggedIn();
+
     void spotifyLoggedOut();
+
     void spotifyPlayTokenLost();
 
     void showTemporaryMessage(const QString &message);
+
     void showRequest(const QString &request);
 
     snd_pcm_t *pcmHandle() const;
+
     QMutex &pcmMutex();
+
     QMutex &dataMutex();
+
     QWaitCondition &pcmWaitCondition();
+
     QWaitCondition &playCondition();
+
     void newChunk(const Chunk &chunk);
+
     Chunk nextChunk();
+
     bool hasChunk() const;
+
     void endOfTrack();
 
 public Q_SLOTS:
@@ -97,12 +110,14 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void notifyMainThreadSignal();
+    void newChunkReceived(const Chunk &chunk);
 
 protected:
     virtual void closeEvent(QCloseEvent *event);
 
 private Q_SLOTS:
     void notifyMainThread();
+    void newChunkReceivedSlot(const Chunk &chunk);
     void loginSlot();
     void logoutSlot();
     void playSlot(const QModelIndex &index);
