@@ -136,8 +136,8 @@ void Slider::paintEvent(QPaintEvent *event)
         backgroundRect.setRight(backgroundRect.right() - m_rightBackground.width());
         p.fillRect(backgroundRect, m_bodyBackground);
 
-        p.drawPixmap(0, 0, m_leftBackground);
-        p.drawPixmap(backgroundRect.right() + 1, 0, m_rightBackground);
+        p.drawImage(0, 0, m_leftBackground);
+        p.drawImage(backgroundRect.right() + 1, 0, m_rightBackground);
     }
     //END: background painting
 
@@ -154,8 +154,8 @@ void Slider::paintEvent(QPaintEvent *event)
         foregroundRect.setRight(foregroundRect.right() - m_rightForeground.width() - 7);
         foregroundRect.setHeight(m_leftForeground.height());
         p.fillRect(foregroundRect, m_bodyForeground);
-        p.drawPixmap(7, 0, m_leftForeground);
-        p.drawPixmap(foregroundRect.right() + 1, 0, m_rightForeground);
+        p.drawImage(7, 0, m_leftForeground);
+        p.drawImage(foregroundRect.right() + 1, 0, m_rightForeground);
         p.restore();
         {
             p.save();
@@ -174,9 +174,9 @@ void Slider::paintEvent(QPaintEvent *event)
     {
         const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
         if (isEnabled()) {
-            p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
+            p.drawImage(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
         } else {
-            p.drawPixmap(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_disabledSlider);
+            p.drawImage(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_disabledSlider);
         }
     }
     //END: slider element

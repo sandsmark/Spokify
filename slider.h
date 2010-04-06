@@ -50,14 +50,14 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
-    QPixmap m_leftBackground;
-    QPixmap m_leftForeground;
-    QPixmap m_rightBackground;
-    QPixmap m_rightForeground;
-    QPixmap m_bodyBackground;
-    QPixmap m_bodyForeground;
-    QPixmap m_slider;
-    QPixmap m_disabledSlider;
+    QImage m_leftBackground;
+    QImage m_leftForeground;
+    QImage m_rightBackground;
+    QImage m_rightForeground;
+    QImage m_bodyBackground;
+    QImage m_bodyForeground;
+    QImage m_slider;
+    QImage m_disabledSlider;
 
     quint64 m_minimum;
     quint64 m_maximum;

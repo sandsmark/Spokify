@@ -32,8 +32,8 @@ protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
-    QPixmap m_information;
-    QPixmap m_disabledInformation;
+    QImage m_information;
+    QImage m_disabledInformation;
 };
 
 #endif
