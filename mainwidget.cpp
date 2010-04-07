@@ -57,7 +57,6 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setSortingEnabled(true);
 
     m_trackModel = new TrackModel(this);
-    m_trackPlayingModel = 0;
 
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setFilterKeyColumn(-1);
@@ -126,7 +125,7 @@ void MainWidget::clearFilter()
 
 TrackModel *MainWidget::newTrackModel()
 {
-    if (m_trackModel && m_trackModel != m_trackPlayingModel) {
+    if (m_trackModel) {
         m_trackModel->deleteLater();
     }
     m_trackModel = new TrackModel(this);
@@ -139,14 +138,19 @@ TrackModel *MainWidget::trackModel() const
     return m_trackModel;
 }
 
-TrackModel *MainWidget::trackPlayingModel() const
-{
-    return m_trackPlayingModel;
-}
-
 TrackView *MainWidget::trackView() const
 {
     return m_trackView;
+}
+
+void MainWidget::setState(State state)
+{
+    m_state = state;
+}
+
+MainWidget::State MainWidget::state() const
+{
+    return m_state;
 }
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
@@ -191,11 +195,7 @@ void MainWidget::playSlot()
 
 void MainWidget::pauseSlot()
 {
-    if (!m_trackPlayingModel) {
-        return;
-    }
     m_state = Paused;
-    m_trackPlayingModel->setIsPlaying(false);
 }
 
 void MainWidget::sliderReleasedSlot()
@@ -209,11 +209,6 @@ void MainWidget::trackRequested(const QModelIndex &index)
         return;
     }
     m_state = Playing;
-    if (m_trackPlayingModel != m_trackModel) {
-        delete m_trackPlayingModel;
-    }
-    m_trackPlayingModel = m_trackModel;
-    m_trackPlayingModel->setIsPlaying(true);
     m_playPauseButton->setIsPlaying(true);
     emit play(index);
 }

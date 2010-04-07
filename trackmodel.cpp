@@ -22,22 +22,11 @@
 
 TrackModel::TrackModel(QObject *parent)
     : QAbstractItemModel(parent)
-    , m_isPlaying(false)
 {
 }
 
 TrackModel::~TrackModel()
 {
-}
-
-void TrackModel::setIsPlaying(bool isPlaying)
-{
-    m_isPlaying = isPlaying;
-}
-
-bool TrackModel::isPlaying() const
-{
-    return m_isPlaying;
 }
 
 QVariant TrackModel::headerData(int section, Qt::Orientation orientation, int role) const
