@@ -59,7 +59,7 @@ public:
 
     void clearFilter();
 
-    TrackModel *newTrackModel();
+    TrackModel *clearTrackModel();
     TrackModel *trackModel() const;
     TrackView *trackView() const;
 

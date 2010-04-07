@@ -322,7 +322,7 @@ namespace SpotifySearch {
         Q_UNUSED(userdata);
 
         MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
-        TrackModel *const trackModel = MainWindow::self()->mainWidget()->newTrackModel();
+        TrackModel *const trackModel = MainWindow::self()->mainWidget()->clearTrackModel();
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
@@ -745,8 +745,8 @@ void MainWindow::playSlot(const QModelIndex &index)
     const QSortFilterProxyModel *const proxyModel = static_cast<const QSortFilterProxyModel*>(index.model());
     const int rowCount = proxyModel->rowCount();
     for (int i = 1; i < rowCount; ++i) {
-        const QModelIndex &index = proxyModel->index((index.row() + i) % rowCount, 0);
-        m_trackQueue.enqueue(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+        const QModelIndex &idx = proxyModel->index((index.row() + i) % rowCount, 0);
+        m_trackQueue.enqueue(idx.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
     }
 }
 
@@ -808,7 +808,7 @@ void MainWindow::playListChanged(const QModelIndex &index)
 
     m_mainWidget->clearFilter();
 
-    TrackModel *const trackModel = m_mainWidget->newTrackModel();
+    TrackModel *const trackModel = m_mainWidget->clearTrackModel();
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
     m_currentPlaylist = curr;
