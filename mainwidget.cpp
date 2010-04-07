@@ -123,13 +123,9 @@ void MainWidget::clearFilter()
     m_filter->clear();
 }
 
-TrackModel *MainWidget::newTrackModel()
+TrackModel *MainWidget::clearTrackModel()
 {
-    if (m_trackModel) {
-        m_trackModel->deleteLater();
-    }
-    m_trackModel = new TrackModel(this);
-    m_proxyModel->setSourceModel(m_trackModel);
+    m_trackModel->removeRows(0, m_trackModel->rowCount());
     return m_trackModel;
 }
 
