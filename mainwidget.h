@@ -45,6 +45,12 @@ class MainWidget
     Q_OBJECT
 
 public:
+    enum State {
+        Stopped = 0,
+        Playing,
+        Paused
+    };
+
     MainWidget(QWidget *parent = 0);
     virtual ~MainWidget();
 
@@ -55,8 +61,10 @@ public:
 
     TrackModel *newTrackModel();
     TrackModel *trackModel() const;
-    TrackModel *trackPlayingModel() const;
     TrackView *trackView() const;
+
+    void setState(State state);
+    State state() const;
 
     void setTotalTrackTime(int totalTrackTime);
     void advanceCurrentTrackTime(const Chunk &c);
@@ -76,17 +84,10 @@ private Q_SLOTS:
     void selectionChangedSlot(const QItemSelection &selection);
 
 private:
-    enum State {
-        Stopped = 0,
-        Playing,
-        Paused
-    };
-
     State                  m_state;
     KLineEdit             *m_filter;
     TrackView             *m_trackView;
     TrackModel            *m_trackModel;
-    TrackModel            *m_trackPlayingModel;
     QSortFilterProxyModel *m_proxyModel;
     PlayPauseButton       *m_playPauseButton;
     Slider                *m_slider;

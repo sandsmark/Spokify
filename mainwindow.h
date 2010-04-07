@@ -134,6 +134,7 @@ private Q_SLOTS:
     void currentTrackFinishedSlot();
 
 private:
+    void play(sp_track *track);
     void initSound();
     void clearSoundQueue();
     QWidget *createSearchWidget();
@@ -156,6 +157,7 @@ private:
     sp_playlistcontainer *m_pc;
 
     sp_playlist          *m_currentPlaylist;
+    QQueue<sp_track*>     m_trackQueue;
 
     KAction              *m_login;
     KAction              *m_logout;

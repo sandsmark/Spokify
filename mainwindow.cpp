@@ -35,6 +35,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QProgressBar>
+#include <QtGui/QSortFilterProxyModel>
 
 #include <KDebug>
 #include <KAction>
@@ -542,7 +543,7 @@ void MainWindow::signalNotifyMainThread()
 
 bool MainWindow::isPlaying() const
 {
-    return m_mainWidget->trackPlayingModel() && m_mainWidget->trackPlayingModel()->isPlaying();
+    return m_mainWidget->state() == MainWidget::Playing;
 }
 
 void MainWindow::spotifyLoggedIn()
@@ -737,25 +738,21 @@ void MainWindow::playSlot(const QModelIndex &index)
     if (!index.isValid()) {
         return;
     }
-    clearSoundQueue();
-    m_pcmMutex.lock();
-    snd_pcm_prepare(m_snd);
-    m_pcmMutex.unlock();
-    m_coverLoading->start();
-    m_cover->setMovie(m_coverLoading);
-    sp_track *const tr = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
-    sp_album *const album = sp_track_album(tr);
-    const byte *image = sp_album_cover(album);
-    sp_image *const cover = sp_image_create(m_session, image);
-    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, tr);
-    sp_session_player_load(m_session, tr);
-    sp_session_player_play(m_session, true);
-    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
+
+    play(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+
+    m_trackQueue.clear();
+    const QSortFilterProxyModel *const proxyModel = static_cast<const QSortFilterProxyModel*>(index.model());
+    const int rowCount = proxyModel->rowCount();
+    for (int i = 1; i < rowCount; ++i) {
+        const QModelIndex &index = proxyModel->index((index.row() + i) % rowCount, 0);
+        m_trackQueue.enqueue(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    }
 }
 
 void MainWindow::resumeSlot()
 {
-    m_mainWidget->trackPlayingModel()->setIsPlaying(true);
+    m_mainWidget->setState(MainWidget::Playing);
     m_playCondition.wakeAll();
 }
 
@@ -870,12 +867,9 @@ void MainWindow::seekPosition(int position)
 
 void MainWindow::currentTrackFinishedSlot()
 {
-    if (!m_mainWidget->trackPlayingModel()) {
-        return;
+    if (!m_trackQueue.isEmpty()) {
+        play(m_trackQueue.dequeue());
     }
-    TrackView *const trackView = m_mainWidget->trackView();
-    const QModelIndex &currentIndex = trackView->currentIndex();
-    trackView->setCurrentIndex(trackView->model()->index(currentIndex.row() + 1, 0));
 }
 
 void MainWindow::clearAllWidgets()
@@ -892,6 +886,24 @@ void MainWindow::clearAllWidgets()
     trackModel->removeRows(0, trackModel->rowCount());
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_mainWidget->loggedOut();
+}
+
+void MainWindow::play(sp_track *tr)
+{
+    clearSoundQueue();
+    m_pcmMutex.lock();
+    snd_pcm_prepare(m_snd);
+    m_pcmMutex.unlock();
+    m_coverLoading->start();
+    m_cover->setMovie(m_coverLoading);
+
+    sp_album *const album = sp_track_album(tr);
+    const byte *image = sp_album_cover(album);
+    sp_image *const cover = sp_image_create(m_session, image);
+    sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, tr);
+    sp_session_player_load(m_session, tr);
+    sp_session_player_play(m_session, true);
+    m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
 }
 
 void MainWindow::initSound()
