@@ -322,7 +322,7 @@ namespace SpotifySearch {
         Q_UNUSED(userdata);
 
         MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
-        TrackModel *const trackModel = MainWindow::self()->mainWidget()->trackModel(result);
+        TrackModel *const trackModel = MainWindow::self()->mainWidget()->collection(result).trackModel;
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
@@ -801,44 +801,47 @@ void MainWindow::playListChanged(const QModelIndex &index)
     m_mainWidget->clearFilter();
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
-    TrackModel *const trackModel = m_mainWidget->trackModel(curr);
+    MainWidget::Collection c = m_mainWidget->collection(curr);
     m_currentPlaylist = curr;
-    const int numTracks = sp_playlist_num_tracks(curr);
-    trackModel->insertRows(0, numTracks);
-    for (int i = 0; i < numTracks; ++i) {
-        sp_track *const tr = sp_playlist_track(curr, i);
-        if (!tr || !sp_track_is_loaded(tr)) {
-            continue;
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-            trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
-            sp_artist *const artist = sp_track_artist(tr, 0);
-            if (artist) {
-                trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+    if (c.needsToBeFilled) {
+        TrackModel *const trackModel = c.trackModel;
+        const int numTracks = sp_playlist_num_tracks(curr);
+        trackModel->insertRows(0, numTracks);
+        for (int i = 0; i < numTracks; ++i) {
+            sp_track *const tr = sp_playlist_track(curr, i);
+            if (!tr || !sp_track_is_loaded(tr)) {
+                continue;
             }
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Album);
-            sp_album *const album = sp_track_album(tr);
-            if (album) {
-                trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, QString::fromUtf8(sp_track_name(tr)));
             }
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Duration);
-            trackModel->setData(index, sp_track_duration(tr));
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
-            trackModel->setData(index, sp_track_popularity(tr));
-        }
-        {
-            const QModelIndex &index = trackModel->index(i, TrackModel::Title);
-            trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Artist);
+                sp_artist *const artist = sp_track_artist(tr, 0);
+                if (artist) {
+                    trackModel->setData(index, QString::fromUtf8(sp_artist_name(artist)));
+                }
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Album);
+                sp_album *const album = sp_track_album(tr);
+                if (album) {
+                    trackModel->setData(index, QString::fromUtf8(sp_album_name(album)));
+                }
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Duration);
+                trackModel->setData(index, sp_track_duration(tr));
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Popularity);
+                trackModel->setData(index, sp_track_popularity(tr));
+            }
+            {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
+            }
         }
     }
 }
@@ -870,7 +873,7 @@ void MainWindow::clearAllWidgets()
     m_searchField->setText(QString());
     m_searchButton->setEnabled(false);
     m_cover->setEnabled(false);
-    TrackModel *trackModel = m_mainWidget->trackModel();
+    TrackModel *trackModel = m_mainWidget->currentCollection().trackModel;
     if (trackModel) {
         trackModel->removeRows(0, trackModel->rowCount());
     }

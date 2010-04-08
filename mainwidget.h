@@ -53,6 +53,18 @@ public:
         Paused
     };
 
+    struct Collection {
+        Collection()
+            : proxyModel(0)
+            , trackModel(0)
+        {
+        }
+
+        QSortFilterProxyModel *proxyModel;
+        TrackModel            *trackModel;
+        bool                   needsToBeFilled;
+    };
+
     MainWidget(QWidget *parent = 0);
     virtual ~MainWidget();
 
@@ -61,9 +73,9 @@ public:
 
     void clearFilter();
 
-    TrackModel *trackModel(sp_playlist *playlist);
-    TrackModel *trackModel(sp_search *search);
-    TrackModel *trackModel();
+    Collection collection(sp_playlist *playlist);
+    Collection collection(sp_search *search);
+    Collection currentCollection();
     TrackView *trackView() const;
 
     void setState(State state);
@@ -90,13 +102,13 @@ private:
     State                            m_state;
     KLineEdit                       *m_filter;
     TrackView                       *m_trackView;
-    TrackModel                      *m_currentTrackModel;
-    QSortFilterProxyModel           *m_proxyModel;
     PlayPauseButton                 *m_playPauseButton;
     Slider                          *m_slider;
     QLabel                          *m_currTotalTime;
-    QHash<sp_playlist*, TrackModel*> m_trackModelPlaylistCache;
-    QHash<sp_search*, TrackModel*>   m_trackModelSearchCache;
+
+    QHash<sp_playlist*, Collection> m_trackModelPlaylistCache;
+    QHash<sp_search*, Collection>   m_trackModelSearchCache;
+    Collection                     *m_currentCollection;
 };
 
 #endif

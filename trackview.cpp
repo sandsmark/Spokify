@@ -43,7 +43,7 @@ TrackView::~TrackView()
 
 void TrackView::paintEvent(QPaintEvent *event)
 {
-    if (!model()->rowCount()) {
+    if (!model() || !model()->rowCount()) {
         QPainter p(viewport());
         QFont f(kapp->font());
         f.setBold(true);
