@@ -39,6 +39,7 @@
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , m_state(Stopped)
+    , m_currentTrackModel(0)
 {
     m_filter = new KLineEdit(this);
     m_filter->setClickMessage(i18n("Filter by title, artist or album"));
@@ -56,12 +57,9 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setItemDelegate(new TrackViewDelegate(m_trackView));
     m_trackView->setSortingEnabled(true);
 
-    m_trackModel = new TrackModel(this);
-
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setFilterKeyColumn(-1);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_proxyModel->setSourceModel(m_trackModel);
     m_proxyModel->setSortRole(TrackModel::SortRole);
 
     m_trackView->setModel(m_proxyModel);
@@ -123,15 +121,33 @@ void MainWidget::clearFilter()
     m_filter->clear();
 }
 
-TrackModel *MainWidget::clearTrackModel()
+TrackModel *MainWidget::trackModel(sp_playlist *playlist)
 {
-    m_trackModel->removeRows(0, m_trackModel->rowCount());
-    return m_trackModel;
+    if (m_trackModelPlaylistCache.contains(playlist)) {
+        return m_trackModelPlaylistCache[playlist];
+    }
+    TrackModel *const trackModel = new TrackModel(m_trackView);
+    m_trackModelPlaylistCache[playlist] = trackModel;
+    m_currentTrackModel = trackModel;
+    m_proxyModel->setSourceModel(trackModel);
+    return trackModel;
 }
 
-TrackModel *MainWidget::trackModel() const
+TrackModel *MainWidget::trackModel(sp_search *search)
 {
-    return m_trackModel;
+    if (m_trackModelSearchCache.contains(search)) {
+        return m_trackModelSearchCache[search];
+    }
+    TrackModel *const trackModel = new TrackModel(m_trackView);
+    m_trackModelSearchCache[search] = trackModel;
+    m_currentTrackModel = trackModel;
+    m_proxyModel->setSourceModel(trackModel);
+    return trackModel;
+}
+
+TrackModel *MainWidget::trackModel()
+{
+    return m_currentTrackModel;
 }
 
 TrackView *MainWidget::trackView() const

@@ -322,7 +322,7 @@ namespace SpotifySearch {
         Q_UNUSED(userdata);
 
         MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
-        TrackModel *const trackModel = MainWindow::self()->mainWidget()->clearTrackModel();
+        TrackModel *const trackModel = MainWindow::self()->mainWidget()->trackModel(result);
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
@@ -800,9 +800,8 @@ void MainWindow::playListChanged(const QModelIndex &index)
 
     m_mainWidget->clearFilter();
 
-    TrackModel *const trackModel = m_mainWidget->clearTrackModel();
-
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
+    TrackModel *const trackModel = m_mainWidget->trackModel(curr);
     m_currentPlaylist = curr;
     const int numTracks = sp_playlist_num_tracks(curr);
     trackModel->insertRows(0, numTracks);
@@ -872,7 +871,9 @@ void MainWindow::clearAllWidgets()
     m_searchButton->setEnabled(false);
     m_cover->setEnabled(false);
     TrackModel *trackModel = m_mainWidget->trackModel();
-    trackModel->removeRows(0, trackModel->rowCount());
+    if (trackModel) {
+        trackModel->removeRows(0, trackModel->rowCount());
+    }
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_mainWidget->loggedOut();
 }
