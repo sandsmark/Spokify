@@ -26,6 +26,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
 
+#include <spotify/api.h>
+
 class TrackView;
 class TrackModel;
 
@@ -59,8 +61,9 @@ public:
 
     void clearFilter();
 
-    TrackModel *clearTrackModel();
-    TrackModel *trackModel() const;
+    TrackModel *trackModel(sp_playlist *playlist);
+    TrackModel *trackModel(sp_search *search);
+    TrackModel *trackModel();
     TrackView *trackView() const;
 
     void setState(State state);
@@ -84,14 +87,16 @@ private Q_SLOTS:
     void selectionChangedSlot(const QItemSelection &selection);
 
 private:
-    State                  m_state;
-    KLineEdit             *m_filter;
-    TrackView             *m_trackView;
-    TrackModel            *m_trackModel;
-    QSortFilterProxyModel *m_proxyModel;
-    PlayPauseButton       *m_playPauseButton;
-    Slider                *m_slider;
-    QLabel                *m_currTotalTime;
+    State                            m_state;
+    KLineEdit                       *m_filter;
+    TrackView                       *m_trackView;
+    TrackModel                      *m_currentTrackModel;
+    QSortFilterProxyModel           *m_proxyModel;
+    PlayPauseButton                 *m_playPauseButton;
+    Slider                          *m_slider;
+    QLabel                          *m_currTotalTime;
+    QHash<sp_playlist*, TrackModel*> m_trackModelPlaylistCache;
+    QHash<sp_search*, TrackModel*>   m_trackModelSearchCache;
 };
 
 #endif
