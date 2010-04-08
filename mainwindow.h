@@ -158,7 +158,6 @@ private:
     sp_playlistcontainer *m_pc;
 
     sp_playlist          *m_currentPlaylist;
-    QQueue<sp_track*>     m_trackQueue;
 
     KAction              *m_login;
     KAction              *m_logout;
@@ -179,7 +178,6 @@ private:
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
-    int                   m_currentTrack;
     QListView            *m_playlistView;
 };
  
