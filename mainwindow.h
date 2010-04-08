@@ -71,6 +71,7 @@ public:
     QListView *playlistView() const;
 
     void signalNotifyMainThread();
+
     void signalCoverLoaded(const QImage &cover);
 
     void setIsPlaying(bool isPlaying);
