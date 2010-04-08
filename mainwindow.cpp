@@ -740,14 +740,6 @@ void MainWindow::playSlot(const QModelIndex &index)
     }
 
     play(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
-
-    m_trackQueue.clear();
-    const QSortFilterProxyModel *const proxyModel = static_cast<const QSortFilterProxyModel*>(index.model());
-    const int rowCount = proxyModel->rowCount();
-    for (int i = 1; i < rowCount; ++i) {
-        const QModelIndex &idx = proxyModel->index((index.row() + i) % rowCount, 0);
-        m_trackQueue.enqueue(idx.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
-    }
 }
 
 void MainWindow::resumeSlot()
@@ -867,9 +859,6 @@ void MainWindow::seekPosition(int position)
 
 void MainWindow::currentTrackFinishedSlot()
 {
-    if (!m_trackQueue.isEmpty()) {
-        play(m_trackQueue.dequeue());
-    }
 }
 
 void MainWindow::clearAllWidgets()
