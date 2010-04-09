@@ -29,7 +29,7 @@ class PlaylistModel
 {
 public:
     enum OwnRoles {
-        SpotifyNativePlaylist = Qt::UserRole
+        SpotifyNativePlaylistRole = Qt::UserRole
     };
 
     PlaylistModel(QObject *parent = 0);

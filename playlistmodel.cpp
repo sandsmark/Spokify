@@ -62,7 +62,7 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
         case Qt::DisplayRole:
             m_playLists[index.row()].m_title = value.toString();
             break;
-        case SpotifyNativePlaylist:
+        case SpotifyNativePlaylistRole:
             m_playLists[index.row()].m_playlist = value.value<sp_playlist*>();
             break;
         default:
@@ -80,7 +80,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const
     switch (role) {
         case Qt::DisplayRole:
             return m_playLists[index.row()].m_title;
-        case SpotifyNativePlaylist:
+        case SpotifyNativePlaylistRole:
             return QVariant::fromValue<sp_playlist*>(m_playLists[index.row()].m_playlist);
         default:
             break;

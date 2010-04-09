@@ -29,6 +29,8 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QWaitCondition>
 
+#include <QtGui/QItemSelection>
+
 #include <alsa/asoundlib.h>
 
 #include "appkey.h"
@@ -130,9 +132,10 @@ private Q_SLOTS:
     void repeatSlot();
     void performSearch();
     void pcmWrittenSlot(const Chunk &chunk);
-    void playListChanged(const QModelIndex &index);
+    void playlistChanged(const QItemSelection &selection);
     void seekPosition(int position);
     void currentTrackFinishedSlot();
+    void playPlaylist(const QModelIndex &index);
 
 private:
     void play(sp_track *track);

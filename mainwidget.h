@@ -81,8 +81,8 @@ public:
 
     void clearFilter();
 
-    Collection collection(sp_playlist *playlist);
-    Collection collection(sp_search *search);
+    Collection &collection(sp_playlist *playlist);
+    Collection &collection(sp_search *search);
     Collection *currentPlayingCollection() const;
     TrackView *trackView() const;
 
