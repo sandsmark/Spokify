@@ -31,6 +31,8 @@ TrackView::TrackView(QWidget *parent)
     : QTableView(parent)
     , m_information(KStandardDirs::locate("appdata", "images/dialog-information.png"))
     , m_disabledInformation(KStandardDirs::locate("appdata", "images/dialog-information.png"))
+    , m_searching(KStandardDirs::locate("appdata", "images/searching.png"))
+    , m_isSearching(false)
 {
     viewport()->setMouseTracking(true);
 
@@ -41,9 +43,32 @@ TrackView::~TrackView()
 {
 }
 
+void TrackView::setSearching(bool searching)
+{
+    m_isSearching = searching;
+    update();
+}
+
 void TrackView::paintEvent(QPaintEvent *event)
 {
-    if (!model() || !model()->rowCount()) {
+    if (m_isSearching) {
+        QPainter p(viewport());
+        QFont f(kapp->font());
+        f.setBold(true);
+        f.setPointSize(f.pointSize() + 4);
+        QFontMetrics fm(f);
+        const QRect r = event->rect();
+        if (isEnabled()) {
+            p.drawImage(r.width() / 2 - m_information.width() / 2,
+                        r.height() / 2 - m_information.height() / 2 - fm.height(),
+                        m_searching);
+        }
+        QRect textRect = event->rect();
+        textRect.setTop(textRect.top() + m_information.height() / 2 + textRect.height() / 2 - fm.height());
+        p.setFont(f);
+        p.drawText(textRect, Qt::AlignHCenter | Qt::AlignTop, i18n("Searching..."));
+        return;
+    } else if (!model() || !model()->rowCount()) {
         QPainter p(viewport());
         QFont f(kapp->font());
         f.setBold(true);
