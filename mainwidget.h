@@ -62,6 +62,11 @@ public:
         {
         }
 
+        bool operator==(const Collection &rhs) const
+        {
+            return proxyModel == rhs.proxyModel && trackModel == rhs.trackModel;
+        }
+
         QSortFilterProxyModel *proxyModel;
         TrackModel            *trackModel;
         int                    currentTrack;
