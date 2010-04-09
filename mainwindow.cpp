@@ -867,13 +867,21 @@ void MainWindow::currentTrackFinishedSlot()
     if (!c) {
         return;
     }
-    c->currentTrack = (c->currentTrack + 1) % c->proxyModel->rowCount();
-    const QModelIndex index = c->proxyModel->index(c->currentTrack, 0);
+    if (c->currentTrack.isValid()) {
+        const QAbstractItemModel *const model = c->currentTrack.model();
+        c->currentTrack = model->index((c->currentTrack.row() + 1) % model->rowCount(), 0);
+    } else {
+        const QAbstractItemModel *const model = c->currentTrack.model();
+        if (!model->rowCount()) {
+            return;
+        }
+        c->currentTrack = model->index(0, 0);
+    }
     TrackView *const trackView = m_mainWidget->trackView();
     if (trackView->model() == c->proxyModel) {
-        trackView->setCurrentIndex(index);
+        trackView->setCurrentIndex(c->currentTrack);
     }
-    play(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    play(c->currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 }
 
 void MainWindow::clearAllWidgets()
