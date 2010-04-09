@@ -321,7 +321,7 @@ namespace SpotifySearch {
     {
         Q_UNUSED(userdata);
 
-        MainWindow::self()->playlistView()->setCurrentIndex(QModelIndex());
+        MainWindow::self()->mainWidget()->trackView()->setSearching(false);
         TrackModel *const trackModel = MainWindow::self()->mainWidget()->collection(result).trackModel;
         trackModel->insertRows(0, sp_search_num_tracks(result));
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
@@ -760,6 +760,7 @@ void MainWindow::performSearch()
 {
     showRequest(i18n("Searching..."));
     m_mainWidget->trackView()->setModel(0);
+    m_mainWidget->trackView()->setSearching(true);
     m_currentPlaylist = 0;
     m_playlistView->setCurrentIndex(QModelIndex());
 

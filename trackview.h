@@ -28,12 +28,16 @@ public:
     TrackView(QWidget *parent = 0);
     virtual ~TrackView();
 
+    void setSearching(bool searching);
+
 protected:
     virtual void paintEvent(QPaintEvent *event);
 
 private:
     QImage m_information;
     QImage m_disabledInformation;
+    QImage m_searching;
+    bool   m_isSearching;
 };
 
 #endif
