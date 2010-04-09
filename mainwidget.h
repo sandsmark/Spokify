@@ -22,6 +22,7 @@
 #include "chunk.h"
 
 #include <QtCore/QModelIndex>
+#include <QtCore/QPersistentModelIndex>
 
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
@@ -57,7 +58,6 @@ public:
         Collection()
             : proxyModel(0)
             , trackModel(0)
-            , currentTrack(-1)
             , needsToBeFilled(true)
         {
         }
@@ -69,7 +69,7 @@ public:
 
         QSortFilterProxyModel *proxyModel;
         TrackModel            *trackModel;
-        int                    currentTrack;
+        QPersistentModelIndex  currentTrack;
         bool                   needsToBeFilled;
     };
 

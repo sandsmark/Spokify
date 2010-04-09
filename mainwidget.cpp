@@ -125,8 +125,8 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack != -1) {
-            m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
+        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
+            m_trackView->setCurrentIndex(res.currentTrack);
         }
 
         return res;
@@ -149,8 +149,8 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack != -1) {
-        m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
+    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
+        m_trackView->setCurrentIndex(c.currentTrack);
     }
 
     return c;
@@ -167,8 +167,8 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack != -1) {
-            m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
+        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
+            m_trackView->setCurrentIndex(res.currentTrack);
         }
 
         return res;
@@ -191,8 +191,8 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack != -1) {
-        m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
+    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
+        m_trackView->setCurrentIndex(c.currentTrack);
     }
 
     return c;
@@ -279,7 +279,7 @@ void MainWidget::trackRequested(const QModelIndex &index)
     m_state = Playing;
     m_playPauseButton->setIsPlaying(true);
     m_currentPlayingCollection = m_currentCollection;
-    m_currentPlayingCollection->currentTrack = index.row();
+    m_currentPlayingCollection->currentTrack = index;
     emit play(index);
 }
 
