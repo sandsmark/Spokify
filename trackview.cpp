@@ -93,3 +93,31 @@ void TrackView::paintEvent(QPaintEvent *event)
 
     QTableView::paintEvent(event);
 }
+
+void TrackView::mouseMoveEvent(QMouseEvent *event)
+{
+    const QModelIndex hovered = indexAt(viewport()->mapFromGlobal(QCursor::pos()));
+    if (hovered.isValid() && m_lastHovered.isValid()) {
+        QRect r;
+        for (int i = 0; i < model()->columnCount(); ++i) {
+            r = r.united(visualRect(model()->index(hovered.row(), i)));
+        }
+        viewport()->update(visualRect(m_lastHovered).united(r));
+    } else {
+        viewport()->update();
+    }
+    m_lastHovered = hovered;
+    QTableView::mouseMoveEvent(event);
+}
+
+void TrackView::enterEvent(QEvent *event)
+{
+    viewport()->update();
+    QTableView::enterEvent(event);
+}
+
+void TrackView::leaveEvent(QEvent *event)
+{
+    viewport()->update();
+    QTableView::leaveEvent(event);
+}
