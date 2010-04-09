@@ -32,8 +32,12 @@ public:
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
 
 private:
+    QModelIndex m_lastHovered;
     QImage m_information;
     QImage m_disabledInformation;
     QImage m_searching;
