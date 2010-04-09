@@ -557,7 +557,6 @@ void MainWindow::spotifyLoggedIn()
     m_playlistView->setEnabled(true);
     m_searchCategory->setEnabled(true);
     m_searchField->setEnabled(true);
-    m_searchButton->setEnabled(true);
     m_cover->setEnabled(true);
     m_mainWidget->loggedIn();
     fillPlaylistModel();
@@ -759,6 +758,9 @@ void MainWindow::repeatSlot()
 void MainWindow::performSearch()
 {
     showRequest(i18n("Searching..."));
+    m_mainWidget->trackView()->setModel(0);
+    m_currentPlaylist = 0;
+    m_playlistView->setCurrentIndex(QModelIndex());
 
     QString query;
     switch (m_searchCategory->currentIndex()) {
@@ -882,7 +884,6 @@ void MainWindow::clearAllWidgets()
     m_searchCategory->setCurrentIndex(0);
     m_searchField->setEnabled(false);
     m_searchField->setText(QString());
-    m_searchButton->setEnabled(false);
     m_cover->setEnabled(false);
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_mainWidget->loggedOut();
@@ -968,16 +969,9 @@ QWidget *MainWindow::createSearchWidget()
         m_searchField = new KLineEdit(this);
         m_searchField->setClickMessage(i18n("Search"));
         m_searchField->setClearButtonShown(true);
+        connect(m_searchField, SIGNAL(returnPressed()), this, SLOT(performSearch()));
         layout->addWidget(m_searchCategory);
         layout->addWidget(m_searchField);
-    }
-    {
-        QHBoxLayout *innerLayout2 = new QHBoxLayout;
-        m_searchButton = new KPushButton(KIcon(), i18n("Search"), this);
-        connect(m_searchButton, SIGNAL(clicked()), this, SLOT(performSearch()));
-        innerLayout2->addStretch();
-        innerLayout2->addWidget(m_searchButton);
-        layout->addLayout(innerLayout2);
     }
     layout->addStretch();
     searchWidget->setLayout(layout);

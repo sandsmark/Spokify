@@ -125,7 +125,7 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-        if (res.currentTrack != -1) {
+        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack != -1) {
             m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
         }
 
@@ -149,7 +149,7 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-    if (c.currentTrack != -1) {
+    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack != -1) {
         m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
     }
 
@@ -167,7 +167,7 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-        if (res.currentTrack != -1) {
+        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack != -1) {
             m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
         }
 
@@ -191,7 +191,7 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
-    if (c.currentTrack != -1) {
+    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack != -1) {
         m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
     }
 

@@ -174,7 +174,6 @@ private:
 
     CoverLabel           *m_cover;
     QMovie               *m_coverLoading;
-    KPushButton          *m_searchButton;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
