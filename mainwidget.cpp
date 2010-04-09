@@ -125,6 +125,10 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
+        if (res.currentTrack != -1) {
+            m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
+        }
+
         return res;
     }
 
@@ -145,6 +149,10 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
+    if (c.currentTrack != -1) {
+        m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
+    }
+
     return c;
 }
 
@@ -158,6 +166,10 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
         m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
 
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+        if (res.currentTrack != -1) {
+            m_trackView->setCurrentIndex(res.proxyModel->index(res.currentTrack, 0));
+        }
 
         return res;
     }
@@ -178,6 +190,10 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
     m_trackView->sortByColumn(c.proxyModel->sortColumn(), c.proxyModel->sortOrder());
 
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+    if (c.currentTrack != -1) {
+        m_trackView->setCurrentIndex(c.proxyModel->index(c.currentTrack, 0));
+    }
 
     return c;
 }
