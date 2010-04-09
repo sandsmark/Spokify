@@ -57,11 +57,14 @@ public:
         Collection()
             : proxyModel(0)
             , trackModel(0)
+            , currentTrack(0)
+            , needsToBeFilled(true)
         {
         }
 
         QSortFilterProxyModel *proxyModel;
         TrackModel            *trackModel;
+        int                    currentTrack;
         bool                   needsToBeFilled;
     };
 
@@ -75,7 +78,8 @@ public:
 
     Collection collection(sp_playlist *playlist);
     Collection collection(sp_search *search);
-    Collection currentCollection();
+    Collection *currentCollection() const;
+    Collection *currentPlayingCollection() const;
     TrackView *trackView() const;
 
     void setState(State state);
@@ -109,6 +113,7 @@ private:
     QHash<sp_playlist*, Collection> m_trackModelPlaylistCache;
     QHash<sp_search*, Collection>   m_trackModelSearchCache;
     Collection                     *m_currentCollection;
+    Collection                     *m_currentPlayingCollection;
 };
 
 #endif

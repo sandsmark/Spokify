@@ -40,6 +40,7 @@ MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , m_state(Stopped)
     , m_currentCollection(0)
+    , m_currentPlayingCollection(0)
 {
     m_filter = new KLineEdit(this);
     m_filter->setClickMessage(i18n("Filter by title, artist or album"));
@@ -98,6 +99,7 @@ void MainWidget::loggedOut()
     m_filter->setEnabled(false);
     m_filter->setText(QString());
     m_trackView->setEnabled(false);
+    m_trackView->setModel(0);
     m_playPauseButton->setEnabled(false);
     m_playPauseButton->setIsPlaying(false);
     m_slider->setEnabled(false);
@@ -180,12 +182,20 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
     return c;
 }
 
-MainWidget::Collection MainWidget::currentCollection()
+MainWidget::Collection *MainWidget::currentCollection() const
 {
     if (m_currentCollection) {
-        return *m_currentCollection;
+        return m_currentCollection;
     }
-    return Collection();
+    return 0;
+}
+
+MainWidget::Collection *MainWidget::currentPlayingCollection() const
+{
+    if (m_currentPlayingCollection) {
+        return m_currentPlayingCollection;
+    }
+    return 0;
 }
 
 TrackView *MainWidget::trackView() const
@@ -260,6 +270,8 @@ void MainWidget::trackRequested(const QModelIndex &index)
     }
     m_state = Playing;
     m_playPauseButton->setIsPlaying(true);
+    m_currentPlayingCollection = m_currentCollection;
+    m_currentPlayingCollection->currentTrack = index.row();
     emit play(index);
 }
 

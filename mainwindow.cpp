@@ -861,6 +861,17 @@ void MainWindow::seekPosition(int position)
 
 void MainWindow::currentTrackFinishedSlot()
 {
+    MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
+    if (!c) {
+        return;
+    }
+    c->currentTrack = (c->currentTrack + 1) % c->proxyModel->rowCount();
+    const QModelIndex index = c->proxyModel->index(c->currentTrack, 0);
+    TrackView *const trackView = m_mainWidget->trackView();
+    if (trackView->model() == c->proxyModel) {
+        trackView->setCurrentIndex(index);
+    }
+    play(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 }
 
 void MainWindow::clearAllWidgets()
@@ -873,10 +884,6 @@ void MainWindow::clearAllWidgets()
     m_searchField->setText(QString());
     m_searchButton->setEnabled(false);
     m_cover->setEnabled(false);
-    TrackModel *trackModel = m_mainWidget->currentCollection().trackModel;
-    if (trackModel) {
-        trackModel->removeRows(0, trackModel->rowCount());
-    }
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_mainWidget->loggedOut();
 }
