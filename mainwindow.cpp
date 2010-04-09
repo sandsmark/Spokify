@@ -465,7 +465,8 @@ MainWindow::MainWindow(QWidget *parent)
         playlists->setObjectName("playlists");
         playlists->setWidget(m_playlistView);
         addDockWidget(Qt::LeftDockWidgetArea, playlists);
-        connect(m_playlistView, SIGNAL(activated(QModelIndex)), this, SLOT(playListChanged(QModelIndex)));
+        connect(m_playlistView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(playlistChanged(QItemSelection)));
+        connect(m_playlistView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(playPlaylist(QModelIndex)));
     }
     //END: set up playlists widget
 
@@ -667,7 +668,7 @@ void MainWindow::fillPlaylistModel()
         sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
-        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylist);
+        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
     }
     if (currRow != -1) {
         m_playlistView->setCurrentIndex(m_playlistModel->index(currRow, 0));
@@ -794,15 +795,21 @@ void MainWindow::pcmWrittenSlot(const Chunk &chunk)
     m_mainWidget->advanceCurrentTrackTime(chunk);
 }
 
-void MainWindow::playListChanged(const QModelIndex &index)
+void MainWindow::playlistChanged(const QItemSelection &selection)
 {
+    if (selection.isEmpty()) {
+        return;
+    }
+
+    const QModelIndex index = selection.indexes().first();
+
     if (!index.isValid()) {
         return;
     }
 
     m_mainWidget->clearFilter();
 
-    sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylist).value<sp_playlist*>();
+    sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
     MainWidget::Collection c = m_mainWidget->collection(curr);
     m_currentPlaylist = curr;
     if (c.needsToBeFilled) {
@@ -871,7 +878,7 @@ void MainWindow::currentTrackFinishedSlot()
         const QAbstractItemModel *const model = c->currentTrack.model();
         c->currentTrack = model->index((c->currentTrack.row() + 1) % model->rowCount(), 0);
     } else {
-        const QAbstractItemModel *const model = c->currentTrack.model();
+        const QAbstractItemModel *const model = c->proxyModel;
         if (!model->rowCount()) {
             return;
         }
@@ -882,6 +889,19 @@ void MainWindow::currentTrackFinishedSlot()
         trackView->setCurrentIndex(c->currentTrack);
     }
     play(c->currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+}
+
+void MainWindow::playPlaylist(const QModelIndex &index)
+{
+    sp_playlist *playlist = index.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
+    if (!sp_playlist_num_tracks(playlist)) {
+        return;
+    }
+    MainWidget::Collection &c = m_mainWidget->collection(playlist);
+    c.currentTrack = c.proxyModel->index(0, 0);
+    m_mainWidget->trackView()->setCurrentIndex(c.currentTrack);
+    m_mainWidget->setState(MainWidget::Playing);
+    play(c.currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 }
 
 void MainWindow::clearAllWidgets()

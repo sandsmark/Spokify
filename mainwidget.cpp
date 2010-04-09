@@ -114,10 +114,10 @@ void MainWidget::clearFilter()
     m_filter->clear();
 }
 
-MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
+MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
 {
     if (m_trackModelPlaylistCache.contains(playlist)) {
-        Collection res = m_trackModelPlaylistCache[playlist];
+        Collection &res = m_trackModelPlaylistCache[playlist];
         res.needsToBeFilled = false;
         m_trackModelPlaylistCache[playlist] = res;
         m_trackView->setModel(res.proxyModel);
@@ -153,13 +153,13 @@ MainWidget::Collection MainWidget::collection(sp_playlist *playlist)
         m_trackView->setCurrentIndex(c.currentTrack);
     }
 
-    return c;
+    return m_trackModelPlaylistCache[playlist];
 }
 
-MainWidget::Collection MainWidget::collection(sp_search *search)
+MainWidget::Collection &MainWidget::collection(sp_search *search)
 {
     if (m_trackModelSearchCache.contains(search)) {
-        Collection res = m_trackModelSearchCache[search];
+        Collection &res = m_trackModelSearchCache[search];
         res.needsToBeFilled = false;
         m_currentCollection = &m_trackModelSearchCache[search];
         m_trackView->setModel(res.proxyModel);
@@ -195,7 +195,7 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
         m_trackView->setCurrentIndex(c.currentTrack);
     }
 
-    return c;
+    return m_trackModelSearchCache[search];
 }
 
 MainWidget::Collection *MainWidget::currentPlayingCollection() const
@@ -214,6 +214,7 @@ TrackView *MainWidget::trackView() const
 void MainWidget::setState(State state)
 {
     m_state = state;
+    m_playPauseButton->setIsPlaying(state == Playing);
 }
 
 MainWidget::State MainWidget::state() const
