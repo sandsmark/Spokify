@@ -198,14 +198,6 @@ MainWidget::Collection MainWidget::collection(sp_search *search)
     return c;
 }
 
-MainWidget::Collection *MainWidget::currentCollection() const
-{
-    if (m_currentCollection) {
-        return m_currentCollection;
-    }
-    return 0;
-}
-
 MainWidget::Collection *MainWidget::currentPlayingCollection() const
 {
     if (m_currentPlayingCollection) {
