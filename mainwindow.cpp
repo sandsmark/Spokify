@@ -933,6 +933,8 @@ void MainWindow::play(sp_track *tr)
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, true);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
+
+    m_playCondition.wakeAll();
 }
 
 void MainWindow::initSound()
