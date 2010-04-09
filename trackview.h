@@ -37,7 +37,7 @@ protected:
     virtual void leaveEvent(QEvent *event);
 
 private:
-    QModelIndex m_lastHovered;
+    QRect  m_lastHovered;
     QImage m_information;
     QImage m_disabledInformation;
     QImage m_searching;
