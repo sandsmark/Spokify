@@ -133,9 +133,12 @@ private Q_SLOTS:
     void performSearch();
     void pcmWrittenSlot(const Chunk &chunk);
     void playlistChanged(const QItemSelection &selection);
+    void searchHistoryChanged(const QItemSelection &selection);
     void seekPosition(int position);
     void currentTrackFinishedSlot();
     void playPlaylist(const QModelIndex &index);
+    void coverClickedSlot();
+    void clearAllWidgets();
 
 private:
     void play(sp_track *track);
@@ -144,7 +147,6 @@ private:
     QWidget *createSearchWidget();
     QWidget *createCoverWidget();
     void setupActions();
-    void clearAllWidgets();
 
 private:
     snd_pcm_t            *m_snd;
@@ -180,7 +182,9 @@ private:
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
+    PlaylistModel        *m_searchHistoryModel;
     QListView            *m_playlistView;
+    QListView            *m_searchHistoryView;
 };
  
 #endif

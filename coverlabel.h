@@ -24,12 +24,24 @@
 class CoverLabel
     : public QLabel
 {
+    Q_OBJECT
+
 public:
     CoverLabel(QWidget *parent = 0);
     virtual ~CoverLabel();
 
+Q_SIGNALS:
+    void coverClicked();
+
 protected:
     virtual void paintEvent(QPaintEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
+
+private:
+    bool    m_hovered;
+    QPixmap m_labelPixmap;
 };
 
 #endif

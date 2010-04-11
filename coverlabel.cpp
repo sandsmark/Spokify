@@ -26,7 +26,9 @@
 
 CoverLabel::CoverLabel(QWidget *parent)
     : QLabel(parent)
+    , m_hovered(false)
 {
+    setCursor(Qt::PointingHandCursor);
     setMinimumSize(QSize(100, 100));
 }
 
@@ -52,8 +54,35 @@ void CoverLabel::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
-    if (!isEnabled()) {
-        KIconEffect::semiTransparent(labelPixmap);
-    }
     p.drawPixmap(x, y, pSize, pSize, labelPixmap);
+    p.setRenderHint(QPainter::SmoothPixmapTransform, false);
+    p.save();
+    if (isEnabled() && (!movie() && m_hovered)) {
+        p.setOpacity(0.5);
+        p.fillRect(QRect(x, y, pSize, pSize), palette().highlight());
+    } else if (!isEnabled()) {
+        p.setOpacity(0.5);
+        p.fillRect(QRect(x, y, pSize, pSize), palette().window());
+    }
+    p.restore();
+}
+
+void CoverLabel::mouseReleaseEvent(QMouseEvent *event)
+{
+    emit coverClicked();
+    QLabel::mouseReleaseEvent(event);
+}
+
+void CoverLabel::enterEvent(QEvent *event)
+{
+    m_hovered = true;
+    QLabel::enterEvent(event);
+    update();
+}
+
+void CoverLabel::leaveEvent(QEvent *event)
+{
+    m_hovered = false;
+    QLabel::leaveEvent(event);
+    update();
 }

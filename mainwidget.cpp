@@ -32,6 +32,7 @@
 #include <QtGui/QSortFilterProxyModel>
 
 #include <KIcon>
+#include <KDebug>
 #include <KLocale>
 #include <KLineEdit>
 #include <KPushButton>
@@ -97,7 +98,7 @@ void MainWidget::loggedOut()
 {
     m_state = Stopped;
     m_filter->setEnabled(false);
-    m_filter->setText(QString());
+    m_filter->clear();
     m_trackView->setEnabled(false);
     m_trackView->setModel(0);
     m_playPauseButton->setEnabled(false);
@@ -111,6 +112,9 @@ void MainWidget::loggedOut()
 
 void MainWidget::clearFilter()
 {
+    if (m_currentCollection) {
+        disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+    }
     m_filter->clear();
 }
 
@@ -119,11 +123,19 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
     if (m_trackModelPlaylistCache.contains(playlist)) {
         Collection &res = m_trackModelPlaylistCache[playlist];
         res.needsToBeFilled = false;
-        m_trackModelPlaylistCache[playlist] = res;
         m_trackView->setModel(res.proxyModel);
         m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
 
+        if (m_currentCollection) {
+            disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+        }
+
+        m_filter->setText(res.proxyModel->filterRegExp().pattern());
+        connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
+
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+        m_currentCollection = &m_trackModelPlaylistCache[playlist];
 
         if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
             m_trackView->setCurrentIndex(res.currentTrack);
@@ -141,13 +153,20 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
     c.proxyModel->setSourceModel(c.trackModel);
     c.needsToBeFilled = true;
     m_trackModelPlaylistCache[playlist] = c;
-    m_currentCollection = &m_trackModelPlaylistCache[playlist];
 
-    connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString))); 
     m_trackView->setModel(c.proxyModel);
     m_trackView->sortByColumn(c.proxyModel->sortColumn(), c.proxyModel->sortOrder());
 
+    if (m_currentCollection) {
+        disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+    }
+
+    m_filter->clear();
+    connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString)));
+
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+    m_currentCollection = &m_trackModelPlaylistCache[playlist];
 
     if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
         m_trackView->setCurrentIndex(c.currentTrack);
@@ -161,11 +180,19 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
     if (m_trackModelSearchCache.contains(search)) {
         Collection &res = m_trackModelSearchCache[search];
         res.needsToBeFilled = false;
-        m_currentCollection = &m_trackModelSearchCache[search];
         m_trackView->setModel(res.proxyModel);
         m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
 
+        if (m_currentCollection) {
+            disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+        }
+
+        m_filter->setText(res.proxyModel->filterRegExp().pattern());
+        connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
+
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+        m_currentCollection = &m_trackModelSearchCache[search];
 
         if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
             m_trackView->setCurrentIndex(res.currentTrack);
@@ -183,19 +210,45 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
     c.proxyModel->setSourceModel(c.trackModel);
     c.needsToBeFilled = true;
     m_trackModelSearchCache[search] = c;
-    m_currentCollection = &m_trackModelSearchCache[search];
 
-    connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString))); 
     m_trackView->setModel(c.proxyModel);
     m_trackView->sortByColumn(c.proxyModel->sortColumn(), c.proxyModel->sortOrder());
 
+    if (m_currentCollection) {
+        disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+    }
+
+    m_filter->clear();
+    connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString)));
+
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+    m_currentCollection = &m_trackModelSearchCache[search];
 
     if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
         m_trackView->setCurrentIndex(c.currentTrack);
     }
 
     return m_trackModelSearchCache[search];
+}
+
+void MainWidget::setCurrentCollection(Collection *c)
+{
+    m_trackView->setModel(c->proxyModel);
+    m_trackView->sortByColumn(c->proxyModel->sortColumn(), c->proxyModel->sortOrder());
+
+    if (m_currentCollection) {
+        disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+    }
+
+    m_filter->setText(c->proxyModel->filterRegExp().pattern());
+    connect(m_filter, SIGNAL(textChanged(QString)), c->proxyModel, SLOT(setFilterFixedString(QString)));
+
+    m_currentCollection = c;
+
+    if (m_currentPlayingCollection && m_currentPlayingCollection == c && c->currentTrack.isValid()) {
+        m_trackView->setCurrentIndex(c->currentTrack);
+    }
 }
 
 MainWidget::Collection *MainWidget::currentPlayingCollection() const
@@ -251,10 +304,10 @@ void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
 
 void MainWidget::playSlot()
 {
-    if (!m_trackView->currentIndex().isValid()) {
-        return;
-    }
     if (m_state == Stopped) {
+        if (!m_trackView->currentIndex().isValid()) {
+            return;
+        }
         trackRequested(m_trackView->currentIndex());
     } else {
         m_state = Playing;
