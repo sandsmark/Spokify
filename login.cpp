@@ -20,6 +20,7 @@
 #include "mainwindow.h"
 
 #include <QtGui/QLabel>
+#include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>
 
 #include <KLocale>
@@ -30,17 +31,20 @@ Login::Login(MainWindow *mainWindow)
     : KDialog(mainWindow)
     , m_username(new KLineEdit(this))
     , m_password(new KLineEdit(this))
+    , m_remember(new QCheckBox(i18n("Remember me"), this))
     , m_mainWindow(mainWindow)
 {
     setWindowTitle(i18n("Login"));
     setButtons(KDialog::Ok | KDialog::Cancel);
 
     m_password->setEchoMode(KLineEdit::Password);
+    m_remember->setCheckState(Qt::Checked);
 
     QWidget *main = new QWidget(this);
     QFormLayout *layout = new QFormLayout;
     layout->addRow(i18n("Username"), m_username);
     layout->addRow(i18n("Password"), m_password);
+    layout->addWidget(m_remember);
     QLabel *note = new QLabel(i18n("Note that for logging in you need a Premium Account"), main);
     note->setWordWrap(true);
     layout->addWidget(note);
@@ -65,7 +69,7 @@ Login::~Login()
 
 void Login::accept()
 {
-    if (m_wallet) {
+    if (m_wallet && m_remember->checkState() == Qt::Checked) {
         QMap<QString, QString> authInfo;
         authInfo["username"] = m_username->text();
         authInfo["password"] = m_password->text();
