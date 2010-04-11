@@ -232,25 +232,6 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
     return m_trackModelSearchCache[search];
 }
 
-void MainWidget::setCurrentCollection(Collection *c)
-{
-    m_trackView->setModel(c->proxyModel);
-    m_trackView->sortByColumn(c->proxyModel->sortColumn(), c->proxyModel->sortOrder());
-
-    if (m_currentCollection) {
-        disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
-    }
-
-    m_filter->setText(c->proxyModel->filterRegExp().pattern());
-    connect(m_filter, SIGNAL(textChanged(QString)), c->proxyModel, SLOT(setFilterFixedString(QString)));
-
-    m_currentCollection = c;
-
-    if (m_currentPlayingCollection && m_currentPlayingCollection == c && c->currentTrack.isValid()) {
-        m_trackView->setCurrentIndex(c->currentTrack);
-    }
-}
-
 MainWidget::Collection *MainWidget::currentPlayingCollection() const
 {
     if (m_currentPlayingCollection) {

@@ -983,7 +983,6 @@ void MainWindow::coverClickedSlot()
 {
     if (m_mainWidget->currentPlayingCollection()) {
         MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
-        m_mainWidget->setCurrentCollection(c);
         for (int i = 0; i < m_playlistModel->rowCount(); ++i) {
             const QModelIndex index = m_playlistModel->index(i, 0);
             sp_playlist *const playlist = m_playlistModel->data(index, PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
@@ -1009,6 +1008,7 @@ void MainWindow::clearAllWidgets()
 {
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistView->setEnabled(false);
+    m_searchHistoryModel->removeRows(0, m_searchHistoryModel->rowCount());
     m_searchHistoryView->setEnabled(false);
     m_searchCategory->setEnabled(false);
     m_searchCategory->setCurrentIndex(0);
