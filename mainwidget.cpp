@@ -305,10 +305,9 @@ void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
 void MainWidget::playSlot()
 {
     if (m_state == Stopped) {
-        if (!m_trackView->currentIndex().isValid()) {
-            return;
+        if (m_trackView->currentIndex().isValid()) {
+            trackRequested(m_trackView->currentIndex());
         }
-        trackRequested(m_trackView->currentIndex());
     } else {
         m_state = Playing;
         emit resume();
