@@ -83,6 +83,7 @@ public:
 
     Collection &collection(sp_playlist *playlist);
     Collection &collection(sp_search *search);
+    void setCurrentCollection(Collection *collection);
     Collection *currentPlayingCollection() const;
     TrackView *trackView() const;
 

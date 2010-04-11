@@ -327,6 +327,8 @@ namespace SpotifySearch {
         for (int i = 0; i < sp_search_num_tracks(result); ++i) {
             sp_track *const tr = sp_search_track(result, i);
             if (!tr || !sp_track_is_loaded(tr)) {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, i18n("Loading..."));
                 continue;
             }
             {
@@ -415,7 +417,9 @@ MainWindow::MainWindow(QWidget *parent)
     , m_loggedIn(false)
     , m_mainWidget(new MainWidget(this))
     , m_playlistModel(new PlaylistModel(this))
+    , m_searchHistoryModel(new PlaylistModel(this))
     , m_playlistView(new QListView(this))
+    , m_searchHistoryView(new QListView(this))
 {
     qRegisterMetaType<Chunk>();
 
@@ -469,6 +473,22 @@ MainWindow::MainWindow(QWidget *parent)
         connect(m_playlistView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(playPlaylist(QModelIndex)));
     }
     //END: set up playlists widget
+
+    //BEGIN: set up search history widget
+    {
+        m_searchHistoryView->setAlternatingRowColors(true);
+        m_searchHistoryView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        m_searchHistoryView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        m_searchHistoryView->setMouseTracking(true);
+        m_searchHistoryView->setModel(m_searchHistoryModel);
+        QDockWidget *searchHistory = new QDockWidget(i18n("Search History"), this);
+        searchHistory->setObjectName("searchhistory");
+        searchHistory->setWidget(m_searchHistoryView);
+        addDockWidget(Qt::LeftDockWidgetArea, searchHistory);
+        connect(m_searchHistoryView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(searchHistoryChanged(QItemSelection)));
+        connect(m_searchHistoryView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(playSearchHistory(QModelIndex)));
+    }
+    //END: set up search history widget
 
     //BEGIN: set up search widget
     {
@@ -556,6 +576,7 @@ void MainWindow::spotifyLoggedIn()
     m_login->setEnabled(true);
     m_logout->setVisible(true);
     m_playlistView->setEnabled(true);
+    m_searchHistoryView->setEnabled(true);
     m_searchCategory->setEnabled(true);
     m_searchField->setEnabled(true);
     m_cover->setEnabled(true);
@@ -726,11 +747,12 @@ void MainWindow::logoutSlot()
 
     clearSoundQueue();
     m_logout->setEnabled(false);
-    clearAllWidgets();
 
     //BEGIN: Spotify logout
     sp_session_logout(m_session);
     //END: Spotify logout
+
+    QTimer::singleShot(0, this, SLOT(clearAllWidgets()));
 }
 
 void MainWindow::playSlot(const QModelIndex &index)
@@ -761,6 +783,7 @@ void MainWindow::performSearch()
     showRequest(i18n("Searching..."));
     m_mainWidget->trackView()->setModel(0);
     m_mainWidget->trackView()->setSearching(true);
+    m_mainWidget->clearFilter();
     m_currentPlaylist = 0;
     m_playlistView->setCurrentIndex(QModelIndex());
 
@@ -808,8 +831,6 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
         return;
     }
 
-    m_mainWidget->clearFilter();
-
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
     MainWidget::Collection c = m_mainWidget->collection(curr);
     m_currentPlaylist = curr;
@@ -820,6 +841,8 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
         for (int i = 0; i < numTracks; ++i) {
             sp_track *const tr = sp_playlist_track(curr, i);
             if (!tr || !sp_track_is_loaded(tr)) {
+                const QModelIndex &index = trackModel->index(i, TrackModel::Title);
+                trackModel->setData(index, i18n("Loading..."));
                 continue;
             }
             {
@@ -854,6 +877,10 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
             }
         }
     }
+}
+
+void MainWindow::searchHistoryChanged(const QItemSelection &selection)
+{
 }
 
 void MainWindow::seekPosition(int position)
@@ -905,10 +932,18 @@ void MainWindow::playPlaylist(const QModelIndex &index)
     play(c.currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 }
 
+void MainWindow::coverClickedSlot()
+{
+    if (m_mainWidget->currentPlayingCollection()) {
+        m_mainWidget->setCurrentCollection(m_mainWidget->currentPlayingCollection());
+    }
+}
+
 void MainWindow::clearAllWidgets()
 {
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistView->setEnabled(false);
+    m_searchHistoryView->setEnabled(false);
     m_searchCategory->setEnabled(false);
     m_searchCategory->setCurrentIndex(0);
     m_searchField->setEnabled(false);
@@ -1013,6 +1048,7 @@ QWidget *MainWindow::createCoverWidget()
 {
     QWidget *coverWidget = new QWidget(this);
     m_cover = new CoverLabel(coverWidget);
+    connect(m_cover, SIGNAL(coverClicked()), this, SLOT(coverClickedSlot()));
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_coverLoading = new QMovie(KStandardDirs::locate("appdata", "images/cover-loading.gif"), QByteArray(), this);
     QHBoxLayout *layout = new QHBoxLayout;
