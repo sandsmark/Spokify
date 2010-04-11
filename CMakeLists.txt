@@ -18,7 +18,8 @@ set(spokify_SRCS
     coverlabel.cpp
     trackviewdelegate.cpp
     trackview.cpp
-    slider.cpp)
+    slider.cpp
+    searchhistorymodel.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
