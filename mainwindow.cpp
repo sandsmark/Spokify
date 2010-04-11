@@ -982,7 +982,26 @@ void MainWindow::playSearchHistory(const QModelIndex &index)
 void MainWindow::coverClickedSlot()
 {
     if (m_mainWidget->currentPlayingCollection()) {
-        m_mainWidget->setCurrentCollection(m_mainWidget->currentPlayingCollection());
+        MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
+        m_mainWidget->setCurrentCollection(c);
+        for (int i = 0; i < m_playlistModel->rowCount(); ++i) {
+            const QModelIndex index = m_playlistModel->index(i, 0);
+            sp_playlist *const playlist = m_playlistModel->data(index, PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
+            if (c == &m_mainWidget->collection(playlist)) {
+                m_playlistView->setCurrentIndex(index);
+                m_searchHistoryView->setCurrentIndex(QModelIndex());
+                return;
+            }
+        }
+        for (int i = 0; i < m_searchHistoryModel->rowCount(); ++i) {
+            const QModelIndex index = m_searchHistoryModel->index(i, 0);
+            sp_search *const search = m_searchHistoryModel->data(index, SearchHistoryModel::SpotifyNativeSearchRole).value<sp_search*>();
+            if (c == &m_mainWidget->collection(search)) {
+                m_searchHistoryView->setCurrentIndex(index);
+                m_playlistView->setCurrentIndex(QModelIndex());
+                return;
+            }
+        }
     }
 }
 
