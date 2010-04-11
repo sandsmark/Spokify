@@ -21,8 +21,6 @@
 
 #include <QtGui/QTableView>
 
-class MimeData;
-
 class TrackView
     : public QTableView
 {
@@ -40,12 +38,11 @@ protected:
     virtual void startDrag(Qt::DropActions supportedActions);
 
 private:
-    QRect      m_lastHovered;
-    QImage     m_information;
-    QImage     m_disabledInformation;
-    QImage     m_searching;
-    bool       m_isSearching;
-    MimeData  *m_mimeData;
+    QRect  m_lastHovered;
+    QImage m_information;
+    QImage m_disabledInformation;
+    QImage m_searching;
+    bool   m_isSearching;
 };
 
 #endif

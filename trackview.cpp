@@ -131,11 +131,11 @@ void TrackView::startDrag(Qt::DropActions supportedActions)
 {
     Q_UNUSED(supportedActions);
 
-    m_mimeData = new MimeData;
-    m_mimeData->setTrack(currentIndex().data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    MimeData *mimeData = new MimeData;
+    mimeData->setTrack(currentIndex().data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 
     QDrag *drag = new QDrag(this);
-    drag->setMimeData(m_mimeData);
+    drag->setMimeData(mimeData);
 
     drag->exec(Qt::CopyAction); 
 }
