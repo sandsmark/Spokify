@@ -52,6 +52,7 @@ class CoverLabel;
 class MainWidget;
 class SoundFeeder;
 class PlaylistModel;
+class SearchHistoryModel;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -71,6 +72,10 @@ public:
     MainWidget *mainWidget() const;
 
     QListView *playlistView() const;
+
+    SearchHistoryModel *searchHistoryModel() const;
+
+    QListView *searchHistoryView() const;
 
     void signalNotifyMainThread();
 
@@ -137,6 +142,7 @@ private Q_SLOTS:
     void seekPosition(int position);
     void currentTrackFinishedSlot();
     void playPlaylist(const QModelIndex &index);
+    void playSearchHistory(const QModelIndex &index);
     void coverClickedSlot();
     void clearAllWidgets();
 
@@ -182,7 +188,7 @@ private:
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
-    PlaylistModel        *m_searchHistoryModel;
+    SearchHistoryModel   *m_searchHistoryModel;
     QListView            *m_playlistView;
     QListView            *m_searchHistoryView;
 };
