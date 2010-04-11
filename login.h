@@ -21,8 +21,11 @@
 
 #include <KDialog>
 
-class KLineEdit;
 class MainWindow;
+
+class QCheckBox;
+
+class KLineEdit;
 
 namespace KWallet {
     class Wallet;
@@ -48,6 +51,7 @@ private Q_SLOTS:
 private:
     KLineEdit       *m_username;
     KLineEdit       *m_password;
+    QCheckBox       *m_remember;
     MainWindow      *m_mainWindow;
     KWallet::Wallet *m_wallet;
 };
