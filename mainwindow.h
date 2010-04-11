@@ -51,6 +51,7 @@ class KStatusNotifierItem;
 class CoverLabel;
 class MainWidget;
 class SoundFeeder;
+class PlaylistView;
 class PlaylistModel;
 class SearchHistoryModel;
 
@@ -189,7 +190,7 @@ private:
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
     SearchHistoryModel   *m_searchHistoryModel;
-    QListView            *m_playlistView;
+    PlaylistView         *m_playlistView;
     QListView            *m_searchHistoryView;
 };
  
