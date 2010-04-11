@@ -57,6 +57,9 @@ MainWidget::MainWidget(QWidget *parent)
     m_trackView->setShowGrid(false);
     m_trackView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_trackView->setItemDelegate(new TrackViewDelegate(m_trackView));
+    m_trackView->setDragEnabled(true);
+    m_trackView->setDropIndicatorShown(true);
+    m_trackView->setDragDropMode(QAbstractItemView::DragDrop);
     m_trackView->setSortingEnabled(true);
 
     m_playPauseButton = new PlayPauseButton(this);

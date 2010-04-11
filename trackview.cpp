@@ -17,6 +17,8 @@
  */
 
 #include "trackview.h"
+#include "mimedata.h"
+#include "trackmodel.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
@@ -26,6 +28,8 @@
 #include <KIconEffect>
 #include <KApplication>
 #include <KStandardDirs>
+
+struct sp_track;
 
 TrackView::TrackView(QWidget *parent)
     : QTableView(parent)
@@ -121,4 +125,17 @@ void TrackView::leaveEvent(QEvent *event)
 {
     viewport()->update();
     QTableView::leaveEvent(event);
+}
+
+void TrackView::startDrag(Qt::DropActions supportedActions)
+{
+    Q_UNUSED(supportedActions);
+
+    m_mimeData = new MimeData;
+    m_mimeData->setTrack(currentIndex().data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(m_mimeData);
+
+    drag->exec(Qt::CopyAction); 
 }

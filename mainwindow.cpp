@@ -23,6 +23,7 @@
 #include "coverlabel.h"
 #include "mainwidget.h"
 #include "soundfeeder.h"
+#include "playlistview.h"
 #include "playlistmodel.h"
 #include "searchhistorymodel.h"
 
@@ -424,7 +425,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_mainWidget(new MainWidget(this))
     , m_playlistModel(new PlaylistModel(this))
     , m_searchHistoryModel(new SearchHistoryModel(this))
-    , m_playlistView(new QListView(this))
+    , m_playlistView(new PlaylistView(this))
     , m_searchHistoryView(new QListView(this))
 {
     qRegisterMetaType<Chunk>();
@@ -470,6 +471,8 @@ MainWindow::MainWindow(QWidget *parent)
         m_playlistView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         m_playlistView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         m_playlistView->setMouseTracking(true);
+        m_playlistView->setDropIndicatorShown(true);
+        m_playlistView->viewport()->setAcceptDrops(true);
         m_playlistView->setModel(m_playlistModel);
         QDockWidget *playlists = new QDockWidget(i18n("Playlists"), this);
         playlists->setObjectName("playlists");

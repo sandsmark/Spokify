@@ -53,6 +53,7 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 private:
     struct Entry {

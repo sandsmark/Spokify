@@ -40,6 +40,8 @@ public:
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole);
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 
 private:
     struct Entry {

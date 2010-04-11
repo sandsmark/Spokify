@@ -19,7 +19,9 @@ set(spokify_SRCS
     trackviewdelegate.cpp
     trackview.cpp
     slider.cpp
-    searchhistorymodel.cpp)
+    searchhistorymodel.cpp
+    mimedata.cpp
+    playlistview.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  

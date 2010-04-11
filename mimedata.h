@@ -16,36 +16,25 @@
  * along with Spokify.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRACKVIEW_H
-#define TRACKVIEW_H
+#ifndef MIMEDATA_H
+#define MIMEDATA_H
 
-#include <QtGui/QTableView>
+#include <QtCore/QMimeData>
 
-class MimeData;
+struct sp_track;
 
-class TrackView
-    : public QTableView
+class MimeData
+    : public QMimeData
 {
 public:
-    TrackView(QWidget *parent = 0);
-    virtual ~TrackView();
+    MimeData();
+    virtual ~MimeData();
 
-    void setSearching(bool searching);
-
-protected:
-    virtual void paintEvent(QPaintEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void enterEvent(QEvent *event);
-    virtual void leaveEvent(QEvent *event);
-    virtual void startDrag(Qt::DropActions supportedActions);
+    void setTrack(sp_track *track);
+    sp_track *track() const;
 
 private:
-    QRect      m_lastHovered;
-    QImage     m_information;
-    QImage     m_disabledInformation;
-    QImage     m_searching;
-    bool       m_isSearching;
-    MimeData  *m_mimeData;
+    sp_track *m_track;
 };
 
 #endif

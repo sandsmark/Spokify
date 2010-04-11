@@ -17,6 +17,11 @@
  */
 
 #include "playlistmodel.h"
+#include "mimedata.h"
+
+#include <KDebug>
+
+#include <spotify/api.h>
 
 PlaylistModel::PlaylistModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -93,4 +98,26 @@ int PlaylistModel::rowCount(const QModelIndex &parent) const
     Q_UNUSED(parent);
 
     return m_playLists.count();
+}
+
+Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const
+{
+    return Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+}
+
+bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    Q_UNUSED(action);
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+    Q_UNUSED(parent);
+
+    sp_track *const tr = static_cast<const MimeData*>(data)->track();
+    if (!tr || !sp_track_is_loaded(tr)) {
+        return false;
+    }
+
+    kDebug() << "dropping track name" << QString::fromUtf8(sp_track_name(tr));
+
+    return true;
 }

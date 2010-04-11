@@ -188,3 +188,8 @@ int TrackModel::columnCount(const QModelIndex &parent) const
 
     return 5;
 }
+
+Qt::ItemFlags TrackModel::flags(const QModelIndex &index) const
+{
+    return Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
+}
