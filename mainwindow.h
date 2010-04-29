@@ -34,7 +34,7 @@
 #include <alsa/asoundlib.h>
 
 #include "appkey.h"
-#include <spotify/api.h>
+#include <libspotify/api.h>
 
 class QMovie;
 class QLabel;

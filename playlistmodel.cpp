@@ -21,7 +21,7 @@
 
 #include <KDebug>
 
-#include <spotify/api.h>
+#include <libspotify/api.h>
 
 PlaylistModel::PlaylistModel(QObject *parent)
     : QAbstractListModel(parent)

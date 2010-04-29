@@ -27,7 +27,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
 
-#include <spotify/api.h>
+#include <libspotify/api.h>
 
 class TrackView;
 class TrackModel;
