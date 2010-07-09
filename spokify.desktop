@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Spokify
+GenericName=Spokify
+Exec=spokify
+Comment=Spotify client for KDE
+Icon=preferences-desktop-text-to-speech
+Terminal=false
+Categories=Qt;KDE;AudioVideo;Audio;Player;
