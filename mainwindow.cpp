@@ -84,7 +84,7 @@ namespace SpotifySession {
             case SP_ERROR_INDEX_OUT_OF_RANGE:
             case SP_ERROR_OTHER_TRANSIENT:
             case SP_ERROR_IS_LOADING:
-                KMessageBox::sorry(MainWindow::self(), i18n("An internal error happened with error code (%1).\n\nPlease, report this bug.").arg(error),
+                KMessageBox::sorry(MainWindow::self(), i18n("An internal error happened with error code (%1).\n\nPlease, report this bug.", error),
                                    i18n("A critical error happened"));
                 break;
             case SP_ERROR_BAD_USERNAME_OR_PASSWORD:
@@ -402,10 +402,11 @@ namespace SpotifyImage {
         KNotification *notification = new KNotification("nowListening");
         notification->setTitle(i18n("Spokify - Now Listening"));
         notification->setPixmap(QPixmap::fromImage(cover.scaled(QSize(64, 64), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
-        notification->setText(i18n("Track: %1\nArtist: %2\nAlbum: %3\nPopularity: %4%").arg(QString::fromUtf8(sp_track_name(tr)))
-                                                                                       .arg(QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0))))
-                                                                                       .arg(QString::fromUtf8(sp_album_name(sp_track_album(tr))))
-                                                                                       .arg(sp_track_popularity(tr)));
+        notification->setText(i18n("Track: %1\nArtist: %2\nAlbum: %3\nPopularity: %4%", 
+                              QString::fromUtf8(sp_track_name(tr)),
+                              QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0))),
+                              QString::fromUtf8(sp_album_name(sp_track_album(tr))),
+                              sp_track_popularity(tr)));
         notification->sendEvent();
     }
 

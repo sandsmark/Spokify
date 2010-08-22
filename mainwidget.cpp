@@ -30,6 +30,7 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QSortFilterProxyModel>
+#include <QTime>
 
 #include <KIcon>
 #include <KDebug>
@@ -109,7 +110,7 @@ void MainWidget::loggedOut()
     m_slider->setEnabled(false);
     m_slider->setValue(0);
     m_slider->setCacheValue(0);
-    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>00:00</b>"));
+    m_currTotalTime->setText(i18n("<b>00:00:00</b><br/><b>00:00:00</b>"));
     m_currTotalTime->setEnabled(false);
 }
 
@@ -264,17 +265,25 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
     m_slider->setRange(0, totalTrackTime * (quint64) 44100);
     m_slider->setValue(0);
     m_slider->setCacheValue(0);
-    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1:%2</b>").arg((totalTrackTime / 1000) / 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((totalTrackTime / 1000) % 60, 2, 10, QLatin1Char('0')));
+
+    QTime time;
+    time = time.addMSecs(totalTrackTime);
+    m_currTotalTime->setText(i18n("<b>00:00:00</b><br/><b>%1</b>",
+                             KGlobal::locale()->formatTime( time, true, true)));
 }
 
 void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
 {
     m_slider->setValue(m_slider->value() + chunk.m_dataFrames * 1000);
-    m_currTotalTime->setText(i18n("<b>%1:%2</b><br/><b>%3:%4</b>").arg((quint64) ((m_slider->value() / (chunk.m_rate * 1000))) / 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->value() / (chunk.m_rate * 1000))) % 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->maximum() / (chunk.m_rate * 1000))) / 60, 2, 10, QLatin1Char('0'))
-                                                                  .arg((quint64) ((m_slider->maximum() / (chunk.m_rate * 1000))) % 60, 2, 10, QLatin1Char('0')));
+    const int curpos = (quint64) ((m_slider->value() / (chunk.m_rate * 1000)));
+    const int totpos = (quint64) ((m_slider->maximum() / (chunk.m_rate * 1000)));
+
+    QTime val, total;
+    val = val.addSecs( curpos );
+    total = total.addSecs( totpos );
+    m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
+                    KGlobal::locale()->formatTime( val, true, true),
+                    KGlobal::locale()->formatTime( total, true, true)));
 }
 
 void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)

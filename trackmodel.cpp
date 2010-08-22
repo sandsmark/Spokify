@@ -18,7 +18,9 @@
 
 #include "trackmodel.h"
 
+#include <KGlobal>
 #include <KLocale>
+#include <QTime>
 
 TrackModel::TrackModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -143,9 +145,9 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                 case Album:
                     return m_tracks[index.row()].m_album;
                 case Duration: {
-                        const int duration = m_tracks[index.row()].m_duration;
-                        return i18n("%1:%2").arg((duration / 1000) / 60, 2, 10, QLatin1Char('0'))
-                                            .arg((duration / 1000) % 60, 2, 10, QLatin1Char('0'));
+                        QTime time;
+                        time = time.addMSecs(m_tracks[index.row()].m_duration);
+                        return KGlobal::locale()->formatTime( time, true, true);
                     }
                 case Popularity:
                     return QString();
