@@ -31,6 +31,11 @@ PlaylistView::~PlaylistView()
 {
 }
 
+QSize PlaylistView::sizeHint () const
+{
+    return QSize(600,500);
+}
+
 void PlaylistView::dragEnterEvent(QDragEnterEvent *event)
 {
     //TODO: check permissions...
