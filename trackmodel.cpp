@@ -147,7 +147,11 @@ QVariant TrackModel::data(const QModelIndex &index, int role) const
                 case Duration: {
                         QTime time;
                         time = time.addMSecs(m_tracks[index.row()].m_duration);
-                        return KGlobal::locale()->formatTime( time, true, true);
+#if KDE_IS_VERSION(4,5,66)
+                        return KGlobal::locale()->formatLocaleTime(time, KLocale::TimeDuration | KLocale::TimeFoldHours);
+#else
+                        return KGlobal::locale()->formatTime(time, true, true );
+#endif
                     }
                 case Popularity:
                     return QString();
