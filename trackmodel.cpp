@@ -21,6 +21,7 @@
 #include <KGlobal>
 #include <KLocale>
 #include <QTime>
+#include <kdeversion.h>
 
 TrackModel::TrackModel(QObject *parent)
     : QAbstractItemModel(parent)
