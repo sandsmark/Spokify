@@ -59,20 +59,18 @@ QSize PlaylistView::sizeHint() const
 
 void PlaylistView::dragEnterEvent(QDragEnterEvent *event)
 {
-    //TODO: check permissions...
-    event->accept();
-}
-
-void PlaylistView::dragLeaveEvent(QDragLeaveEvent *event)
-{
-    //TODO: check permissions...
-    event->accept();
+    if (dynamic_cast<const MimeData*>(event->mimeData())) {
+        // ### Check if playlist is ours. If not, check if collaborative
+        event->accept();
+    }
 }
 
 void PlaylistView::dragMoveEvent(QDragMoveEvent *event)
 {
-    //TODO: check permissions...
-    event->accept();
+    if (dynamic_cast<const MimeData*>(event->mimeData())) {
+        // ### Check if playlist is ours. If not, check if collaborative
+        event->accept();
+    }
 }
 
 void PlaylistView::dropEvent(QDropEvent *event)
