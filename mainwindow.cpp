@@ -965,6 +965,7 @@ void MainWindow::playPlaylist(const QModelIndex &index)
     }
     MainWidget::Collection &c = m_mainWidget->collection(playlist);
     c.currentTrack = c.proxyModel->index(0, 0);
+    m_mainWidget->setCurrentPlayingCollection(c);
     m_mainWidget->trackView()->setCurrentIndex(c.currentTrack);
     m_mainWidget->setState(MainWidget::Playing);
     play(c.currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());

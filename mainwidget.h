@@ -84,6 +84,7 @@ public:
     Collection &collection(sp_playlist *playlist);
     Collection &collection(sp_search *search);
     Collection *currentPlayingCollection() const;
+    void setCurrentPlayingCollection(Collection &collection);
     TrackView *trackView() const;
 
     void setState(State state);

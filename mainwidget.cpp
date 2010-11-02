@@ -244,6 +244,11 @@ MainWidget::Collection *MainWidget::currentPlayingCollection() const
     return 0;
 }
 
+void MainWidget::setCurrentPlayingCollection(Collection &collection)
+{
+    m_currentPlayingCollection = &collection;
+}
+
 TrackView *MainWidget::trackView() const
 {
     return m_trackView;
