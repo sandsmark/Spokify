@@ -2,7 +2,5 @@ Spokify is a KDE Spotify client.
 
 Its goal is to let you do everything Spotify client lets you do, and more.
 
-Please, read HOW_TO_DEVELOP file if you are interested in helping out.
-
 As a user, and because of Spotify service restrictions when using libspotify, you need to be
 Premium User to login and be able to listen to music.
