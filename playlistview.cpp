@@ -99,7 +99,7 @@ void PlaylistView::newPlaylistSlot()
 
     QWidget *widget = new QWidget(dialog);
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(new QLabel(i18n("Please, choose a name for the new playlist:"), widget));
+    layout->addWidget(new QLabel(i18n("Choose a name for the new playlist:"), widget));
     QLineEdit *playlistName = new QLineEdit(widget);
     layout->addWidget(playlistName);
     widget->setLayout(layout);
@@ -121,7 +121,7 @@ void PlaylistView::renamePlaylistSlot()
 
     QWidget *widget = new QWidget(dialog);
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(new QLabel(i18n("Please, choose a new name for the playlist \"%1\":", sp_playlist_name(targetPlaylist)), widget));
+    layout->addWidget(new QLabel(i18n("Choose a new name for the playlist \"%1\":", QString::fromUtf8(sp_playlist_name(targetPlaylist))), widget));
     QLineEdit *playlistName = new QLineEdit(widget);
     layout->addWidget(playlistName);
     widget->setLayout(layout);
@@ -135,7 +135,7 @@ void PlaylistView::renamePlaylistSlot()
 void PlaylistView::deletePlaylistSlot()
 {
     sp_playlist *targetPlaylist = currentIndex().data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
-    if (KMessageBox::questionYesNo(this, i18n("Are you sure that you want to delete the playlist \"%1\"?", sp_playlist_name(targetPlaylist)),
+    if (KMessageBox::questionYesNo(this, i18n("Are you sure that you want to delete the playlist \"%1\"?", QString::fromUtf8(sp_playlist_name(targetPlaylist))),
                                          i18n("Delete Playlist")) == KMessageBox::Yes) {
         sp_playlistcontainer *const playlistContainer = MainWindow::self()->playlistContainer();
         sp_playlistcontainer_remove_playlist(playlistContainer, currentIndex().row());
