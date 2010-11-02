@@ -17,6 +17,11 @@
  */
 
 #include "playlistview.h"
+#include "mimedata.h"
+#include "mainwindow.h"
+#include "playlistmodel.h"
+
+#include <libspotify/api.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QDragMoveEvent>
@@ -60,6 +65,18 @@ void PlaylistView::dragMoveEvent(QDragMoveEvent *event)
 {
     //TODO: check permissions...
     event->accept();
+}
+
+void PlaylistView::dropEvent(QDropEvent *event)
+{
+    const QModelIndex target = indexAt(event->pos());
+    if (!target.isValid()) {
+        return;
+    }
+    const MimeData *mimeData = static_cast<const MimeData*>(event->mimeData());
+    const sp_track *trackToAdd[] = { mimeData->track() };
+    sp_playlist *targetPlaylist = target.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
+    sp_playlist_add_tracks(targetPlaylist, trackToAdd, 1, 0, MainWindow::self()->session());
 }
 
 void PlaylistView::contextMenuEvent(QContextMenuEvent *event)

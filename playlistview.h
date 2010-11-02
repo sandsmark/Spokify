@@ -35,6 +35,7 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
     virtual void contextMenuEvent(QContextMenuEvent *event);
 
 private:
