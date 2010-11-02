@@ -189,6 +189,17 @@ namespace SpotifySession {
         MainWindow::self()->endOfTrack();
     }
 
+    static void streamingError(sp_session *session, sp_error error)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(error);
+    }
+
+    static void userinfoUpdated(sp_session *session)
+    {
+        Q_UNUSED(session);
+    }
+
     static sp_session_callbacks spotifyCallbacks = {
         &SpotifySession::loggedIn,
         &SpotifySession::loggedOut,
@@ -199,7 +210,9 @@ namespace SpotifySession {
         &SpotifySession::musicDelivery,
         &SpotifySession::playTokenLost,
         &SpotifySession::logMessage,
-        &SpotifySession::endOfTrack
+        &SpotifySession::endOfTrack,
+        &SpotifySession::streamingError,
+        &SpotifySession::userinfoUpdated
     };
 
 }
