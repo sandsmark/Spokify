@@ -67,6 +67,7 @@ public:
     bool isExiting() const;
 
     sp_session *session() const;
+    sp_playlistcontainer *playlistContainer() const;
 
     static MainWindow *self();
 

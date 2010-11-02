@@ -24,20 +24,28 @@
 #include <libspotify/api.h>
 
 #include <QtGui/QMenu>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QBoxLayout>
 #include <QtGui/QDragMoveEvent>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDragLeaveEvent>
 
 #include <KLocale>
+#include <KDialog>
 
 PlaylistView::PlaylistView(QWidget *parent)
     : QListView(parent)
     , m_contextMenu(new QMenu(this))
 {
-    m_contextMenu->addAction(i18n("Create new Playlist"));
+    QAction *const newPlaylist = m_contextMenu->addAction(i18n("Create new Playlist"));
     m_contextMenu->addSeparator();
-    m_contextMenu->addAction(i18n("Rename Playlist"));
-    m_contextMenu->addAction(i18n("Delete Playlist"));
+    QAction *const renamePlaylist = m_contextMenu->addAction(i18n("Rename Playlist"));
+    QAction *const deletePlaylist = m_contextMenu->addAction(i18n("Delete Playlist"));
+
+    connect(newPlaylist, SIGNAL(triggered()), this, SLOT(newPlaylistSlot()));
+    connect(renamePlaylist, SIGNAL(triggered()), this, SLOT(renamePlaylistSlot()));
+    connect(deletePlaylist, SIGNAL(triggered()), this, SLOT(deletePlaylistSlot()));
 }
 
 PlaylistView::~PlaylistView()
@@ -82,4 +90,32 @@ void PlaylistView::dropEvent(QDropEvent *event)
 void PlaylistView::contextMenuEvent(QContextMenuEvent *event)
 {
     m_contextMenu->popup(QPoint(event->globalX(), event->globalY()));
+}
+
+void PlaylistView::newPlaylistSlot()
+{
+    KDialog *dialog = new KDialog(this);
+    dialog->setCaption(i18n("New Playlist"));
+    dialog->setButtons(KDialog::Ok | KDialog::Cancel);
+
+    QWidget *widget = new QWidget(dialog);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(new QLabel(i18n("Please, choose a name for the new playlist:"), widget));
+    QLineEdit *playlistName = new QLineEdit(widget);
+    layout->addWidget(playlistName);
+    widget->setLayout(layout);
+    dialog->setMainWidget(widget);
+
+    if (dialog->exec() == KDialog::Accepted) {
+        sp_playlistcontainer *const playlistContainer = MainWindow::self()->playlistContainer();
+        sp_playlistcontainer_add_new_playlist(playlistContainer, playlistName->text().toUtf8().data());
+    }
+}
+
+void PlaylistView::renamePlaylistSlot()
+{
+}
+
+void PlaylistView::deletePlaylistSlot()
+{
 }

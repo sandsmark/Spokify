@@ -565,6 +565,11 @@ sp_session *MainWindow::session() const
     return m_session;
 }
 
+sp_playlistcontainer *MainWindow::playlistContainer() const
+{
+    return sp_session_playlistcontainer(m_session);
+}
+
 MainWindow *MainWindow::self()
 {
     return s_self;

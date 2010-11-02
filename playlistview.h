@@ -26,6 +26,8 @@ class QMenu;
 class PlaylistView
     : public QListView
 {
+    Q_OBJECT
+
 public:
     PlaylistView(QWidget *parent = 0);
     virtual ~PlaylistView();
@@ -37,6 +39,11 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dropEvent(QDropEvent *event);
     virtual void contextMenuEvent(QContextMenuEvent *event);
+
+private Q_SLOTS:
+    void newPlaylistSlot();
+    void renamePlaylistSlot();
+    void deletePlaylistSlot();
 
 private:
     QMenu *m_contextMenu;
