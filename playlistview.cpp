@@ -112,6 +112,23 @@ void PlaylistView::newPlaylistSlot()
 
 void PlaylistView::renamePlaylistSlot()
 {
+    sp_playlist *targetPlaylist = currentIndex().data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
+
+    KDialog *dialog = new KDialog(this);
+    dialog->setCaption(i18n("Rename Playlist"));
+    dialog->setButtons(KDialog::Ok | KDialog::Cancel);
+
+    QWidget *widget = new QWidget(dialog);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(new QLabel(i18n("Please, choose a new name for the playlist %1:", sp_playlist_name(targetPlaylist)), widget));
+    QLineEdit *playlistName = new QLineEdit(widget);
+    layout->addWidget(playlistName);
+    widget->setLayout(layout);
+    dialog->setMainWidget(widget);
+
+    if (dialog->exec() == KDialog::Accepted) {
+        sp_playlist_rename(targetPlaylist, playlistName->text().toUtf8().data());
+    }
 }
 
 void PlaylistView::deletePlaylistSlot()
