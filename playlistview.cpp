@@ -18,20 +18,28 @@
 
 #include "playlistview.h"
 
+#include <QtGui/QMenu>
 #include <QtGui/QDragMoveEvent>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDragLeaveEvent>
 
+#include <KLocale>
+
 PlaylistView::PlaylistView(QWidget *parent)
     : QListView(parent)
+    , m_contextMenu(new QMenu(this))
 {
+    m_contextMenu->addAction(i18n("Create new Playlist"));
+    m_contextMenu->addSeparator();
+    m_contextMenu->addAction(i18n("Rename Playlist"));
+    m_contextMenu->addAction(i18n("Delete Playlist"));
 }
 
 PlaylistView::~PlaylistView()
 {
 }
 
-QSize PlaylistView::sizeHint () const
+QSize PlaylistView::sizeHint() const
 {
     return QSize(600,500);
 }
@@ -52,4 +60,9 @@ void PlaylistView::dragMoveEvent(QDragMoveEvent *event)
 {
     //TODO: check permissions...
     event->accept();
+}
+
+void PlaylistView::contextMenuEvent(QContextMenuEvent *event)
+{
+    m_contextMenu->popup(QPoint(event->globalX(), event->globalY()));
 }

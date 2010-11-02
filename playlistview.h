@@ -21,6 +21,8 @@
 
 #include <QtGui/QListView>
 
+class QMenu;
+
 class PlaylistView
     : public QListView
 {
@@ -33,6 +35,10 @@ protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragLeaveEvent(QDragLeaveEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void contextMenuEvent(QContextMenuEvent *event);
+
+private:
+    QMenu *m_contextMenu;
 };
 
 #endif
