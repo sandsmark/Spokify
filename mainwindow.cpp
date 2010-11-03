@@ -55,8 +55,6 @@
 #include <KActionCollection>
 #include <KStatusNotifierItem>
 
-#define LIBSPOTIFY_BUG 1
-
 MainWindow *MainWindow::s_self = 0;
 
 //BEGIN: SpotifySession - application bridge
@@ -702,11 +700,14 @@ bool MainWindow::hasChunk() const
 
 void MainWindow::endOfTrack()
 {
-#if LIBSPOTIFY_BUG
     Chunk c;
+    c.m_data = 0;
     c.m_dataFrames = -1;
+    c.m_rate = -1;
+    m_dataMutex.lock();
+    m_data.enqueue(c);
+    m_dataMutex.unlock();
     m_mainWidget->advanceCurrentCacheTrackTime(c);
-#endif
 }
 
 void MainWindow::fillPlaylistModel()
@@ -743,9 +744,9 @@ void MainWindow::restoreStatusBarSlot()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     KMessageBox::information(this,
-                i18n( "<qt>Closing the main window will keep Spokify running in the System Tray. "
-                      "Use <B>Quit</B> from the menu, or the Spokify tray icon to exit the application.</qt>" ),
-                i18n( "Docking in System Tray" ), "hideOnCloseInfo" );
+                i18n("<qt>Closing the main window will keep Spokify running in the System Tray. "
+                      "Use <B>Quit</B> from the menu, or the Spokify tray icon to exit the application.</qt>"),
+                i18n("Docking in System Tray" ), "hideOnCloseInfo" );
     hide();
     event->ignore();
 }
