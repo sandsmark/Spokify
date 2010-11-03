@@ -269,6 +269,9 @@ MainWidget::State MainWidget::state() const
 
 void MainWidget::highlightCurrentTrack(Focus focus)
 {
+    if (!m_currentPlayingCollection) {
+        return;
+    }
     // Here we are sure that the current playing collection is the one being shown
     m_trackView->highlightTrack(m_currentPlayingCollection->currentTrack);
     if (focus == SetFocus) {
@@ -281,6 +284,8 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
     m_slider->setRange(0, totalTrackTime * (quint64) 44100);
     m_slider->setValue(0);
     m_slider->setCacheValue(0);
+
+    m_totalTrackTime = totalTrackTime;
 
     QTime time;
     time = time.addMSecs(totalTrackTime);
@@ -297,6 +302,19 @@ void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
 {
     if (chunk.m_dataFrames == -1) {
         m_slider->setValue(m_slider->maximum());
+        QTime val;
+        QTime total;
+        val = total.addMSecs(m_totalTrackTime);
+        total = val;
+#if KDE_IS_VERSION(4,5,66)
+        m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
+                        KGlobal::locale()->formatLocaleTime(val, KLocale::TimeDuration | KLocale::TimeFoldHours),
+                        KGlobal::locale()->formatLocaleTime(total, KLocale::TimeDuration | KLocale::TimeFoldHours)));
+#else
+        m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
+                        KGlobal::locale()->formatTime(val, true, true),
+                        KGlobal::locale()->formatTime(total, true, true)));
+#endif
         return;
     }
 
@@ -304,7 +322,8 @@ void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
     const int curpos = (quint64) ((m_slider->value() / (chunk.m_rate * 1000)));
     const int totpos = (quint64) ((m_slider->maximum() / (chunk.m_rate * 1000)));
 
-    QTime val, total;
+    QTime val;
+    QTime total;
     val = val.addSecs(curpos);
     total = total.addSecs(totpos);
 #if KDE_IS_VERSION(4,5,66)

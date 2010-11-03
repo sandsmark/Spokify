@@ -44,7 +44,6 @@ public:
 
 Q_SIGNALS:
     void sliderReleased();
-    void maximumReached();
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
@@ -56,8 +55,6 @@ private:
     QImage m_rightForeground;
     QImage m_bodyBackground;
     QImage m_bodyForeground;
-    QImage m_slider;
-    QImage m_disabledSlider;
 
     quint64 m_minimum;
     quint64 m_maximum;

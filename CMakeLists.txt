@@ -47,7 +47,6 @@ install(FILES images/spotify-core-logo-128x128.png
               images/slider_body_left.png
               images/slider_body_right.png
               images/slider_body.png
-              images/slider.png
               images/dialog-information.png
               images/searching.png DESTINATION ${DATA_INSTALL_DIR}/spokify/images)
 install(FILES spokify.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})

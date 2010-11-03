@@ -130,6 +130,7 @@ private:
     PlayPauseButton                 *m_playPauseButton;
     Slider                          *m_slider;
     QLabel                          *m_currTotalTime;
+    int                              m_totalTrackTime;
 
     QHash<sp_playlist*, Collection> m_trackModelPlaylistCache;
     QHash<sp_search*, Collection>   m_trackModelSearchCache;

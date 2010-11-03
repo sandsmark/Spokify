@@ -18,6 +18,8 @@
 
 #include "slider.h"
 
+#include <math.h>
+
 #include <QtGui/QBrush>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
@@ -25,8 +27,6 @@
 #include <KIconEffect>
 #include <KApplication>
 #include <KStandardDirs>
-
-#define LIBSPOTIFY_BUG 1
 
 Slider::Slider(QWidget *parent)
     : QWidget(parent)
@@ -36,7 +36,6 @@ Slider::Slider(QWidget *parent)
     , m_rightForeground(KStandardDirs::locate("appdata", "images/slider_body_right.png"))
     , m_bodyBackground(KStandardDirs::locate("appdata", "images/slider_body_background.png"))
     , m_bodyForeground(KStandardDirs::locate("appdata", "images/slider_body.png"))
-    , m_slider(KStandardDirs::locate("appdata", "images/slider.png"))
     , m_minimum(0)
     , m_maximum(0)
     , m_value(0)
@@ -51,11 +50,6 @@ Slider::Slider(QWidget *parent)
     m_rightForeground = m_rightForeground.scaledToHeight(12, Qt::SmoothTransformation);
     m_bodyBackground = m_bodyBackground.scaledToHeight(24, Qt::SmoothTransformation);
     m_bodyForeground = m_bodyForeground.scaledToHeight(12, Qt::SmoothTransformation);
-
-    m_slider = m_slider.scaledToHeight(20, Qt::SmoothTransformation);
-
-    m_disabledSlider = m_slider;
-    KIconEffect::semiTransparent(m_disabledSlider);
 }
 
 Slider::~Slider()
@@ -94,15 +88,6 @@ void Slider::setValue(quint64 value)
         return;
     }
     m_value = value;
-#if LIBSPOTIFY_BUG
-    if (m_value >= m_maximum * 0.99) {
-        emit maximumReached();
-    }
-#else
-    if (m_value == m_maximum) {
-        emit maximumReached();
-    }
-#endif
     update();
 }
 
@@ -163,24 +148,13 @@ void Slider::paintEvent(QPaintEvent *event)
             p.setOpacity(0.5);
             QRect clipRect(7, 6, m_leftForeground.width() + foregroundRect.width() + m_rightForeground.width(), m_leftForeground.height());
             const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
-            clipRect.setWidth(pos * (event->rect().width() - m_slider.width() - 6) + 3);
+            clipRect.setWidth(pos * event->rect().width());
             p.setClipRect(clipRect);
             p.fillRect(event->rect(), kapp->palette().highlight());
             p.restore();
         }
     }
     //END: cache painting
-
-    //BEGIN: slider element
-    {
-        const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
-        if (isEnabled()) {
-            p.drawImage(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_slider);
-        } else {
-            p.drawImage(pos * (event->rect().width() - m_slider.width() - 6) + 3, 2, m_disabledSlider);
-        }
-    }
-    //END: slider element
 
     //BEGIN: overlay
     {

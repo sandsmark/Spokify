@@ -116,6 +116,9 @@ public:
 
     void fillPlaylistModel();
 
+    bool shuffle();
+    bool repeat();
+
 public Q_SLOTS:
     void restoreStatusBarSlot();
 
@@ -137,7 +140,6 @@ private Q_SLOTS:
     void resumeSlot();
     void pausedOrStoppedSlot();
     void shuffleSlot();
-    void repeatSlot();
     void performSearch();
     void pcmWrittenSlot(const Chunk &chunk);
     void playlistChanged(const QItemSelection &selection);

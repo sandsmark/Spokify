@@ -760,6 +760,16 @@ void MainWindow::fillPlaylistModel()
     }
 }
 
+bool MainWindow::shuffle()
+{
+    return m_shuffle->isChecked();
+}
+
+bool MainWindow::repeat()
+{
+    return m_repeat->isChecked();
+}
+
 void MainWindow::restoreStatusBarSlot()
 {
     m_progress->setVisible(false);
@@ -844,10 +854,6 @@ void MainWindow::pausedOrStoppedSlot()
 }
 
 void MainWindow::shuffleSlot()
-{
-}
-
-void MainWindow::repeatSlot()
 {
 }
 
@@ -1001,7 +1007,11 @@ void MainWindow::currentTrackFinishedSlot()
         return;
     }
     if (row > -1) {
-        c->currentTrack = proxyModel->index((row + 1) % proxyModel->rowCount(), 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+        const QModelIndex nextIndex = proxyModel->index((row + 1) % proxyModel->rowCount(), 0);
+        if (!m_repeat->isChecked() && !nextIndex.row()) {
+            return;
+        }
+        c->currentTrack = nextIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();;
     } else {
         c->currentTrack = proxyModel->index(0, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     }
@@ -1257,6 +1267,7 @@ void MainWindow::setupActions()
     m_shuffle->setText(i18n("Shu&ffle"));
     m_shuffle->setIcon(KIcon("tools-wizard"));
     m_shuffle->setShortcut(Qt::CTRL + Qt::Key_F);
+    m_shuffle->setCheckable(true);
     actionCollection()->addAction("shuffle", m_shuffle);
     connect(m_shuffle, SIGNAL(triggered(bool)), this, SLOT(shuffleSlot()));
 
@@ -1264,8 +1275,8 @@ void MainWindow::setupActions()
     m_repeat->setText(i18n("R&epeat"));
     m_repeat->setIcon(KIcon("view-refresh"));
     m_repeat->setShortcut(Qt::CTRL + Qt::Key_E);
+    m_repeat->setCheckable(true);
     actionCollection()->addAction("repeat", m_repeat);
-    connect(m_repeat, SIGNAL(triggered(bool)), this, SLOT(repeatSlot()));
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
