@@ -37,6 +37,7 @@
 #include <KLocale>
 #include <KLineEdit>
 #include <KPushButton>
+#include <kdeversion.h>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
@@ -110,7 +111,7 @@ void MainWidget::loggedOut()
     m_slider->setEnabled(false);
     m_slider->setValue(0);
     m_slider->setCacheValue(0);
-    m_currTotalTime->setText(i18n("<b>00:00:00</b><br/><b>00:00:00</b>"));
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>00:00</b>"));
     m_currTotalTime->setEnabled(false);
 }
 
@@ -273,8 +274,13 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
 
     QTime time;
     time = time.addMSecs(totalTrackTime);
-    m_currTotalTime->setText(i18n("<b>00:00:00</b><br/><b>%1</b>",
-                             KGlobal::locale()->formatTime( time, true, true)));
+#if KDE_IS_VERSION(4,5,66)
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1</b>",
+          KGlobal::locale()->formatLocaleTime( time, KLocale::TimeDuration | KLocale::TimeFoldHours)));
+#else
+    m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1</b>",
+          KGlobal::locale()->formatTime( time, true, true)));
+#endif
 }
 
 void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
@@ -291,9 +297,15 @@ void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
     QTime val, total;
     val = val.addSecs(curpos);
     total = total.addSecs(totpos);
+#if KDE_IS_VERSION(4,5,66)
     m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
-                    KGlobal::locale()->formatTime( val, true, true),
-                    KGlobal::locale()->formatTime( total, true, true)));
+                    KGlobal::locale()->formatLocaleTime(val, KLocale::TimeDuration | KLocale::TimeFoldHours),
+                    KGlobal::locale()->formatLocaleTime(total, KLocale::TimeDuration | KLocale::TimeFoldHours)));
+#else
+    m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
+                    KGlobal::locale()->formatTime(val, true, true),
+                    KGlobal::locale()->formatTime(total, true, true)));
+#endif
 }
 
 void MainWidget::advanceCurrentCacheTrackTime(const Chunk &chunk)
