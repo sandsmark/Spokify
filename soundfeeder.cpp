@@ -42,6 +42,10 @@ void SoundFeeder::run()
         }
         Chunk c = MainWindow::self()->nextChunk();
         m.unlock();
+        if (c.m_dataFrames == -1) {
+            emit pcmWritten(c);
+            continue;
+        }
         QMutex &m2 = MainWindow::self()->pcmMutex();
         m2.lock();
         while (!MainWindow::self()->isPlaying()) {

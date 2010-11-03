@@ -279,13 +279,18 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
 
 void MainWidget::advanceCurrentTrackTime(const Chunk &chunk)
 {
+    if (chunk.m_dataFrames == -1) {
+        m_slider->setValue(m_slider->maximum());
+        return;
+    }
+
     m_slider->setValue(m_slider->value() + chunk.m_dataFrames * 1000);
     const int curpos = (quint64) ((m_slider->value() / (chunk.m_rate * 1000)));
     const int totpos = (quint64) ((m_slider->maximum() / (chunk.m_rate * 1000)));
 
     QTime val, total;
-    val = val.addSecs( curpos );
-    total = total.addSecs( totpos );
+    val = val.addSecs(curpos);
+    total = total.addSecs(totpos);
     m_currTotalTime->setText(i18nc("Current time position, Total length","<b>%1</b><br/><b>%2</b>",
                     KGlobal::locale()->formatTime( val, true, true),
                     KGlobal::locale()->formatTime( total, true, true)));
