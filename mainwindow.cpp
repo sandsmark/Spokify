@@ -250,6 +250,7 @@ namespace SpotifyPlaylists {
     {
         Q_UNUSED(pl);
         Q_UNUSED(userdata);
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static void playlistStateChanged(sp_playlist *pl, void *userdata)
@@ -293,6 +294,7 @@ namespace SpotifyPlaylistContainer {
         Q_UNUSED(playlist);
         Q_UNUSED(position);
         Q_UNUSED(userdata);
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static void playlistRemoved(sp_playlistcontainer *pc, sp_playlist *playlist, int position, void *userdata)
@@ -301,6 +303,7 @@ namespace SpotifyPlaylistContainer {
         Q_UNUSED(playlist);
         Q_UNUSED(position);
         Q_UNUSED(userdata);
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static void playlistMoved(sp_playlistcontainer *pc, sp_playlist *playlist, int position, int newPosition, void *userdata)
@@ -310,6 +313,7 @@ namespace SpotifyPlaylistContainer {
         Q_UNUSED(position);
         Q_UNUSED(newPosition);
         Q_UNUSED(userdata);
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static void containerLoaded(sp_playlistcontainer *pc, void *userdata)
