@@ -23,13 +23,13 @@
 
 #include <libspotify/api.h>
 
-#include <QtGui/QMenu>
 #include <QtGui/QLabel>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QDragMoveEvent>
 #include <QtGui/QDragEnterEvent>
 #include <QtGui/QDragLeaveEvent>
 
+#include <KMenu>
 #include <KLocale>
 #include <KDialog>
 #include <KLineEdit>
@@ -37,12 +37,15 @@
 
 PlaylistView::PlaylistView(QWidget *parent)
     : QListView(parent)
-    , m_contextMenu(new QMenu(this))
+    , m_contextMenu(new KMenu(this))
+    , m_contextMenuEmpty(new KMenu(this))
 {
     QAction *const newPlaylist = m_contextMenu->addAction(i18n("Create new Playlist"));
     m_contextMenu->addSeparator();
     QAction *const renamePlaylist = m_contextMenu->addAction(i18n("Rename Playlist"));
     QAction *const deletePlaylist = m_contextMenu->addAction(i18n("Delete Playlist"));
+
+    m_contextMenuEmpty->addAction(newPlaylist);
 
     connect(newPlaylist, SIGNAL(triggered()), this, SLOT(newPlaylistSlot()));
     connect(renamePlaylist, SIGNAL(triggered()), this, SLOT(renamePlaylistSlot()));
@@ -88,7 +91,12 @@ void PlaylistView::dropEvent(QDropEvent *event)
 
 void PlaylistView::contextMenuEvent(QContextMenuEvent *event)
 {
-    m_contextMenu->popup(QPoint(event->globalX(), event->globalY()));
+    const QModelIndex index = indexAt(event->pos());
+    if (index.isValid()) {
+        m_contextMenu->popup(QPoint(event->globalX(), event->globalY()));
+    } else {
+        m_contextMenuEmpty->popup(QPoint(event->globalX(), event->globalY()));
+    }
 }
 
 void PlaylistView::newPlaylistSlot()

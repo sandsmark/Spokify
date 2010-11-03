@@ -21,7 +21,7 @@
 
 #include <QtGui/QListView>
 
-class QMenu;
+class KMenu;
 
 class PlaylistView
     : public QListView
@@ -45,7 +45,8 @@ private Q_SLOTS:
     void deletePlaylistSlot();
 
 private:
-    QMenu *m_contextMenu;
+    KMenu *m_contextMenu;
+    KMenu *m_contextMenuEmpty;
 };
 
 #endif
