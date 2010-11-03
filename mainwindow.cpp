@@ -726,9 +726,9 @@ void MainWindow::restoreStatusBarSlot()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     KMessageBox::information(this,
-                i18n( "<qt>Closing the main window will keep Spokify running in the System Tray. "
-                      "Use <B>Quit</B> from the menu, or the Spokify tray icon to exit the application.</qt>" ),
-                i18n( "Docking in System Tray" ), "hideOnCloseInfo" );
+                i18n("<qt>Closing the main window will keep Spokify running in the System Tray. "
+                      "Use <B>Quit</B> from the menu, or the Spokify tray icon to exit the application.</qt>"),
+                i18n("Docking in System Tray" ), "hideOnCloseInfo" );
     hide();
     event->ignore();
 }

@@ -276,10 +276,10 @@ void MainWidget::setTotalTrackTime(int totalTrackTime)
     time = time.addMSecs(totalTrackTime);
 #if KDE_IS_VERSION(4,5,66)
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1</b>",
-          KGlobal::locale()->formatLocaleTime( time, KLocale::TimeDuration | KLocale::TimeFoldHours)));
+          KGlobal::locale()->formatLocaleTime(time, KLocale::TimeDuration | KLocale::TimeFoldHours)));
 #else
     m_currTotalTime->setText(i18n("<b>00:00</b><br/><b>%1</b>",
-          KGlobal::locale()->formatTime( time, true, true)));
+          KGlobal::locale()->formatTime(time, true, true)));
 #endif
 }
 
