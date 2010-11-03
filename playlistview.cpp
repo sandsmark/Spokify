@@ -25,7 +25,6 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
 #include <QtGui/QBoxLayout>
 #include <QtGui/QDragMoveEvent>
 #include <QtGui/QDragEnterEvent>
@@ -33,6 +32,7 @@
 
 #include <KLocale>
 #include <KDialog>
+#include <KLineEdit>
 #include <KMessageBox>
 
 PlaylistView::PlaylistView(QWidget *parent)
@@ -100,10 +100,12 @@ void PlaylistView::newPlaylistSlot()
     QWidget *widget = new QWidget(dialog);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(new QLabel(i18n("Choose a name for the new playlist:"), widget));
-    QLineEdit *playlistName = new QLineEdit(widget);
+    KLineEdit *playlistName = new KLineEdit(widget);
+    playlistName->setClearButtonShown(true);
     layout->addWidget(playlistName);
     widget->setLayout(layout);
     dialog->setMainWidget(widget);
+    playlistName->setFocus();
 
     if (dialog->exec() == KDialog::Accepted) {
         sp_playlistcontainer *const playlistContainer = MainWindow::self()->playlistContainer();
@@ -122,10 +124,14 @@ void PlaylistView::renamePlaylistSlot()
     QWidget *widget = new QWidget(dialog);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(new QLabel(i18n("Choose a new name for the playlist \"%1\":", QString::fromUtf8(sp_playlist_name(targetPlaylist))), widget));
-    QLineEdit *playlistName = new QLineEdit(widget);
+    KLineEdit *playlistName = new KLineEdit(widget);
+    playlistName->setClearButtonShown(true);
+    playlistName->setText(QString::fromUtf8(sp_playlist_name(targetPlaylist)));
     layout->addWidget(playlistName);
     widget->setLayout(layout);
     dialog->setMainWidget(widget);
+    playlistName->selectAll();
+    playlistName->setFocus();
 
     if (dialog->exec() == KDialog::Accepted) {
         sp_playlist_rename(targetPlaylist, playlistName->text().toUtf8().data());
