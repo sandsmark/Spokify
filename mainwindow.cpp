@@ -222,28 +222,31 @@ namespace SpotifyPlaylists {
 
     static void tracksAdded(sp_playlist *pl, sp_track *const *tracks, int numTracks, int position, void *userdata)
     {
-        Q_UNUSED(pl);
         Q_UNUSED(tracks);
         Q_UNUSED(numTracks);
         Q_UNUSED(position);
         Q_UNUSED(userdata);
+        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        c.needsToBeFilled = true;
     }
 
     static void tracksRemoved(sp_playlist *pl, const int *tracks, int numTracks, void *userdata)
     {
-        Q_UNUSED(pl);
         Q_UNUSED(tracks);
         Q_UNUSED(numTracks);
         Q_UNUSED(userdata);
+        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        c.needsToBeFilled = true;
     }
 
     static void tracksMoved(sp_playlist *pl, const int *tracks, int numTracks, int newPosition, void *userdata)
     {
-        Q_UNUSED(pl);
         Q_UNUSED(tracks);
         Q_UNUSED(numTracks);
         Q_UNUSED(newPosition);
         Q_UNUSED(userdata);
+        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        c.needsToBeFilled = true;
     }
 
     static void playlistRenamed(sp_playlist *pl, void *userdata)
@@ -921,8 +924,10 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
     MainWidget::Collection c = m_mainWidget->collection(curr);
     m_currentPlaylist = curr;
     if (c.needsToBeFilled) {
+        c.needsToBeFilled = false;
         TrackModel *const trackModel = c.trackModel;
         const int numTracks = sp_playlist_num_tracks(curr);
+        trackModel->removeRows(0, trackModel->rowCount());
         trackModel->insertRows(0, numTracks);
         for (int i = 0; i < numTracks; ++i) {
             sp_track *const tr = sp_playlist_track(curr, i);
