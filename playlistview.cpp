@@ -115,7 +115,7 @@ void PlaylistView::newPlaylistSlot()
     dialog->setMainWidget(widget);
     playlistName->setFocus();
 
-    if (dialog->exec() == KDialog::Accepted) {
+    if (dialog->exec() == KDialog::Accepted && !playlistName->text().isEmpty()) {
         sp_playlistcontainer *const playlistContainer = MainWindow::self()->playlistContainer();
         sp_playlistcontainer_add_new_playlist(playlistContainer, playlistName->text().toUtf8().data());
     }
@@ -141,7 +141,7 @@ void PlaylistView::renamePlaylistSlot()
     playlistName->selectAll();
     playlistName->setFocus();
 
-    if (dialog->exec() == KDialog::Accepted) {
+    if (dialog->exec() == KDialog::Accepted && !playlistName->text().isEmpty()) {
         sp_playlist_rename(targetPlaylist, playlistName->text().toUtf8().data());
     }
 }
