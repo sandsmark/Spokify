@@ -88,6 +88,9 @@ void Slider::setValue(quint64 value)
         return;
     }
     m_value = value;
+    if (m_value == m_maximum) {
+        emit maximumReached();
+    }
     update();
 }
 

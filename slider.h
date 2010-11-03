@@ -44,6 +44,7 @@ public:
 
 Q_SIGNALS:
     void sliderReleased();
+    void maximumReached();
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
