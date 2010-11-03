@@ -111,6 +111,7 @@ public:
 Q_SIGNALS:
     void play(const QModelIndex &index);
     void resume();
+    void pausedOrStopped();
     void seekPosition(int position);
     void currentTrackFinished();
 

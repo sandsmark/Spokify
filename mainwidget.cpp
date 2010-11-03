@@ -255,6 +255,9 @@ TrackView *MainWidget::trackView() const
 
 void MainWidget::setState(State state)
 {
+    if (state != Playing) {
+        emit pausedOrStopped();
+    }
     m_state = state;
     m_playPauseButton->setIsPlaying(state == Playing);
 }
@@ -339,6 +342,7 @@ void MainWidget::playSlot()
 void MainWidget::pauseSlot()
 {
     m_state = Paused;
+    emit pausedOrStopped();
 }
 
 void MainWidget::sliderReleasedSlot()

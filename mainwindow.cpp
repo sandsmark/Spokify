@@ -39,6 +39,7 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QSortFilterProxyModel>
 
+#include <KMenu>
 #include <KDebug>
 #include <KAction>
 #include <KLocale>
@@ -450,12 +451,36 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setStatus(KStatusNotifierItem::Active);
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
 
+    {
+        KActionCollection *const collection = m_notifierItem->actionCollection();
+
+        m_previousTrack = collection->addAction("previous-track");
+        m_nextTrack = collection->addAction("next-track");
+
+        m_previousTrack->setEnabled(false);
+        m_nextTrack->setEnabled(false);
+
+        m_previousTrack->setIcon(KIcon("media-skip-backward"));
+        m_previousTrack->setText(i18nc("Play previous track", "Previous"));
+        m_nextTrack->setIcon(KIcon("media-skip-forward"));
+        m_nextTrack->setText(i18nc("Play next track", "Next"));
+
+        connect(m_previousTrack, SIGNAL(triggered()), this, SLOT(previousTrackSlot()));
+        connect(m_nextTrack, SIGNAL(triggered()), this, SLOT(nextTrackSlot()));
+
+        KMenu *contextMenu = m_notifierItem->contextMenu();
+        contextMenu->addSeparator();
+        contextMenu->addAction(m_previousTrack);
+        contextMenu->addAction(m_nextTrack);
+    }
+
     connect(this, SIGNAL(notifyMainThreadSignal()), this, SLOT(notifyMainThread()), Qt::QueuedConnection);
     connect(this, SIGNAL(newChunkReceived(Chunk)), this, SLOT(newChunkReceivedSlot(Chunk)), Qt::QueuedConnection);
     connect(this, SIGNAL(coverLoaded(QImage)), this, SLOT(coverLoadedSlot(QImage)), Qt::QueuedConnection);
     connect(m_soundFeeder, SIGNAL(pcmWritten(Chunk)), this, SLOT(pcmWrittenSlot(Chunk)));
     connect(m_mainWidget, SIGNAL(play(QModelIndex)), this, SLOT(playSlot(QModelIndex)));
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
+    connect(m_mainWidget, SIGNAL(pausedOrStopped()), this, SLOT(pausedOrStoppedSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
     connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
 
@@ -799,14 +824,23 @@ void MainWindow::playSlot(const QModelIndex &index)
     if (!index.isValid()) {
         return;
     }
-
+    m_previousTrack->setEnabled(true);
+    m_nextTrack->setEnabled(true);
     play(index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
 }
 
 void MainWindow::resumeSlot()
 {
+    m_previousTrack->setEnabled(true);
+    m_nextTrack->setEnabled(true);
     m_mainWidget->setState(MainWidget::Playing);
     m_playCondition.wakeAll();
+}
+
+void MainWindow::pausedOrStoppedSlot()
+{
+    m_previousTrack->setEnabled(false);
+    m_nextTrack->setEnabled(false);
 }
 
 void MainWindow::shuffleSlot()
@@ -982,6 +1016,8 @@ void MainWindow::playPlaylist(const QModelIndex &index)
     if (!sp_playlist_num_tracks(playlist)) {
         return;
     }
+    m_previousTrack->setEnabled(true);
+    m_nextTrack->setEnabled(true);
     MainWidget::Collection &c = m_mainWidget->collection(playlist);
     const QModelIndex currentIndex = c.proxyModel->index(0, 0);
     c.currentTrack = currentIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
@@ -997,6 +1033,8 @@ void MainWindow::playSearchHistory(const QModelIndex &index)
     if (!sp_search_num_tracks(search)) {
         return;
     }
+    m_previousTrack->setEnabled(true);
+    m_nextTrack->setEnabled(true);
     MainWidget::Collection &c = m_mainWidget->collection(search);
     const QModelIndex currentIndex = c.proxyModel->index(0, 0);
     c.currentTrack = currentIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
@@ -1045,6 +1083,53 @@ void MainWindow::clearAllWidgets()
     m_cover->setEnabled(false);
     m_cover->setPixmap(KStandardDirs::locate("appdata", "images/nocover-200x200.png"));
     m_mainWidget->loggedOut();
+}
+
+void MainWindow::previousTrackSlot()
+{
+    MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
+    if (!c) {
+        return;
+    }
+    int row = c->rowForTrack(c->currentTrack);
+    QSortFilterProxyModel *const proxyModel = c->proxyModel;
+    if (!proxyModel->rowCount()) {
+        return;
+    }
+    if (row > -1) {
+        const QModelIndex index = proxyModel->index(row - 1, 0);
+        if (!index.isValid()) {
+            return;
+        }
+        c->currentTrack = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+    } else {
+        const QModelIndex index = proxyModel->index(0, 0);
+        c->currentTrack = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+    }
+    m_mainWidget->trackView()->highlightTrack(c->currentTrack);
+    m_mainWidget->setState(MainWidget::Playing);
+    play(c->currentTrack);
+}
+
+void MainWindow::nextTrackSlot()
+{
+    MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
+    if (!c) {
+        return;
+    }
+    int row = c->rowForTrack(c->currentTrack);
+    QSortFilterProxyModel *const proxyModel = c->proxyModel;
+    if (!proxyModel->rowCount()) {
+        return;
+    }
+    if (row > -1) {
+        const QModelIndex index = proxyModel->index((row + 1) % proxyModel->rowCount(), 0);
+        c->currentTrack = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();    } else {
+        c->currentTrack = proxyModel->index(0, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+    }
+    m_mainWidget->trackView()->highlightTrack(c->currentTrack);
+    m_mainWidget->setState(MainWidget::Playing);
+    play(c->currentTrack);
 }
 
 void MainWindow::play(sp_track *tr)

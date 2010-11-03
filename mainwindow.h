@@ -135,6 +135,7 @@ private Q_SLOTS:
     void logoutSlot();
     void playSlot(const QModelIndex &index);
     void resumeSlot();
+    void pausedOrStoppedSlot();
     void shuffleSlot();
     void repeatSlot();
     void performSearch();
@@ -147,6 +148,8 @@ private Q_SLOTS:
     void playSearchHistory(const QModelIndex &index);
     void coverClickedSlot();
     void clearAllWidgets();
+    void previousTrackSlot();
+    void nextTrackSlot();
 
 private:
     void play(sp_track *track);
@@ -176,6 +179,8 @@ private:
     KAction              *m_logout;
     KAction              *m_shuffle;
     KAction              *m_repeat;
+    KAction              *m_previousTrack;
+    KAction              *m_nextTrack;
     QLabel               *m_statusLabel;
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;
