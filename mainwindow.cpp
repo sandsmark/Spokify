@@ -1276,6 +1276,7 @@ void MainWindow::setupActions()
     m_repeat->setIcon(KIcon("view-refresh"));
     m_repeat->setShortcut(Qt::CTRL + Qt::Key_E);
     m_repeat->setCheckable(true);
+    m_repeat->setChecked(true);
     actionCollection()->addAction("repeat", m_repeat);
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
