@@ -159,6 +159,15 @@ void Slider::paintEvent(QPaintEvent *event)
     }
     //END: cache painting
 
+    //BEGIN: draw cursor position if on hover
+    {
+        const QPoint cursorPos = mapFromGlobal(QCursor::pos());
+        if (cursorPos.y() > 6 && cursorPos.y() < m_leftForeground.height() + 6 && cursorPos.x() > 7 && cursorPos.x() < rect().width() - 7) {
+            p.drawLine(cursorPos.x(), 6, cursorPos.x(), 6 + m_rightForeground.height());
+        }
+    }
+    //END: draw cursor position if on hover
+
     //BEGIN: overlay
     {
         p.save();
@@ -185,5 +194,10 @@ void Slider::mousePressEvent(QMouseEvent *event)
     m_cacheValue = (clickPosition / total) * m_maximum;
     m_value = (clickPosition / total) * m_maximum;
     emit seek(clickPosition / total);
+    update();
+}
+
+void Slider::mouseMoveEvent(QMouseEvent *event)
+{
     update();
 }

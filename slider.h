@@ -49,6 +49,7 @@ Q_SIGNALS:
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
 private:
     QImage m_leftBackground;
