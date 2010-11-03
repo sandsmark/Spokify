@@ -33,6 +33,8 @@ public:
     void setIsPlaying(bool isPlaying);
     bool isPlaying() const;
 
+    void setEnabled(bool enabled);
+
 Q_SIGNALS:
     void play();
     void pause();

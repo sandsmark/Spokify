@@ -65,6 +65,13 @@ bool PlayPauseButton::isPlaying() const
     return m_isPlaying;
 }
 
+void PlayPauseButton::setEnabled(bool enabled)
+{
+    if (enabled || !m_isPlaying) {
+        QWidget::setEnabled(enabled);
+    }
+}
+
 void PlayPauseButton::enterEvent(QEvent *event)
 {
     m_hovered = true;
