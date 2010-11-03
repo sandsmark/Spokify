@@ -1153,6 +1153,9 @@ void MainWindow::nextTrackSlot()
 
 void MainWindow::play(sp_track *tr)
 {
+    m_previousTrack->setEnabled(true);
+    m_nextTrack->setEnabled(true);
+
     clearSoundQueue();
     m_pcmMutex.lock();
     snd_pcm_prepare(m_snd);
