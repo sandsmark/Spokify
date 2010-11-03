@@ -226,7 +226,7 @@ namespace SpotifyPlaylists {
         Q_UNUSED(numTracks);
         Q_UNUSED(position);
         Q_UNUSED(userdata);
-        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        MainWidget::Collection &c = MainWindow::self()->mainWidget()->collection(pl);
         c.needsToBeFilled = true;
     }
 
@@ -235,7 +235,7 @@ namespace SpotifyPlaylists {
         Q_UNUSED(tracks);
         Q_UNUSED(numTracks);
         Q_UNUSED(userdata);
-        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        MainWidget::Collection &c = MainWindow::self()->mainWidget()->collection(pl);
         c.needsToBeFilled = true;
     }
 
@@ -245,7 +245,7 @@ namespace SpotifyPlaylists {
         Q_UNUSED(numTracks);
         Q_UNUSED(newPosition);
         Q_UNUSED(userdata);
-        MainWidget::Collection c = MainWindow::self()->mainWidget()->collection(pl);
+        MainWidget::Collection &c = MainWindow::self()->mainWidget()->collection(pl);
         c.needsToBeFilled = true;
     }
 
@@ -921,7 +921,7 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
     m_searchHistoryView->setCurrentIndex(QModelIndex());
 
     sp_playlist *const curr = index.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
-    MainWidget::Collection c = m_mainWidget->collection(curr);
+    MainWidget::Collection &c = m_mainWidget->collection(curr);
     m_currentPlaylist = curr;
     if (c.needsToBeFilled) {
         c.needsToBeFilled = false;

@@ -126,27 +126,25 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
 {
     if (m_trackModelPlaylistCache.contains(playlist)) {
         Collection &res = m_trackModelPlaylistCache[playlist];
-        if (!res.needsToBeFilled) {
-            m_trackView->setModel(res.proxyModel);
-            m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
+        m_trackView->setModel(res.proxyModel);
+        m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
 
-            if (m_currentCollection) {
-                disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
-                disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
-            }
-
-            m_filter->setText(res.proxyModel->filterRegExp().pattern());
-            connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
-            connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
-            connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
-
-            m_currentCollection = &m_trackModelPlaylistCache[playlist];
-
-            m_trackView->highlightTrack(res.currentTrack);
-            m_trackView->setFocus();
-
-            return res;
+        if (m_currentCollection) {
+            disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+            disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         }
+
+        m_filter->setText(res.proxyModel->filterRegExp().pattern());
+        connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
+        connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
+        connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+        m_currentCollection = &m_trackModelPlaylistCache[playlist];
+
+        m_trackView->highlightTrack(res.currentTrack);
+        m_trackView->setFocus();
+
+        return res;
     }
 
     Collection c;
@@ -183,27 +181,25 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
 {
     if (m_trackModelSearchCache.contains(search)) {
         Collection &res = m_trackModelSearchCache[search];
-        if (!res.needsToBeFilled) {
-            m_trackView->setModel(res.proxyModel);
-            m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
+        m_trackView->setModel(res.proxyModel);
+        m_trackView->sortByColumn(res.proxyModel->sortColumn(), res.proxyModel->sortOrder());
 
-            if (m_currentCollection) {
-                disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
-                disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
-            }
-
-            m_filter->setText(res.proxyModel->filterRegExp().pattern());
-            connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
-            connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
-            connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
-
-            m_currentCollection = &m_trackModelSearchCache[search];
-
-            m_trackView->highlightTrack(res.currentTrack);
-            m_trackView->setFocus();
-
-            return res;
+        if (m_currentCollection) {
+            disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+            disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         }
+
+        m_filter->setText(res.proxyModel->filterRegExp().pattern());
+        connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
+        connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
+        connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
+
+        m_currentCollection = &m_trackModelSearchCache[search];
+
+        m_trackView->highlightTrack(res.currentTrack);
+        m_trackView->setFocus();
+
+        return res;
     }
 
     Collection c;
