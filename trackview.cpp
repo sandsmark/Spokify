@@ -53,6 +53,18 @@ void TrackView::setSearching(bool searching)
     update();
 }
 
+void TrackView::highlightTrack(sp_track *track)
+{
+    for (int i = 0; i < model()->rowCount(); ++i) {
+        const QModelIndex currIndex = model()->index(i, 0);
+        sp_track *const currTrack = currIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+        if (currTrack == track) {
+            setCurrentIndex(currIndex);
+            return;
+        }
+    }
+}
+
 void TrackView::paintEvent(QPaintEvent *event)
 {
     if (m_isSearching) {

@@ -955,25 +955,25 @@ void MainWindow::seekPosition(int position)
 
 void MainWindow::currentTrackFinishedSlot()
 {
+    m_mainWidget->setState(MainWidget::Stopped);
+
     MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
     if (!c) {
         return;
     }
-    if (c->currentTrack.isValid()) {
-        const QAbstractItemModel *const model = c->currentTrack.model();
-        c->currentTrack = model->index((c->currentTrack.row() + 1) % model->rowCount(), 0);
+    int row = c->rowForTrack(c->currentTrack);
+    QSortFilterProxyModel *const proxyModel = c->proxyModel;
+    if (!proxyModel->rowCount()) {
+        return;
+    }
+    if (row > -1) {
+        c->currentTrack = proxyModel->index((row + 1) % proxyModel->rowCount(), 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     } else {
-        const QAbstractItemModel *const model = c->proxyModel;
-        if (!model->rowCount()) {
-            return;
-        }
-        c->currentTrack = model->index(0, 0);
+        c->currentTrack = proxyModel->index(0, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     }
-    TrackView *const trackView = m_mainWidget->trackView();
-    if (trackView->model() == c->proxyModel) {
-        trackView->setCurrentIndex(c->currentTrack);
-    }
-    play(c->currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    m_mainWidget->trackView()->highlightTrack(c->currentTrack);
+    m_mainWidget->setState(MainWidget::Playing);
+    play(c->currentTrack);
 }
 
 void MainWindow::playPlaylist(const QModelIndex &index)
@@ -983,11 +983,12 @@ void MainWindow::playPlaylist(const QModelIndex &index)
         return;
     }
     MainWidget::Collection &c = m_mainWidget->collection(playlist);
-    c.currentTrack = c.proxyModel->index(0, 0);
+    const QModelIndex currentIndex = c.proxyModel->index(0, 0);
+    c.currentTrack = currentIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     m_mainWidget->setCurrentPlayingCollection(c);
-    m_mainWidget->trackView()->setCurrentIndex(c.currentTrack);
+    m_mainWidget->trackView()->highlightTrack(c.currentTrack);
     m_mainWidget->setState(MainWidget::Playing);
-    play(c.currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    play(c.currentTrack);
 }
 
 void MainWindow::playSearchHistory(const QModelIndex &index)
@@ -997,11 +998,12 @@ void MainWindow::playSearchHistory(const QModelIndex &index)
         return;
     }
     MainWidget::Collection &c = m_mainWidget->collection(search);
-    c.currentTrack = c.proxyModel->index(0, 0);
+    const QModelIndex currentIndex = c.proxyModel->index(0, 0);
+    c.currentTrack = currentIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     m_mainWidget->setCurrentPlayingCollection(c);
-    m_mainWidget->trackView()->setCurrentIndex(c.currentTrack);
+    m_mainWidget->trackView()->highlightTrack(c.currentTrack);
     m_mainWidget->setState(MainWidget::Playing);
-    play(c.currentTrack.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>());
+    play(c.currentTrack);
 }
 
 void MainWindow::coverClickedSlot()
@@ -1014,6 +1016,7 @@ void MainWindow::coverClickedSlot()
             if (c == &m_mainWidget->collection(playlist)) {
                 m_playlistView->setCurrentIndex(index);
                 m_searchHistoryView->setCurrentIndex(QModelIndex());
+                m_mainWidget->highlightCurrentTrack();
                 return;
             }
         }

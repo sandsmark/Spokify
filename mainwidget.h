@@ -20,17 +20,18 @@
 #define MAINWIDGET_H
 
 #include "chunk.h"
+#include "trackmodel.h"
 
 #include <QtCore/QModelIndex>
 #include <QtCore/QPersistentModelIndex>
 
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
+#include <QtGui/QSortFilterProxyModel>
 
 #include <libspotify/api.h>
 
 class TrackView;
-class TrackModel;
 
 class QLabel;
 class QSlider;
@@ -54,6 +55,11 @@ public:
         Paused
     };
 
+    enum Focus {
+        SetFocus = 0,
+        DoNotSetFocus = 1
+    };
+
     struct Collection {
         Collection()
             : proxyModel(0)
@@ -62,14 +68,20 @@ public:
         {
         }
 
-        bool operator==(const Collection &rhs) const
+        int rowForTrack(sp_track *track)
         {
-            return proxyModel == rhs.proxyModel && trackModel == rhs.trackModel;
+            for (int i = 0; i < proxyModel->rowCount(); ++i) {
+                sp_track *const currTrack = proxyModel->index(i, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
+                if (currTrack == track) {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         QSortFilterProxyModel *proxyModel;
         TrackModel            *trackModel;
-        QPersistentModelIndex  currentTrack;
+        sp_track              *currentTrack;
         bool                   needsToBeFilled;
     };
 
@@ -90,6 +102,8 @@ public:
     void setState(State state);
     State state() const;
 
+    void highlightCurrentTrack(Focus focus = SetFocus);
+
     void setTotalTrackTime(int totalTrackTime);
     void advanceCurrentTrackTime(const Chunk &c);
     void advanceCurrentCacheTrackTime(const Chunk &c);
@@ -106,6 +120,7 @@ private Q_SLOTS:
     void sliderReleasedSlot();
     void trackRequested(const QModelIndex &index);
     void selectionChangedSlot(const QItemSelection &selection);
+    void layoutChangedSlot();
 
 private:
     State                            m_state;

@@ -17,7 +17,7 @@
  */
 
 #ifndef TRACKMODEL_H
-#define TRACKMODEL_h
+#define TRACKMODEL_H
 
 #include <QtCore/QList>
 #include <QtCore/QAbstractItemModel>

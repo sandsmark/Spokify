@@ -21,6 +21,8 @@
 
 #include <QtGui/QTableView>
 
+struct sp_track;
+
 class TrackView
     : public QTableView
 {
@@ -29,6 +31,7 @@ public:
     virtual ~TrackView();
 
     void setSearching(bool searching);
+    void highlightTrack(sp_track *track);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);

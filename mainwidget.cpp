@@ -133,18 +133,18 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
 
         if (m_currentCollection) {
             disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+            disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         }
 
         m_filter->setText(res.proxyModel->filterRegExp().pattern());
         connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
-
+        connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
         m_currentCollection = &m_trackModelPlaylistCache[playlist];
 
-        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
-            m_trackView->setCurrentIndex(res.currentTrack);
-        }
+        m_trackView->highlightTrack(res.currentTrack);
+        m_trackView->setFocus();
 
         return res;
     }
@@ -168,14 +168,13 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
 
     m_filter->clear();
     connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString)));
-
+    connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
     m_currentCollection = &m_trackModelPlaylistCache[playlist];
 
-    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
-        m_trackView->setCurrentIndex(c.currentTrack);
-    }
+    m_trackView->highlightTrack(c.currentTrack);
+    m_trackView->setFocus();
 
     return m_trackModelPlaylistCache[playlist];
 }
@@ -190,18 +189,18 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
 
         if (m_currentCollection) {
             disconnect(m_filter, SIGNAL(textChanged(QString)), m_currentCollection->proxyModel, SLOT(setFilterFixedString(QString)));
+            disconnect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         }
 
         m_filter->setText(res.proxyModel->filterRegExp().pattern());
         connect(m_filter, SIGNAL(textChanged(QString)), res.proxyModel, SLOT(setFilterFixedString(QString)));
-
+        connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
         connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
         m_currentCollection = &m_trackModelSearchCache[search];
 
-        if (m_currentPlayingCollection && *m_currentPlayingCollection == res && res.currentTrack.isValid()) {
-            m_trackView->setCurrentIndex(res.currentTrack);
-        }
+        m_trackView->highlightTrack(res.currentTrack);
+        m_trackView->setFocus();
 
         return res;
     }
@@ -225,14 +224,13 @@ MainWidget::Collection &MainWidget::collection(sp_search *search)
 
     m_filter->clear();
     connect(m_filter, SIGNAL(textChanged(QString)), c.proxyModel, SLOT(setFilterFixedString(QString)));
-
+    connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(layoutChangedSlot()));
     connect(m_trackView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(selectionChangedSlot(QItemSelection)));
 
     m_currentCollection = &m_trackModelSearchCache[search];
 
-    if (m_currentPlayingCollection && *m_currentPlayingCollection == c && c.currentTrack.isValid()) {
-        m_trackView->setCurrentIndex(c.currentTrack);
-    }
+    m_trackView->highlightTrack(c.currentTrack);
+    m_trackView->setFocus();
 
     return m_trackModelSearchCache[search];
 }
@@ -264,6 +262,15 @@ void MainWidget::setState(State state)
 MainWidget::State MainWidget::state() const
 {
     return m_state;
+}
+
+void MainWidget::highlightCurrentTrack(Focus focus)
+{
+    // Here we are sure that the current playing collection is the one being shown
+    m_trackView->highlightTrack(m_currentPlayingCollection->currentTrack);
+    if (focus == SetFocus) {
+        m_trackView->setFocus();
+    }
 }
 
 void MainWidget::setTotalTrackTime(int totalTrackTime)
@@ -347,11 +354,16 @@ void MainWidget::trackRequested(const QModelIndex &index)
     m_state = Playing;
     m_playPauseButton->setIsPlaying(true);
     m_currentPlayingCollection = m_currentCollection;
-    m_currentPlayingCollection->currentTrack = index;
+    m_currentPlayingCollection->currentTrack = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     emit play(index);
 }
 
 void MainWidget::selectionChangedSlot(const QItemSelection &selection)
 {
     m_playPauseButton->setEnabled(!selection.isEmpty());
+}
+
+void MainWidget::layoutChangedSlot()
+{
+    highlightCurrentTrack(DoNotSetFocus);
 }
