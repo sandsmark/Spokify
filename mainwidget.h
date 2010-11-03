@@ -118,10 +118,10 @@ Q_SIGNALS:
 private Q_SLOTS:
     void playSlot();
     void pauseSlot();
-    void sliderReleasedSlot();
     void trackRequested(const QModelIndex &index);
     void selectionChangedSlot(const QItemSelection &selection);
     void layoutChangedSlot();
+    void sliderSeekSlot(float position);
 
 private:
     State                            m_state;

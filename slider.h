@@ -43,11 +43,12 @@ public:
     quint64 cacheValue() const;
 
 Q_SIGNALS:
-    void sliderReleased();
     void maximumReached();
+    void seek(float value);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
 
 private:
     QImage m_leftBackground;

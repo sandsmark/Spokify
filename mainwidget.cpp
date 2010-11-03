@@ -72,8 +72,8 @@ MainWidget::MainWidget(QWidget *parent)
     connect(m_trackView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_playPauseButton, SIGNAL(play()), this, SLOT(playSlot()));
     connect(m_playPauseButton, SIGNAL(pause()), this, SLOT(pauseSlot()));
-    connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(sliderReleasedSlot()));
     connect(m_slider, SIGNAL(maximumReached()), this, SIGNAL(currentTrackFinished()));
+    connect(m_slider, SIGNAL(seek(float)), this, SLOT(sliderSeekSlot(float)));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(m_filter);
@@ -363,11 +363,6 @@ void MainWidget::pauseSlot()
     emit pausedOrStopped();
 }
 
-void MainWidget::sliderReleasedSlot()
-{
-    emit seekPosition(m_slider->value() / (quint64) 44100);
-}
-
 void MainWidget::trackRequested(const QModelIndex &index)
 {
     if (!index.isValid()) {
@@ -388,4 +383,9 @@ void MainWidget::selectionChangedSlot(const QItemSelection &selection)
 void MainWidget::layoutChangedSlot()
 {
     highlightCurrentTrack(DoNotSetFocus);
+}
+
+void MainWidget::sliderSeekSlot(float position)
+{
+    emit seekPosition(position * sp_track_duration(m_currentPlayingCollection->currentTrack));
 }
