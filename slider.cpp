@@ -146,9 +146,9 @@ void Slider::paintEvent(QPaintEvent *event)
         {
             p.save();
             p.setOpacity(0.5);
-            QRect clipRect(7, 6, m_leftForeground.width() + foregroundRect.width() + m_rightForeground.width(), m_leftForeground.height());
+            QRect clipRect(7, 6, 0, m_leftForeground.height());
             const double pos = ((double) m_value - (double) m_minimum) / ((double) m_maximum - (double) m_minimum + 1.0);
-            clipRect.setWidth(pos * event->rect().width());
+            clipRect.setWidth((event->rect().width() - 6 - m_rightForeground.width()) * pos);
             p.setClipRect(clipRect);
             p.fillRect(event->rect(), kapp->palette().highlight());
             p.restore();
