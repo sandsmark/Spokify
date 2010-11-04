@@ -653,6 +653,11 @@ MainWindow::~MainWindow()
     if (m_loggedIn) {
         sp_session_logout(m_session);
     }
+#if SPOTIFY_API_VERSION > 4
+    if (m_session) {
+        sp_session_release(m_session);
+    }
+#endif
 }
 
 bool MainWindow::isExiting() const
