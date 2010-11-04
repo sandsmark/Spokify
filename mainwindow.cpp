@@ -199,6 +199,7 @@ namespace SpotifySession {
         Q_UNUSED(session);
     }
 
+#if SPOTIFY_API_VERSION > 4
     static void startPlayback(sp_session *session)
     {
         Q_UNUSED(session);
@@ -214,6 +215,7 @@ namespace SpotifySession {
         Q_UNUSED(session);
         Q_UNUSED(stats);
     }
+#endif
 
     static sp_session_callbacks spotifyCallbacks = {
         &SpotifySession::loggedIn,
@@ -227,10 +229,14 @@ namespace SpotifySession {
         &SpotifySession::logMessage,
         &SpotifySession::endOfTrack,
         &SpotifySession::streamingError,
+#if SPOTIFY_API_VERSION > 4
         &SpotifySession::userinfoUpdated,
         &SpotifySession::startPlayback,
         &SpotifySession::stopPlayback,
         &SpotifySession::getAudioBufferStats
+#else
+        &SpotifySession::userinfoUpdated
+#endif
     };
 
 }
@@ -294,6 +300,7 @@ namespace SpotifyPlaylists {
         Q_UNUSED(userdata);
     }
 
+#if SPOTIFY_API_VERSION > 4
     static void trackCreatedChanged(sp_playlist *pl, int position, sp_user *user, int when, void *userdata)
     {
         Q_UNUSED(pl);
@@ -324,6 +331,7 @@ namespace SpotifyPlaylists {
         Q_UNUSED(image);
         Q_UNUSED(userdata);
     }
+#endif
 
     static sp_playlist_callbacks spotifyCallbacks = {
         &SpotifyPlaylists::tracksAdded,
@@ -332,11 +340,15 @@ namespace SpotifyPlaylists {
         &SpotifyPlaylists::playlistRenamed,
         &SpotifyPlaylists::playlistStateChanged,
         &SpotifyPlaylists::playlistUpdateInProgress,
+#if SPOTIFY_API_VERSION > 4
         &SpotifyPlaylists::playlistMetadataUpdated,
         &SpotifyPlaylists::trackCreatedChanged,
         &SpotifyPlaylists::trackSeenChanged,
         &SpotifyPlaylists::descriptionChanged,
         &SpotifyPlaylists::imageChanged
+#else
+        &SpotifyPlaylists::playlistMetadataUpdated
+#endif
     };
 
 }
