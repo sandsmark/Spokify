@@ -199,6 +199,22 @@ namespace SpotifySession {
         Q_UNUSED(session);
     }
 
+    static void startPlayback(sp_session *session)
+    {
+        Q_UNUSED(session);
+    }
+
+    static void stopPlayback(sp_session *session)
+    {
+        Q_UNUSED(session);
+    }
+
+    static void getAudioBufferStats(sp_session *session, sp_audio_buffer_stats *stats)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(stats);
+    }
+
     static sp_session_callbacks spotifyCallbacks = {
         &SpotifySession::loggedIn,
         &SpotifySession::loggedOut,
@@ -211,7 +227,10 @@ namespace SpotifySession {
         &SpotifySession::logMessage,
         &SpotifySession::endOfTrack,
         &SpotifySession::streamingError,
-        &SpotifySession::userinfoUpdated
+        &SpotifySession::userinfoUpdated,
+        &SpotifySession::startPlayback,
+        &SpotifySession::stopPlayback,
+        &SpotifySession::getAudioBufferStats
     };
 
 }
@@ -275,6 +294,37 @@ namespace SpotifyPlaylists {
         Q_UNUSED(userdata);
     }
 
+    static void trackCreatedChanged(sp_playlist *pl, int position, sp_user *user, int when, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(position);
+        Q_UNUSED(user);
+        Q_UNUSED(when);
+        Q_UNUSED(userdata);
+    }
+
+    static void trackSeenChanged(sp_playlist *pl, int position, bool seen, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(position);
+        Q_UNUSED(seen);
+        Q_UNUSED(userdata);
+    }
+
+    static void descriptionChanged(sp_playlist *pl, const char *desc, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(desc);
+        Q_UNUSED(userdata);
+    }
+
+    static void imageChanged(sp_playlist *pl, const byte *image, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(image);
+        Q_UNUSED(userdata);
+    }
+
     static sp_playlist_callbacks spotifyCallbacks = {
         &SpotifyPlaylists::tracksAdded,
         &SpotifyPlaylists::tracksRemoved,
@@ -282,7 +332,11 @@ namespace SpotifyPlaylists {
         &SpotifyPlaylists::playlistRenamed,
         &SpotifyPlaylists::playlistStateChanged,
         &SpotifyPlaylists::playlistUpdateInProgress,
-        &SpotifyPlaylists::playlistMetadataUpdated
+        &SpotifyPlaylists::playlistMetadataUpdated,
+        &SpotifyPlaylists::trackCreatedChanged,
+        &SpotifyPlaylists::trackSeenChanged,
+        &SpotifyPlaylists::descriptionChanged,
+        &SpotifyPlaylists::imageChanged
     };
 
 }
@@ -505,7 +559,11 @@ MainWindow::MainWindow(QWidget *parent)
         m_config.user_agent = "spokify";
         m_config.callbacks = &SpotifySession::spotifyCallbacks;
 
+#if SPOTIFY_API_VERSION > 4
+        sp_session_create(&m_config, &m_session);
+#else
         sp_session_init(&m_config, &m_session);
+#endif
     }
     //END: Spotify session init
 

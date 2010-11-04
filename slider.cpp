@@ -199,5 +199,6 @@ void Slider::mousePressEvent(QMouseEvent *event)
 
 void Slider::mouseMoveEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     update();
 }
