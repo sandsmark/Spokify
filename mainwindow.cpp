@@ -27,6 +27,7 @@
 #include "playlistmodel.h"
 #include "searchhistorymodel.h"
 
+#include <QtCore/QDir>
 #include <QtCore/QTimer>
 #include <QtCore/QBuffer>
 
@@ -558,7 +559,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //BEGIN: Spotify session init
     {
-        const QByteArray settingsPath = KStandardDirs::locateLocal("appdata", "tmp").toUtf8();
+        const QByteArray settingsPath = QString("%1/.config/spotify").arg(QDir::homePath()).toUtf8();
         m_config.api_version = SPOTIFY_API_VERSION;
         m_config.cache_location = settingsPath.constData();
         m_config.settings_location = settingsPath.constData();
