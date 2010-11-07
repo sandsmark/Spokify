@@ -114,14 +114,12 @@ namespace SpotifySession {
     static void loggedOut(sp_session *session)
     {
         Q_UNUSED(session);
-
         MainWindow::self()->spotifyLoggedOut();
     }
 
     static void metadataUpdated(sp_session *session)
     {
         Q_UNUSED(session);
-
         MainWindow::self()->fillPlaylistModel();
     }
 
@@ -140,7 +138,6 @@ namespace SpotifySession {
     static void notifyMainThread(sp_session *session)
     {
         Q_UNUSED(session);
-
         MainWindow::self()->signalNotifyMainThread();
     }
 
@@ -171,7 +168,6 @@ namespace SpotifySession {
     static void playTokenLost(sp_session *session)
     {
         Q_UNUSED(session);
-
         MainWindow::self()->spotifyPlayTokenLost();
     }
 
@@ -184,7 +180,6 @@ namespace SpotifySession {
     static void endOfTrack(sp_session *session)
     {
         Q_UNUSED(session);
-
         MainWindow::self()->endOfTrack();
     }
 
@@ -389,6 +384,7 @@ namespace SpotifyPlaylistContainer {
     {
         Q_UNUSED(pc);
         Q_UNUSED(userdata);
+        MainWindow::self()->fillPlaylistModel();
     }
 
     static sp_playlistcontainer_callbacks spotifyCallbacks = {
