@@ -64,6 +64,8 @@ public:
     MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
 
+    virtual QSize sizeHint() const;
+
     bool isExiting() const;
 
     sp_session *session() const;

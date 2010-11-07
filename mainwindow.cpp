@@ -656,6 +656,11 @@ MainWindow::~MainWindow()
 #endif
 }
 
+QSize MainWindow::sizeHint() const
+{
+    return QSize(800, 600);
+}
+
 bool MainWindow::isExiting() const
 {
     return m_isExiting;

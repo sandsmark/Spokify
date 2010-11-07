@@ -33,7 +33,6 @@ public:
     virtual ~PlaylistView();
 
 protected:
-    virtual QSize sizeHint () const;
     virtual void dragEnterEvent(QDragEnterEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
     virtual void dropEvent(QDropEvent *event);
