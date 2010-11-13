@@ -26,6 +26,8 @@
 #include "playlistview.h"
 #include "playlistmodel.h"
 #include "searchhistorymodel.h"
+#include "scrobblingsettingsdialog.h"
+#include "scrobbler.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -520,6 +522,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_notifierItem->setToolTip("preferences-desktop-text-to-speech", "Spokify", KGlobal::mainComponent().aboutData()->shortDescription());
     m_notifierItem->setStatus(KStatusNotifierItem::Active);
     m_notifierItem->setIconByName("preferences-desktop-text-to-speech");
+
+    m_scrobbler = new Scrobbler(this);
+    connect(this, SIGNAL(nowPlaying(QString,QString,uint)), m_scrobbler, SLOT(setTrack(QString, QString, uint)));
+    connect(this, SIGNAL(scrobble()), m_scrobbler, SLOT(scrobble()));
 
     {
         KActionCollection *const collection = m_notifierItem->actionCollection();
@@ -1240,8 +1246,17 @@ void MainWindow::nextTrackSlot()
     play(c->currentTrack);
 }
 
+void MainWindow::setupScrobblingSlot()
+{
+    ScrobblingSettingsDialog *dialog = new ScrobblingSettingsDialog(this);
+    dialog->show();
+}
+
 void MainWindow::play(sp_track *tr)
 {
+    // Scrobble the currently playing song
+    emit scrobble();
+
     m_previousTrack->setEnabled(true);
     m_nextTrack->setEnabled(true);
 
@@ -1259,6 +1274,12 @@ void MainWindow::play(sp_track *tr)
     sp_session_player_load(m_session, tr);
     sp_session_player_play(m_session, true);
     m_mainWidget->setTotalTrackTime(sp_track_duration(tr));
+
+    // Set the currently playing song
+    QString artist = QString::fromUtf8(sp_artist_name(sp_track_artist(tr, 0)));
+    QString track = QString::fromUtf8(sp_track_name(tr));
+    uint duration = sp_track_duration(tr);
+    emit nowPlaying(artist, track, duration);
 
     m_playCondition.wakeAll();
 }
@@ -1379,6 +1400,12 @@ void MainWindow::setupActions()
     m_repeat->setCheckable(true);
     m_repeat->setChecked(true);
     actionCollection()->addAction("repeat", m_repeat);
+
+    m_setupScrobbling = new KAction(this);
+    m_setupScrobbling->setText(i18n("&Set Last.fm credentials..."));
+    m_setupScrobbling->setIcon(KIcon("preferences-desktop-user-password"));
+    actionCollection()->addAction("setupScrobbling", m_setupScrobbling);
+    connect(m_setupScrobbling, SIGNAL(triggered(bool)), this, SLOT(setupScrobblingSlot()));
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 

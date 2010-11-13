@@ -54,6 +54,7 @@ class SoundFeeder;
 class PlaylistView;
 class PlaylistModel;
 class SearchHistoryModel;
+class Scrobbler;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -128,6 +129,8 @@ Q_SIGNALS:
     void notifyMainThreadSignal();
     void newChunkReceived(const Chunk &chunk);
     void coverLoaded(const QImage &cover);
+    void nowPlaying(const QString &artist, const QString &title, const uint duration);
+    void scrobble();
 
 protected:
     virtual void closeEvent(QCloseEvent *event);
@@ -154,6 +157,7 @@ private Q_SLOTS:
     void clearAllWidgets();
     void previousTrackSlot();
     void nextTrackSlot();
+    void setupScrobblingSlot();
 
 private:
     void play(sp_track *track);
@@ -185,6 +189,7 @@ private:
     KAction              *m_repeat;
     KAction              *m_previousTrack;
     KAction              *m_nextTrack;
+    KAction              *m_setupScrobbling;
     QLabel               *m_statusLabel;
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;
@@ -202,6 +207,8 @@ private:
     SearchHistoryModel   *m_searchHistoryModel;
     PlaylistView         *m_playlistView;
     QListView            *m_searchHistoryView;
+
+    Scrobbler            *m_scrobbler;
 };
  
 #endif

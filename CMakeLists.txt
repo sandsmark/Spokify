@@ -1,10 +1,12 @@
 project(spokify)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake/Modules/")
+add_definitions(-fexceptions)
  
 find_package(KDE4 REQUIRED)
 find_package(libspotify REQUIRED)
-include_directories(${KDE4_INCLUDES} ${LIBSPOTIFY_INCLUDE_DIR})
+find_package(LibLastFm REQUIRED)
+include_directories(${KDE4_INCLUDES} ${LIBSPOTIFY_INCLUDE_DIR} ${LIBLASTFM_INCLUDE_DIR})
  
 set(spokify_SRCS
     login.cpp
@@ -18,6 +20,8 @@ set(spokify_SRCS
     coverlabel.cpp
     trackviewdelegate.cpp
     trackview.cpp
+    scrobblingsettingsdialog.cpp
+    scrobbler.cpp
     slider.cpp
     searchhistorymodel.cpp
     mimedata.cpp
@@ -25,7 +29,7 @@ set(spokify_SRCS
  
 kde4_add_executable(spokify ${spokify_SRCS})
  
-target_link_libraries(spokify ${KDE4_KDEUI_LIBS} ${LIBSPOTIFY_LIBRARIES} asound)
+target_link_libraries(spokify ${KDE4_KDEUI_LIBS} ${LIBSPOTIFY_LIBRARIES} ${LIBLASTFM_LIBRARY} asound)
  
 install(TARGETS spokify DESTINATION ${BIN_INSTALL_DIR})
 install(FILES spokifyui.rc
