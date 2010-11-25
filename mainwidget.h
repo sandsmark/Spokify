@@ -118,6 +118,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void playSlot();
     void pauseSlot();
+    void togglePlayPauseSlot();
     void trackRequested(const QModelIndex &index);
     void selectionChangedSlot(const QItemSelection &selection);
     void layoutChangedSlot();

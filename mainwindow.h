@@ -190,6 +190,7 @@ private:
     KAction              *m_previousTrack;
     KAction              *m_nextTrack;
     KAction              *m_setupScrobbling;
+    KAction              *m_pause;
     QLabel               *m_statusLabel;
     QProgressBar         *m_progress;
     KStatusNotifierItem  *m_notifierItem;

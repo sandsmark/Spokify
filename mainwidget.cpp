@@ -387,3 +387,14 @@ void MainWidget::sliderSeekSlot(float position)
 {
     emit seekPosition(position * sp_track_duration(m_currentPlayingCollection->currentTrack));
 }
+
+void MainWidget::togglePlayPauseSlot()
+{
+    if (m_state == Playing) {
+        pauseSlot();
+        m_playPauseButton->setIsPlaying(false);
+    } else {
+        playSlot();
+    }
+}
+

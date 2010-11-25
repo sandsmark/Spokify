@@ -1407,6 +1407,14 @@ void MainWindow::setupActions()
     actionCollection()->addAction("setupScrobbling", m_setupScrobbling);
     connect(m_setupScrobbling, SIGNAL(triggered(bool)), this, SLOT(setupScrobblingSlot()));
 
+    m_pause = new KAction(this);
+    m_pause->setText(i18n("&Pause"));
+    m_pause->setIcon(KIcon("media-playback-pause"));
+    actionCollection()->addAction("pause", m_pause);
+    connect(m_pause, SIGNAL(triggered(bool)), m_mainWidget, SLOT(togglePlayPauseSlot()));
+    m_pause->setShortcut(Qt::Key_Space);
+    m_pause->setGlobalShortcut(KShortcut(Qt::Key_MediaPlay));
+
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
     setupGUI(Default, "spokifyui.rc");
