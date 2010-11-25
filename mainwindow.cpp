@@ -827,7 +827,7 @@ void MainWindow::fillPlaylistModel()
     }
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
-    m_playlistModel->insertRows(0, numPlaylists);
+    m_playlistModel->insertRows(0, numPlaylists + 1);
     int currRow = -1;
     for (int i = 0; i < numPlaylists; ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
@@ -837,6 +837,18 @@ void MainWindow::fillPlaylistModel()
         sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
+        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
+    }
+    // Add the playlist for starred tracks
+    {
+        sp_playlist *pl = sp_session_starred_create(m_session);
+        Q_ASSERT(pl);
+        if (pl == m_currentPlaylist) {
+            currRow = numPlaylists;
+        }
+        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
+        const QModelIndex &index = m_playlistModel->index(numPlaylists);
+        m_playlistModel->setData(index, i18n("Starred tracks"));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
     }
     if (currRow != -1) {
