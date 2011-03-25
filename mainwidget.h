@@ -40,8 +40,10 @@ class QSortFilterProxyModel;
 
 class KLineEdit;
 
+class Chunk;
 class Slider;
 class PlayPauseButton;
+class BlockAnalyzer;
 
 class MainWidget
     : public QWidget
@@ -115,6 +117,9 @@ Q_SIGNALS:
     void seekPosition(int position);
     void currentTrackFinished();
 
+public Q_SLOTS:
+    void updateAnalyzer(const Chunk &chunk);
+
 private Q_SLOTS:
     void playSlot();
     void pauseSlot();
@@ -131,6 +136,7 @@ private:
     PlayPauseButton                 *m_playPauseButton;
     Slider                          *m_slider;
     QLabel                          *m_currTotalTime;
+    BlockAnalyzer                   *m_analyzer;
     int                              m_totalTrackTime;
 
     QHash<sp_playlist*, Collection> m_trackModelPlaylistCache;

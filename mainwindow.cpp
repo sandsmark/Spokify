@@ -28,7 +28,6 @@
 #include "searchhistorymodel.h"
 #include "scrobblingsettingsdialog.h"
 #include "scrobbler.h"
-#include "blockanalyzer.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -513,7 +512,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_searchHistoryModel(new SearchHistoryModel(this))
     , m_playlistView(new PlaylistView(this))
     , m_searchHistoryView(new QListView(this))
-    , m_analyzer(new BlockAnalyzer(this))
 {
     qRegisterMetaType<Chunk>();
 
@@ -561,6 +559,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_mainWidget, SIGNAL(pausedOrStopped()), this, SLOT(pausedOrStoppedSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
     connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
+    connect(this, SIGNAL(chunkPlayed(Chunk)), m_mainWidget, SLOT(updateAnalyzer(Chunk)));
 
     setCentralWidget(m_mainWidget);
     setupActions();
@@ -635,12 +634,6 @@ MainWindow::MainWindow(QWidget *parent)
         addDockWidget(Qt::LeftDockWidgetArea, cover);
     }
     //END: set up search widget
-    {
-        QDockWidget *analyzer = new QDockWidget(i18n("Analyzer"), this);
-        analyzer->setObjectName("analyzerdock");
-        analyzer->setWidget(m_analyzer);
-        addDockWidget(Qt::LeftDockWidgetArea, analyzer);
-    }
 
     m_progress->setMinimum(0);
     m_progress->setMaximum(0);
@@ -1006,7 +999,7 @@ void MainWindow::performSearch()
 
 void MainWindow::pcmWrittenSlot(const Chunk &chunk)
 {
-    m_analyzer->drawFrame(chunk);
+    emit chunkPlayed(chunk);
     m_mainWidget->advanceCurrentTrackTime(chunk);
 }
 

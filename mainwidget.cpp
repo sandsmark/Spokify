@@ -22,6 +22,7 @@
 #include "trackmodel.h"
 #include "playpausebutton.h"
 #include "trackviewdelegate.h"
+#include "blockanalyzer.h"
 
 #include <math.h>
 
@@ -69,6 +70,8 @@ MainWidget::MainWidget(QWidget *parent)
     m_slider = new Slider(this);
     m_currTotalTime = new QLabel(this);
 
+    m_analyzer = new BlockAnalyzer(this);
+
     connect(m_trackView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(trackRequested(QModelIndex)));
     connect(m_playPauseButton, SIGNAL(play()), this, SLOT(playSlot()));
     connect(m_playPauseButton, SIGNAL(pause()), this, SLOT(pauseSlot()));
@@ -82,6 +85,7 @@ MainWidget::MainWidget(QWidget *parent)
     hLayout->addWidget(m_playPauseButton);
     hLayout->addWidget(m_slider);
     hLayout->addWidget(m_currTotalTime);
+    hLayout->addWidget(m_analyzer);
     hLayout->setStretchFactor(m_slider, 1);
     layout->addLayout(hLayout);
     setLayout(layout);
@@ -398,3 +402,7 @@ void MainWidget::togglePlayPauseSlot()
     }
 }
 
+void MainWidget::updateAnalyzer(const Chunk &chunk)
+{
+    m_analyzer->drawFrame(chunk);
+}
