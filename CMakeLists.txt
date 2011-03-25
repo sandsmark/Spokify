@@ -25,7 +25,10 @@ set(spokify_SRCS
     slider.cpp
     searchhistorymodel.cpp
     mimedata.cpp
-    playlistview.cpp)
+    playlistview.cpp
+    analyzerbase.cpp
+    fht.cpp
+    blockanalyzer.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  

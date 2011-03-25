@@ -55,6 +55,7 @@ class PlaylistView;
 class PlaylistModel;
 class SearchHistoryModel;
 class Scrobbler;
+class BlockAnalyzer;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -210,6 +211,7 @@ private:
     QListView            *m_searchHistoryView;
 
     Scrobbler            *m_scrobbler;
+    BlockAnalyzer        *m_analyzer;
 };
  
 #endif
