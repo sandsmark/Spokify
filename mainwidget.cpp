@@ -81,12 +81,13 @@ MainWidget::MainWidget(QWidget *parent)
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(m_filter);
     layout->addWidget(m_trackView);
-    QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->addWidget(m_playPauseButton);
-    hLayout->addWidget(m_slider);
-    hLayout->addWidget(m_currTotalTime);
-    hLayout->addWidget(m_analyzer);
-    hLayout->setStretchFactor(m_slider, 1);
+    QGridLayout *hLayout = new QGridLayout;
+    hLayout->addWidget(m_playPauseButton, 0, 0);
+    hLayout->addWidget(m_analyzer, 0, 1);
+    hLayout->addWidget(m_currTotalTime, 0, 2);
+    m_analyzer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    hLayout->addWidget(m_slider, 1, 0, 1, 3);
+    //hLayout->setStretchFactor(m_slider, 1);
     layout->addLayout(hLayout);
     setLayout(layout);
 }
