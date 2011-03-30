@@ -59,8 +59,6 @@ protected:
     void determineStep();
 
 private:
-    QPixmap* const bar() { return &m_barPixmap; }
-
     uint m_columns, m_rows;      //number of rows and columns of blocks
     uint m_y;                    //y-offset from top of widget
     QPixmap m_barPixmap;

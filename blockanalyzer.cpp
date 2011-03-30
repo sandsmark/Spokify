@@ -186,7 +186,7 @@ BlockAnalyzer::paintEvent(QPaintEvent*)
          m_fade_pos[x] = m_rows;
 
       //REMEMBER: y is a number from 0 to m_rows, 0 means all blocks are glowing, m_rows means none are
-      p.drawPixmap( x*(WIDTH+1), y*(HEIGHT+1) + m_y, *bar(), 0, y*(HEIGHT+1), -1, -1 );
+      p.drawPixmap( x*(WIDTH+1), y*(HEIGHT+1) + m_y, m_barPixmap, 0, y*(HEIGHT+1), -1, -1 );
    }
 
    for( uint x = 0; x < m_store.size(); ++x )
@@ -372,9 +372,9 @@ BlockAnalyzer::paletteChange( const QPalette& ) //virtual
    const double db = 15*double(bg.blue()  - fg.blue())  / (m_rows*16);
    const int r = fg.red(), g = fg.green(), b = fg.blue();
 
-   bar()->fill( bg );
+   m_barPixmap.fill(bg);
 
-   QPainter p( bar() );
+   QPainter p(&m_barPixmap);
    for( int y = 0; (uint)y < m_rows; ++y )
       //graduate the fg color
       p.fillRect( 0, y*(HEIGHT+1), WIDTH, HEIGHT, QColor( r+int(dr*y), g+int(dg*y), b+int(db*y) ) );
