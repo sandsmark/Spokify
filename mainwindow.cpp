@@ -648,6 +648,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     initSound();
     m_soundFeeder->start();
+    
+    Login *login = new Login(this);
+    login->exec();
 }
 
 MainWindow::~MainWindow()
