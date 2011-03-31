@@ -34,6 +34,7 @@ void LyricsWidget::setTrack(const QString& artist, const QString& title)
 
 void LyricsWidget::receiveListReply(QNetworkReply* reply)
 {
+    disconnect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(receiveListReply(QNetworkReply*)));
     if (reply->error() != QNetworkReply::NoError) {
         qWarning() << "Error while fetching lyrics: " << reply->errorString();
         setHtml("<span style='color:red'>Error while retrieving lyrics!</span>");
@@ -52,12 +53,13 @@ void LyricsWidget::receiveListReply(QNetworkReply* reply)
     url.addQueryItem("rvprop", "content");
     url.addQueryItem("format", "xml");
     url.addQueryItem("titles", artist + ":" + title);
-    disconnect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(receiveListReply(QNetworkReply*)));
+    qDebug() << Q_FUNC_INFO << "getting" << url;
     connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(receiveLyricsReply(QNetworkReply*)));
     m_networkAccessManager->get(QNetworkRequest(url));
 }
 void LyricsWidget::receiveLyricsReply(QNetworkReply* reply)
 {
+    disconnect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(receiveLyricsReply(QNetworkReply*)));
     if (reply->error() != QNetworkReply::NoError) {
         qWarning() << "Error while fetching lyrics: " << reply->errorString();
         setHtml("<span style='color:red'>Error while retrieving lyrics!</span>");
