@@ -849,7 +849,7 @@ void MainWindow::fillPlaylistModel()
     }
     const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
-    m_playlistModel->insertRows(0, numPlaylists + 1);
+    m_playlistModel->insertRows(0, numPlaylists);
     int currRow = -1;
 
     // Add the special playlist for starred tracks
