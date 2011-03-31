@@ -28,6 +28,7 @@
 #include "searchhistorymodel.h"
 #include "scrobblingsettingsdialog.h"
 #include "scrobbler.h"
+#include "lyricswidget.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QTimer>
@@ -626,14 +627,25 @@ MainWindow::MainWindow(QWidget *parent)
     }
     //END: set up search widget
 
-    //BEGIN: set up search widget
+    //BEGIN: set up cover widget
     {
         QDockWidget *cover = new QDockWidget(i18n("Cover"), this);
         cover->setObjectName("cover");
         cover->setWidget(createCoverWidget());
         addDockWidget(Qt::LeftDockWidgetArea, cover);
     }
-    //END: set up search widget
+    //END: set up cover widget
+    
+    //BEGIN: set up lyrics widget
+    {
+        QDockWidget *lyrics = new QDockWidget(i18n("Lyrics"), this);
+        lyrics->setObjectName("lyrics");
+        m_lyricsWidget = new LyricsWidget(this);
+        lyrics->setWidget(m_lyricsWidget);
+        addDockWidget(Qt::LeftDockWidgetArea, lyrics);
+        connect(this, SIGNAL(nowPlaying(QString,QString,uint)), m_lyricsWidget, SLOT(setTrack(QString, QString)));
+    }
+    //END: set up cover widget
 
     m_progress->setMinimum(0);
     m_progress->setMaximum(0);
@@ -839,7 +851,21 @@ void MainWindow::fillPlaylistModel()
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistModel->insertRows(0, numPlaylists + 1);
     int currRow = -1;
-    for (int i = 0; i < numPlaylists; ++i) {
+
+    // Add the special playlist for starred tracks
+    {
+        sp_playlist *pl = sp_session_starred_create(m_session);
+        Q_ASSERT(pl);
+        if (pl == m_currentPlaylist) {
+            currRow = numPlaylists;
+        }
+        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
+        const QModelIndex &index = m_playlistModel->index(0);
+        m_playlistModel->setData(index, QChar(0x2605) + i18n("Starred tracks"));
+        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
+    }
+    
+    for (int i = 1; i < numPlaylists; ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
         if (pl == m_currentPlaylist) {
             currRow = i;
@@ -849,18 +875,7 @@ void MainWindow::fillPlaylistModel()
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
     }
-    // Add the playlist for starred tracks
-    {
-        sp_playlist *pl = sp_session_starred_create(m_session);
-        Q_ASSERT(pl);
-        if (pl == m_currentPlaylist) {
-            currRow = numPlaylists;
-        }
-        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
-        const QModelIndex &index = m_playlistModel->index(numPlaylists);
-        m_playlistModel->setData(index, i18n("Starred tracks"));
-        m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
-    }
+    
     if (currRow != -1) {
         m_playlistView->setCurrentIndex(m_playlistModel->index(currRow, 0));
     }

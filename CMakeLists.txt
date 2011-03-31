@@ -28,7 +28,8 @@ set(spokify_SRCS
     playlistview.cpp
     analyzerbase.cpp
     fht.cpp
-    blockanalyzer.cpp)
+    blockanalyzer.cpp
+    lyricswidget.cpp)
  
 kde4_add_executable(spokify ${spokify_SRCS})
  

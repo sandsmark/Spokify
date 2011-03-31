@@ -55,6 +55,7 @@ class PlaylistView;
 class PlaylistModel;
 class SearchHistoryModel;
 class Scrobbler;
+class LyricsWidget;
 
 class MainWindow
     : public KXmlGuiWindow
@@ -166,6 +167,7 @@ private:
     void clearSoundQueue();
     QWidget *createSearchWidget();
     QWidget *createCoverWidget();
+    QWidget *createLyricsWidget();
     void setupActions();
 
 private:
@@ -203,6 +205,8 @@ private:
 
     CoverLabel           *m_cover;
     QMovie               *m_coverLoading;
+    
+    LyricsWidget         *m_lyricsWidget;
 
     MainWidget           *m_mainWidget;
     PlaylistModel        *m_playlistModel;
