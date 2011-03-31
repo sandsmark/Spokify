@@ -3,7 +3,6 @@
 #include <QDomDocument>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QRegExp>
 
 
 #include "lyricswidget.h"
@@ -12,6 +11,8 @@ LyricsWidget::LyricsWidget(QWidget* parent): QTextEdit(parent),
     m_networkAccessManager(new QNetworkAccessManager)
 {
     setReadOnly(true);
+    setWordWrapMode(QTextOption::WordWrap);
+    
 }
 LyricsWidget::~LyricsWidget()
 {
@@ -53,7 +54,6 @@ void LyricsWidget::receiveListReply(QNetworkReply* reply)
     url.addQueryItem("rvprop", "content");
     url.addQueryItem("format", "xml");
     url.addQueryItem("titles", artist + ":" + title);
-    qDebug() << Q_FUNC_INFO << "getting" << url;
     connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(receiveLyricsReply(QNetworkReply*)));
     m_networkAccessManager->get(QNetworkRequest(url));
 }
@@ -67,11 +67,14 @@ void LyricsWidget::receiveLyricsReply(QNetworkReply* reply)
     }
     
     QString content = QString::fromUtf8(reply->readAll());
-    QRegExp regexp("&lt;lyrics&gt;(.*)&lt;/lyrics&gt;");
-    if (regexp.indexIn(content) == -1) {
-        setText("Invalid lyrics returned, try this:\n" + content);
+    int lIndex = content.indexOf("&lt;lyrics&gt;");
+    int rIndex = content.indexOf("&lt;/lyrics&gt;");
+    if (lIndex == -1 || rIndex == -1) {
+        qWarning() << Q_FUNC_INFO << "Unable to find lyrics in text";
+        setText(content);
         return;
     }
-    content = regexp.cap(0);
-    setText("<pre>" + content + "</pre>");
+    lIndex += 15; // We skip the tag
+    content = content.mid(lIndex, rIndex - lIndex);
+    setText(content);
 }
