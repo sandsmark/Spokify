@@ -71,7 +71,7 @@ void LyricsWidget::receiveLyricsReply(QNetworkReply* reply)
     int rIndex = content.indexOf("&lt;/lyrics&gt;");
     if (lIndex == -1 || rIndex == -1) {
         qWarning() << Q_FUNC_INFO << "Unable to find lyrics in text";
-        setText(content);
+        setText("No lyrics available.");
         return;
     }
     lIndex += 15; // We skip the tag

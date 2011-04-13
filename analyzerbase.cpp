@@ -27,7 +27,8 @@
 Analyzer::Base::Base(QWidget *parent, uint scopeSize)
         : QWidget(parent)
         , m_fht(new FHT(scopeSize))
-{}
+{
+}
 
 void Analyzer::Base::transform(QVector<float> &scope ) //virtual
 {
@@ -54,11 +55,9 @@ void Analyzer::Base::drawFrame(const Chunk &thescope)
         return;
 
     static QVector<float> scope( m_fht->size() );
-
     for(int x = 0; x < m_fht->size(); x++)
     {
-       scope[x] = double(((int*)thescope.m_data)[x])
-                        / (1<<31);
+       scope[x] = double(((int16_t*)thescope.m_data)[x] >> 31);
     }
 
     transform(scope);

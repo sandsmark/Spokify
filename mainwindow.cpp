@@ -111,6 +111,7 @@ namespace SpotifySession {
                                    i18n("Premium User access required"));
                 break;
             default:
+                qWarning() << Q_FUNC_INFO << "Unhandled spotify error:" << error;
                 break;
         }
     }
@@ -131,6 +132,7 @@ namespace SpotifySession {
     {
         Q_UNUSED(session);
         Q_UNUSED(error);
+
     }
 
     static void messageToUser(sp_session *session, const char *message)
