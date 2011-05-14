@@ -1048,6 +1048,7 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
         trackModel->insertRows(0, numTracks);
         for (int i = 0; i < numTracks; ++i) {
             sp_track *const tr = sp_playlist_track(curr, i);
+            
             if (!tr || !sp_track_is_loaded(tr)) {
                 const QModelIndex &index = trackModel->index(i, TrackModel::Title);
                 trackModel->setData(index, i18n("Loading..."));
@@ -1084,6 +1085,16 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
                 trackModel->setData(index, QVariant::fromValue<sp_track*>(tr), TrackModel::SpotifyNativeTrackRole);
             }
         }
+        
+        // ugly, yes
+        for (int i = 0; i < trackModel->rowCount(); i++) {
+            const QModelIndex &index = trackModel->index(i, TrackModel::SpotifyNativeTrackRole);
+
+            if (!sp_track_is_available(session(), trackModel->data(index).value<sp_track*>())) {
+                trackModel->removeRow(i);
+            }
+        }
+        
     }
 }
 
