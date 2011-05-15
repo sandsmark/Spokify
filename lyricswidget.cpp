@@ -75,6 +75,6 @@ void LyricsWidget::receiveLyricsReply(QNetworkReply* reply)
         return;
     }
     lIndex += 15; // We skip the tag
-    content = content.mid(lIndex, rIndex - lIndex);
+    content = content.mid(lIndex, rIndex - lIndex).trimmed();
     setText(content);
 }
