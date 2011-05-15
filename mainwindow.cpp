@@ -529,6 +529,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_scrobbler = new Scrobbler(this);
     connect(this, SIGNAL(nowPlaying(QString,QString,uint)), m_scrobbler, SLOT(setTrack(QString, QString, uint)));
     connect(this, SIGNAL(scrobble()), m_scrobbler, SLOT(scrobble()));
+    setupActions();
 
     {
         KActionCollection *const collection = m_notifierItem->actionCollection();
@@ -549,6 +550,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         KMenu *contextMenu = m_notifierItem->contextMenu();
         contextMenu->addSeparator();
+        contextMenu->addAction(m_pause);
         contextMenu->addAction(m_previousTrack);
         contextMenu->addAction(m_nextTrack);
     }
@@ -564,7 +566,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
 
     setCentralWidget(m_mainWidget);
-    setupActions();
 
     //BEGIN: Spotify session init
     {
@@ -1298,6 +1299,7 @@ void MainWindow::play(sp_track *tr)
     snd_pcm_prepare(m_snd);
     m_pcmMutex.unlock();
     m_coverLoading->start();
+    m_cover->clear();
     m_cover->setMovie(m_coverLoading);
 
     sp_album *const album = sp_track_album(tr);
