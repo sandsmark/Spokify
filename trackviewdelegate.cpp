@@ -72,9 +72,9 @@ void TrackViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
         opt.progress = index.data(TrackModel::SortRole).toInt();
         opt.rect = option.rect;
         opt.rect.setLeft(opt.rect.left() + 5);
-        opt.rect.setTop(opt.rect.top() + 5);
+        opt.rect.setTop(opt.rect.top() + 10);
         opt.rect.setRight(opt.rect.right() - 5);
-        opt.rect.setBottom(opt.rect.bottom() - 5);
+        opt.rect.setBottom(opt.rect.bottom() - 10);
         style->drawControl(QStyle::CE_ProgressBar, &opt, painter, 0);
         painter->restore();
     }

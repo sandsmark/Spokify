@@ -18,6 +18,7 @@
 
 #include "soundfeeder.h"
 #include "mainwindow.h"
+#include <QDebug>
 
 SoundFeeder::SoundFeeder(QObject *parent)
     : QThread(parent)
@@ -43,6 +44,7 @@ void SoundFeeder::run()
         Chunk c = MainWindow::self()->nextChunk();
         m.unlock();
         if (c.m_dataFrames == -1) {
+            qWarning() << "got empty frame";
             emit pcmWritten(c);
             continue;
         }

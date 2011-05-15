@@ -132,7 +132,6 @@ Q_SIGNALS:
     void coverLoaded(const QImage &cover);
     void nowPlaying(const QString &artist, const QString &title, const uint duration);
     void scrobble();
-    void chunkPlayed(const Chunk &chunk);
 
 protected:
     virtual void closeEvent(QCloseEvent *event);

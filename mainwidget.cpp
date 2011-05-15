@@ -178,6 +178,7 @@ MainWidget::Collection &MainWidget::collection(sp_playlist *playlist)
 
     m_trackView->highlightTrack(c.currentTrack);
     m_trackView->setFocus();
+    m_trackView->resizeRowsToContents();
 
     return m_trackModelPlaylistCache[playlist];
 }

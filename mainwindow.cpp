@@ -562,7 +562,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_mainWidget, SIGNAL(pausedOrStopped()), this, SLOT(pausedOrStoppedSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
     connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
-    connect(this, SIGNAL(chunkPlayed(Chunk)), m_mainWidget, SLOT(updateAnalyzer(Chunk)));
 
     setCentralWidget(m_mainWidget);
     setupActions();
@@ -1021,7 +1020,6 @@ void MainWindow::performSearch()
 
 void MainWindow::pcmWrittenSlot(const Chunk &chunk)
 {
-    //emit chunkPlayed(chunk);
     m_mainWidget->advanceCurrentTrackTime(chunk);
 }
 
