@@ -43,7 +43,7 @@ Scrobbler::Scrobbler (QWidget *parent) :
         m_isSetup = true;
     }
 
-    m_as = new lastfm::Audioscrobbler("ass");
+    m_as = new lastfm::Audioscrobbler("tst");
 }
 
 void Scrobbler::setTrack(const QString& artist, const QString& title, const uint duration)

@@ -38,6 +38,8 @@ ScrobblingSettingsDialog::ScrobblingSettingsDialog(QWidget* parent):
 
     m_testButton.setText(i18n("Test credentials"));
     m_saveButton.setText(i18n("Save credentials"));
+    
+    m_password.setEchoMode(QLineEdit::Password);
 
     layout->addWidget(new QLabel(i18n("Please enter a valid username and password:")), 0, 0, 1, 2);
     layout->addWidget(new QLabel(i18n("Username:")), 1, 0);
