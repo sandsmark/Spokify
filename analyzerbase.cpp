@@ -57,7 +57,7 @@ void Analyzer::Base::drawFrame(const Chunk &thescope)
     static QVector<float> scope( m_fht->size() );
     for(int x = 0; x < m_fht->size(); x++)
     {
-       scope[x] = double(((int16_t*)thescope.m_data)[x] >> 31);
+       scope[x] = double(((int16_t*)thescope.m_data)[x*2] >> 31);
     }
 
     transform(scope);

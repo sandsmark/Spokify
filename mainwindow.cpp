@@ -823,7 +823,9 @@ void MainWindow::coverLoadedSlot(const QImage &cover)
 
 Chunk MainWindow::nextChunk()
 {
-    return m_data.dequeue();
+    Chunk chunk = m_data.dequeue();
+    m_mainWidget->updateAnalyzer(chunk);
+    return chunk;
 }
 
 bool MainWindow::hasChunk() const
@@ -1019,7 +1021,7 @@ void MainWindow::performSearch()
 
 void MainWindow::pcmWrittenSlot(const Chunk &chunk)
 {
-    emit chunkPlayed(chunk);
+    //emit chunkPlayed(chunk);
     m_mainWidget->advanceCurrentTrackTime(chunk);
 }
 
