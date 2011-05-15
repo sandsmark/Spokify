@@ -532,22 +532,6 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
 
     {
-        KActionCollection *const collection = m_notifierItem->actionCollection();
-
-        m_previousTrack = collection->addAction("previous-track");
-        m_nextTrack = collection->addAction("next-track");
-
-        m_previousTrack->setEnabled(false);
-        m_nextTrack->setEnabled(false);
-
-        m_previousTrack->setIcon(KIcon("media-skip-backward"));
-        m_previousTrack->setText(i18nc("Play previous track", "Previous"));
-        m_nextTrack->setIcon(KIcon("media-skip-forward"));
-        m_nextTrack->setText(i18nc("Play next track", "Next"));
-
-        connect(m_previousTrack, SIGNAL(triggered()), this, SLOT(previousTrackSlot()));
-        connect(m_nextTrack, SIGNAL(triggered()), this, SLOT(nextTrackSlot()));
-
         KMenu *contextMenu = m_notifierItem->contextMenu();
         contextMenu->addSeparator();
         contextMenu->addAction(m_pause);
@@ -1448,7 +1432,25 @@ void MainWindow::setupActions()
     actionCollection()->addAction("pause", m_pause);
     connect(m_pause, SIGNAL(triggered(bool)), m_mainWidget, SLOT(togglePlayPauseSlot()));
     m_pause->setShortcut(Qt::Key_Space);
-    m_pause->setGlobalShortcut(KShortcut(Qt::Key_MediaPlay));
+    m_pause->setGlobalShortcut(KShortcut(Qt::Key_MediaTogglePlayPause));
+
+    m_previousTrack = new KAction(this);
+    m_previousTrack->setText(i18nc("Play previous track", "Previous"));    
+    m_previousTrack->setIcon(KIcon("media-skip-backward"));
+    actionCollection()->addAction("previous-track", m_previousTrack);
+    connect(m_previousTrack, SIGNAL(triggered()), this, SLOT(previousTrackSlot()));
+//    m_previousTrack->setShortcut(Qt::Key_Left | Qt::Key_Control);
+    m_previousTrack->setGlobalShortcut(KShortcut(Qt::Key_MediaPrevious));
+    m_previousTrack->setEnabled(false);    
+    
+    m_nextTrack = new KAction(this);
+    m_nextTrack->setText(i18nc("Play next track", "Next"));
+    m_nextTrack->setIcon(KIcon("media-skip-forward"));
+    actionCollection()->addAction("next-track", m_nextTrack);
+    connect(m_nextTrack, SIGNAL(triggered()), this, SLOT(nextTrackSlot()));
+//    m_nextTrack->setShortcut(Qt::Key_Right | Qt::Key_Control);
+    m_nextTrack->setGlobalShortcut(KShortcut(Qt::Key_MediaNext));
+    m_nextTrack->setEnabled(false);
 
     KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
 
