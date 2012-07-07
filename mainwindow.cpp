@@ -78,7 +78,9 @@ namespace SpotifySession {
         switch (error) {
             case SP_ERROR_BAD_API_VERSION:
             case SP_ERROR_API_INITIALIZATION_FAILED:
+#if SPOTIFY_API_VERSION < 9
             case SP_ERROR_RESOURCE_NOT_LOADED:
+#endif
             case SP_ERROR_BAD_APPLICATION_KEY:
             case SP_ERROR_CLIENT_TOO_OLD:
             case SP_ERROR_BAD_USER_AGENT:
@@ -218,6 +220,19 @@ namespace SpotifySession {
     }
 #endif
 
+#if SPOTIFY_API_VERSION >= 10
+    static void offlineStatusUpdated(sp_session *session)
+    {
+        Q_UNUSED(session);
+    }
+
+    static void offlineError(sp_session *session, sp_error error)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(error);
+    }
+#endif
+
     static sp_session_callbacks spotifyCallbacks = {
         &SpotifySession::loggedIn,
         &SpotifySession::loggedOut,
@@ -230,13 +245,15 @@ namespace SpotifySession {
         &SpotifySession::logMessage,
         &SpotifySession::endOfTrack,
         &SpotifySession::streamingError,
+        &SpotifySession::userinfoUpdated
 #if SPOTIFY_API_VERSION > 4
-        &SpotifySession::userinfoUpdated,
-        &SpotifySession::startPlayback,
+        , &SpotifySession::startPlayback,
         &SpotifySession::stopPlayback,
         &SpotifySession::getAudioBufferStats
-#else
-        &SpotifySession::userinfoUpdated
+#endif
+#if SPOTIFY_API_VERSION >= 10
+        , &SpotifySession::offlineStatusUpdated,
+        &SpotifySession::offlineError
 #endif
     };
 
@@ -334,6 +351,22 @@ namespace SpotifyPlaylists {
     }
 #endif
 
+#if SPOTIFY_API_VERSION >= 10
+    static void trackMessageChanged(sp_playlist *pl, int position, const char *message, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(position);
+        Q_UNUSED(message);
+        Q_UNUSED(userdata);
+    }
+
+    static void subscribersChanged(sp_playlist *pl, void *userdata)
+    {
+        Q_UNUSED(pl);
+        Q_UNUSED(userdata);
+    }
+#endif
+
     static sp_playlist_callbacks spotifyCallbacks = {
         &SpotifyPlaylists::tracksAdded,
         &SpotifyPlaylists::tracksRemoved,
@@ -341,14 +374,16 @@ namespace SpotifyPlaylists {
         &SpotifyPlaylists::playlistRenamed,
         &SpotifyPlaylists::playlistStateChanged,
         &SpotifyPlaylists::playlistUpdateInProgress,
+        &SpotifyPlaylists::playlistMetadataUpdated
 #if SPOTIFY_API_VERSION > 4
-        &SpotifyPlaylists::playlistMetadataUpdated,
-        &SpotifyPlaylists::trackCreatedChanged,
+        , &SpotifyPlaylists::trackCreatedChanged,
         &SpotifyPlaylists::trackSeenChanged,
         &SpotifyPlaylists::descriptionChanged,
         &SpotifyPlaylists::imageChanged
-#else
-        &SpotifyPlaylists::playlistMetadataUpdated
+#endif
+#if SPOTIFY_API_VERSION >= 10
+        , &SpotifyPlaylists::trackMessageChanged,
+        &SpotifyPlaylists::subscribersChanged
 #endif
     };
 
@@ -1075,11 +1110,14 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
         for (int i = 0; i < trackModel->rowCount(); i++) {
             const QModelIndex &index = trackModel->index(i, TrackModel::SpotifyNativeTrackRole);
 
+#if SPOTIFY_API_VERSION < 10
             if (!sp_track_is_available(session(), trackModel->data(index).value<sp_track*>())) {
+#else
+            if (sp_track_get_availability(session(), trackModel->data(index).value<sp_track*>()) != SP_TRACK_AVAILABILITY_AVAILABLE) {
+#endif
                 trackModel->removeRow(i);
             }
         }
-        
     }
 }
 

@@ -96,6 +96,6 @@ void Login::loginSlot()
 {
     //BEGIN: Spotify login
     sp_session_login(m_mainWindow->session(), m_username->text().toLatin1(),
-                     m_password->text().toLatin1());
+                     m_password->text().toLatin1(), true);
     //END: Spotify login
 }
