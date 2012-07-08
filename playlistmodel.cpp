@@ -34,12 +34,13 @@ PlaylistModel::~PlaylistModel()
 
 bool PlaylistModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    if (row < 0 || row > m_playLists.count() || count <= 0) {
+    if (row < 0 || count <= 0) {
         return false;
     }
     beginInsertRows(parent, row, row + count - 1);
+    m_playLists.reserve(m_playLists.count() + count);
     for (int i = row; i < row + count; ++i) {
-        m_playLists << Entry();
+        m_playLists.insert(i, Entry());
     }
     endInsertRows();
     return true;

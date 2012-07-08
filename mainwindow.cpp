@@ -875,9 +875,22 @@ void MainWindow::fillPlaylistModel()
         m_pc = sp_session_playlistcontainer(m_session);
         sp_playlistcontainer_add_callbacks(m_pc, &SpotifyPlaylistContainer::spotifyCallbacks, this);
     }
-    const int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
+
+    int numPlaylists = sp_playlistcontainer_num_playlists(m_pc);
+
+    // Collect the playlists that are of type "playlist", discard others
+    QList<sp_playlist*> playLists;
+    playLists.reserve(numPlaylists);
+    for (int i = 0; i < numPlaylists; ++i) {
+        if (sp_playlistcontainer_playlist_type(m_pc, i) == SP_PLAYLIST_TYPE_PLAYLIST) {
+            playLists.append(sp_playlistcontainer_playlist(m_pc, i));
+        }
+    }
+    numPlaylists = 1 + playLists.count();  // 1 place needed for the starred tracks list
+
     m_playlistModel->removeRows(0, m_playlistModel->rowCount());
     m_playlistModel->insertRows(0, numPlaylists);
+
     int currRow = -1;
 
     // Add the special playlist for starred tracks
@@ -885,8 +898,9 @@ void MainWindow::fillPlaylistModel()
         sp_playlist *pl = sp_session_starred_create(m_session);
         Q_ASSERT(pl);
         if (pl == m_currentPlaylist) {
-            currRow = numPlaylists;
+            currRow = 0;
         }
+
         sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, NULL);
         const QModelIndex &index = m_playlistModel->index(0);
         m_playlistModel->setData(index, QChar(0x2605) + i18n("Starred tracks"));
@@ -896,7 +910,7 @@ void MainWindow::fillPlaylistModel()
     static QList<sp_playlist*> playlistsWithCallbacksSet;
 
     for (int i = 1; i < numPlaylists; ++i) {
-        sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
+        sp_playlist *pl = playLists.at(i - 1);
         if (pl == m_currentPlaylist) {
             currRow = i;
         }

@@ -45,9 +45,11 @@ public:
 
 private:
     struct Entry {
+        Entry() :
+            m_playlist(0)
+        {}
+
         QString      m_title;
-        QString      m_owner;
-        bool         m_collaborative;
         sp_playlist *m_playlist;
     };
     QList<Entry> m_playLists;
