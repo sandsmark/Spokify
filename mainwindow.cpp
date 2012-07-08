@@ -887,23 +887,30 @@ void MainWindow::fillPlaylistModel()
         if (pl == m_currentPlaylist) {
             currRow = numPlaylists;
         }
-        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
+        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, NULL);
         const QModelIndex &index = m_playlistModel->index(0);
         m_playlistModel->setData(index, QChar(0x2605) + i18n("Starred tracks"));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
     }
     
+    static QList<sp_playlist*> playlistsWithCallbacksSet;
+
     for (int i = 1; i < numPlaylists; ++i) {
         sp_playlist *pl = sp_playlistcontainer_playlist(m_pc, i);
         if (pl == m_currentPlaylist) {
             currRow = i;
         }
-        sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, this);
+
+        if (!playlistsWithCallbacksSet.contains(pl)) {
+            playlistsWithCallbacksSet.append(pl);
+            sp_playlist_add_callbacks(pl, &SpotifyPlaylists::spotifyCallbacks, NULL);
+        }
+
         const QModelIndex &index = m_playlistModel->index(i);
         m_playlistModel->setData(index, QString::fromUtf8(sp_playlist_name(pl)));
         m_playlistModel->setData(index, QVariant::fromValue<sp_playlist*>(pl), PlaylistModel::SpotifyNativePlaylistRole);
     }
-    
+
     if (currRow != -1) {
         m_playlistView->setCurrentIndex(m_playlistModel->index(currRow, 0));
     }
