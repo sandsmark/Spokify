@@ -45,6 +45,11 @@ int main(int argc, char **argv)
     KGlobal::activeComponent().setAboutData(aboutData);
 
     MainWindow *window = new MainWindow();
+    if (window->session() == NULL) {
+        delete window;
+        return EXIT_FAILURE;
+    }
+
     window->show();
 
     return app.exec();

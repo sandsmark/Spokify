@@ -589,6 +589,7 @@ MainWindow::MainWindow(QWidget *parent)
     //BEGIN: Spotify session init
     {
         const QByteArray settingsPath = QString("%1/.config/spotify").arg(QDir::homePath()).toUtf8();
+        memset(&m_config, 0, sizeof(m_config));
         m_config.api_version = SPOTIFY_API_VERSION;
         m_config.cache_location = settingsPath.constData();
         m_config.settings_location = settingsPath.constData();
@@ -598,7 +599,11 @@ MainWindow::MainWindow(QWidget *parent)
         m_config.callbacks = &SpotifySession::spotifyCallbacks;
 
 #if SPOTIFY_API_VERSION > 4
-        sp_session_create(&m_config, &m_session);
+        sp_error error = sp_session_create(&m_config, &m_session);
+        if (error != SP_ERROR_OK) {
+            KMessageBox::error(this, i18n("Couldn't create Spotify session.\n\nThe error message is \"%1\".\n\nPlease try again. If the problem persists contact the developers.", sp_error_message(error)), i18n("A critical error happened"));
+            return;
+        }
 #else
         sp_session_init(&m_config, &m_session);
 #endif
