@@ -233,6 +233,33 @@ namespace SpotifySession {
     }
 #endif
 
+#if SPOTIFY_API_VERSION >= 11
+    static void credentialsBlobUpdated(sp_session *session, const char *blob)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(blob);
+    }
+#endif
+
+#if SPOTIFY_API_VERSION >= 12
+    static void connectionstateUpdated(sp_session *session)
+    {
+        Q_UNUSED(session);
+    }
+
+    static void scrobbleError(sp_session *session, sp_error error)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(error);
+    }
+
+    static void privateSessionModeChanged(sp_session *session, bool is_private)
+    {
+        Q_UNUSED(session);
+        Q_UNUSED(is_private);
+    }
+#endif
+
     static sp_session_callbacks spotifyCallbacks = {
         &SpotifySession::loggedIn,
         &SpotifySession::loggedOut,
@@ -254,6 +281,14 @@ namespace SpotifySession {
 #if SPOTIFY_API_VERSION >= 10
         , &SpotifySession::offlineStatusUpdated,
         &SpotifySession::offlineError
+#endif
+#if SPOTIFY_API_VERSION >= 11
+        , &SpotifySession::credentialsBlobUpdated
+#endif
+#if SPOTIFY_API_VERSION >= 12
+        , &SpotifySession::connectionstateUpdated,
+        &SpotifySession::scrobbleError,
+        &SpotifySession::privateSessionModeChanged
 #endif
     };
 
@@ -503,7 +538,11 @@ namespace SpotifySearch {
         QString *query = static_cast<QString*>(userdata);
 
         const int res = sp_search_total_tracks(result);
+#if SPOTIFY_API_VERSION >= 12
+        sp_search_create(MainWindow::self()->session(), query->toUtf8().data(), 0, res, 0, 0, 0, 0, 0, 0, SP_SEARCH_STANDARD, &SpotifySearch::searchComplete, userdata);
+#else
         sp_search_create(MainWindow::self()->session(), query->toUtf8().data(), 0, res, 0, 0, 0, 0, &SpotifySearch::searchComplete, userdata);
+#endif
     }
 
 }
@@ -1061,7 +1100,11 @@ void MainWindow::performSearch()
             return;
     }
 
+#if SPOTIFY_API_VERSION >= 12
+    sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, 0, 0, SP_SEARCH_STANDARD, &SpotifySearch::dummySearchComplete, new QString(query));
+#else
     sp_search_create(m_session, query.toUtf8().data(), 0, 1, 0, 0, 0, 0, &SpotifySearch::dummySearchComplete, new QString(query));
+#endif
 }
 
 void MainWindow::pcmWrittenSlot(const Chunk &chunk)
@@ -1351,7 +1394,11 @@ void MainWindow::play(sp_track *tr)
     m_cover->setMovie(m_coverLoading);
 
     sp_album *const album = sp_track_album(tr);
+#if SPOTIFY_API_VERSION >= 12
+    const byte *image = sp_album_cover(album, SP_IMAGE_SIZE_NORMAL);
+#else
     const byte *image = sp_album_cover(album);
+#endif
     sp_image *const cover = sp_image_create(m_session, image);
     sp_image_add_load_callback(cover, &SpotifyImage::imageLoaded, tr);
     sp_session_player_load(m_session, tr);
