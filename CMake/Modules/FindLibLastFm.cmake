@@ -6,7 +6,7 @@
 # LIBLASTFM_FOUND, whether liblastfm was found
 
 
-find_path(LIBLASTFM_INCLUDE_DIR NAMES Audioscrobbler
+find_path(LIBLASTFM_INCLUDE_DIR NAMES Audioscrobbler.h
    HINTS
    ~/usr/include
    /opt/local/include

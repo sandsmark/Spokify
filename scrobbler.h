@@ -21,8 +21,8 @@
 
 #include <QObject>
 #include <QString>
-
-#include <lastfm.h>
+#include <Audioscrobbler.h>
+#include <Track.h>
 
 namespace lastfm {
     class Audioscrobbler;

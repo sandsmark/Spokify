@@ -21,6 +21,8 @@
 #include <KWallet/Wallet>
 #include <QWidget>
 
+#include <ws.h>
+
 
 Scrobbler::Scrobbler (QWidget *parent) :
     QObject(parent),

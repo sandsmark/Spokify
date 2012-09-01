@@ -24,9 +24,12 @@
 
 // Qt includes
 #include <QGridLayout>
+#include <QDebug>
 
 // Other includes
-#include <lastfm.h>
+#include <ws.h>
+#include <misc.h>
+#include <XmlQuery.h>
 
 ScrobblingSettingsDialog::ScrobblingSettingsDialog(QWidget* parent):
     QDialog(parent),
@@ -121,7 +124,8 @@ void ScrobblingSettingsDialog::gotNetworkReply()
 {
     m_label.setText("Received reply from last.fm!");
     try {
-        lastfm::XmlQuery const reply = lastfm::ws::parse(m_networkReply);
+        lastfm::XmlQuery reply;
+        reply.parse(m_networkReply->readAll());
         lastfm::ws::Username = reply["session"]["name"].text();
         m_sessionKey = reply["session"]["key"].text();
         m_label.setText("Authentication successfull!");
