@@ -39,13 +39,14 @@ Scrobbler::Scrobbler (QWidget *parent) :
         QMap<QString, QString> authInfo;
         m_wallet->readMap("last.fm", authInfo);
         lastfm::ws::Username = authInfo["username"];
-        lastfm::ws::SessionKey = authInfo["key"];
-        lastfm::ws::ApiKey = "3e6ecbd7284883089e8f2b5b53b0aecd";
-        lastfm::ws::SharedSecret = "2cab3957b1f70d485e9815ac1ac94096";
-        m_isSetup = true;
+        if (lastfm::ws::Username.length()) {
+            lastfm::ws::SessionKey = authInfo["key"];
+            lastfm::ws::ApiKey = "3e6ecbd7284883089e8f2b5b53b0aecd";
+            lastfm::ws::SharedSecret = "2cab3957b1f70d485e9815ac1ac94096";
+            m_as = new lastfm::Audioscrobbler("tst");
+            m_isSetup = true;
+        }
     }
-
-    m_as = new lastfm::Audioscrobbler("tst");
 }
 
 void Scrobbler::setTrack(const QString& artist, const QString& title, const uint duration)
