@@ -120,8 +120,8 @@ public:
 
     void fillPlaylistModel();
 
-    bool shuffle();
-    bool repeat();
+    bool shuffleIsOn() const;
+    bool repeatIsOn() const;
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -161,13 +161,13 @@ private Q_SLOTS:
 
 private:
     void play(sp_track *track);
+    void gotoNextTrack();
     void initSound();
     void clearSoundQueue();
     QWidget *createSearchWidget();
     QWidget *createCoverWidget();
     QWidget *createLyricsWidget();
     void setupActions();
-    int randomTrackIndex();
 
 private:
     snd_pcm_t            *m_snd;
