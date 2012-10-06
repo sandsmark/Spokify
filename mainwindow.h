@@ -145,7 +145,6 @@ private Q_SLOTS:
     void playSlot(const QModelIndex &index);
     void resumeSlot();
     void pausedOrStoppedSlot();
-    void shuffleSlot();
     void performSearch();
     void pcmWrittenSlot(const Chunk &chunk);
     void playlistChanged(const QItemSelection &selection);
@@ -168,6 +167,7 @@ private:
     QWidget *createCoverWidget();
     QWidget *createLyricsWidget();
     void setupActions();
+    int randomTrackIndex();
 
 private:
     snd_pcm_t            *m_snd;

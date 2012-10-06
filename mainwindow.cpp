@@ -1062,8 +1062,13 @@ void MainWindow::pausedOrStoppedSlot()
     m_nextTrack->setEnabled(false);
 }
 
-void MainWindow::shuffleSlot()
+int MainWindow::randomTrackIndex()
 {
+    MainWidget::Collection *const c = m_mainWidget->currentPlayingCollection();
+    QSortFilterProxyModel *const proxyModel = c->proxyModel;
+
+    int nMaxTracks = proxyModel->rowCount();
+    return rand() % nMaxTracks;
 }
 
 void MainWindow::performSearch()
@@ -1236,11 +1241,17 @@ void MainWindow::currentTrackFinishedSlot()
         return;
     }
     if (row > -1) {
-        const QModelIndex nextIndex = proxyModel->index((row + 1) % proxyModel->rowCount(), 0);
+        int nNewTrackNum;
+        if (m_shuffle->isChecked()) {
+            nNewTrackNum = randomTrackIndex();
+        } else {
+            nNewTrackNum = (row + 1);
+        }
+        const QModelIndex nextIndex = proxyModel->index(nNewTrackNum % proxyModel->rowCount(), 0);
         if (!m_repeat->isChecked() && !nextIndex.row()) {
             return;
         }
-        c->currentTrack = nextIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();;
+        c->currentTrack = nextIndex.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     } else {
         c->currentTrack = proxyModel->index(0, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     }
@@ -1362,7 +1373,13 @@ void MainWindow::nextTrackSlot()
         return;
     }
     if (row > -1) {
-        const QModelIndex index = proxyModel->index((row + 1) % proxyModel->rowCount(), 0);
+        int nNewTrackNum;
+        if (m_shuffle->isChecked()) {
+            nNewTrackNum = randomTrackIndex();
+        } else {
+            nNewTrackNum = (row + 1);
+        }
+        const QModelIndex index = proxyModel->index(nNewTrackNum % proxyModel->rowCount(), 0);
         c->currentTrack = index.data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();    } else {
         c->currentTrack = proxyModel->index(0, 0).data(TrackModel::SpotifyNativeTrackRole).value<sp_track*>();
     }
@@ -1521,7 +1538,6 @@ void MainWindow::setupActions()
     m_shuffle->setShortcut(Qt::CTRL + Qt::Key_F);
     m_shuffle->setCheckable(true);
     actionCollection()->addAction("shuffle", m_shuffle);
-    connect(m_shuffle, SIGNAL(triggered(bool)), this, SLOT(shuffleSlot()));
 
     m_repeat = new KAction(this);
     m_repeat->setText(i18n("R&epeat"));
