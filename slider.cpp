@@ -185,16 +185,18 @@ void Slider::paintEvent(QPaintEvent *event)
 
 void Slider::mousePressEvent(QMouseEvent *event)
 {
-    const QPoint pos = event->pos();
-    if (pos.y() < 6 || pos.y() > m_leftForeground.height() + 6 || pos.x() < 7 || pos.x() > rect().width() - 7) {
-        return;
+    if ((m_cacheValue != 0) && (m_value != 0))  {
+        const QPoint pos = event->pos();
+        if (pos.y() < 6 || pos.y() > m_leftForeground.height() + 6 || pos.x() < 7 || pos.x() > rect().width() - 7) {
+            return;
+        }
+        const float total = rect().width() - 6 - 7;
+        const float clickPosition = pos.x() - 6;
+        m_cacheValue = (clickPosition / total) * m_maximum;
+        m_value = (clickPosition / total) * m_maximum;
+        emit seek(clickPosition / total);
+        update();
     }
-    const float total = rect().width() - 6 - 7;
-    const float clickPosition = pos.x() - 6;
-    m_cacheValue = (clickPosition / total) * m_maximum;
-    m_value = (clickPosition / total) * m_maximum;
-    emit seek(clickPosition / total);
-    update();
 }
 
 void Slider::mouseMoveEvent(QMouseEvent *event)

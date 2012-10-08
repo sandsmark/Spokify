@@ -120,8 +120,8 @@ public:
 
     void fillPlaylistModel();
 
-    bool shuffle();
-    bool repeat();
+    bool shuffleIsOn() const;
+    bool repeatIsOn() const;
 
 public Q_SLOTS:
     void restoreStatusBarSlot();
@@ -145,7 +145,6 @@ private Q_SLOTS:
     void playSlot(const QModelIndex &index);
     void resumeSlot();
     void pausedOrStoppedSlot();
-    void shuffleSlot();
     void performSearch();
     void pcmWrittenSlot(const Chunk &chunk);
     void playlistChanged(const QItemSelection &selection);
@@ -162,6 +161,7 @@ private Q_SLOTS:
 
 private:
     void play(sp_track *track);
+    void gotoNextTrack();
     void initSound();
     void clearSoundQueue();
     QWidget *createSearchWidget();
