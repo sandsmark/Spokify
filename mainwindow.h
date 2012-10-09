@@ -150,18 +150,16 @@ private Q_SLOTS:
     void playlistChanged(const QItemSelection &selection);
     void searchHistoryChanged(const QItemSelection &selection);
     void seekPosition(int position);
-    void currentTrackFinishedSlot();
+    void nextTrackSlot();
     void playPlaylist(const QModelIndex &index);
     void playSearchHistory(const QModelIndex &index);
     void coverClickedSlot();
     void clearAllWidgets();
     void previousTrackSlot();
-    void nextTrackSlot();
     void setupScrobblingSlot();
 
 private:
     void play(sp_track *track);
-    void gotoNextTrack();
     void initSound();
     void clearSoundQueue();
     QWidget *createSearchWidget();

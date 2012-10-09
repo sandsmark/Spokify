@@ -621,7 +621,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_mainWidget, SIGNAL(resume()), this, SLOT(resumeSlot()));
     connect(m_mainWidget, SIGNAL(pausedOrStopped()), this, SLOT(pausedOrStoppedSlot()));
     connect(m_mainWidget, SIGNAL(seekPosition(int)), this, SLOT(seekPosition(int)));
-    connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(currentTrackFinishedSlot()));
+    connect(m_mainWidget, SIGNAL(currentTrackFinished()), this, SLOT(nextTrackSlot()));
 
     setCentralWidget(m_mainWidget);
 
@@ -1218,11 +1218,6 @@ void MainWindow::seekPosition(int position)
     sp_session_player_seek(m_session, position);
 }
 
-void MainWindow::currentTrackFinishedSlot()
-{
-    gotoNextTrack();
-}
-
 void MainWindow::playPlaylist(const QModelIndex &index)
 {
     sp_playlist *playlist = index.data(PlaylistModel::SpotifyNativePlaylistRole).value<sp_playlist*>();
@@ -1324,11 +1319,6 @@ void MainWindow::previousTrackSlot()
     play(c->currentTrack);
 }
 
-void MainWindow::nextTrackSlot()
-{
-    gotoNextTrack();
-}
-
 void MainWindow::setupScrobblingSlot()
 {
     ScrobblingSettingsDialog *dialog = new ScrobblingSettingsDialog(this);
@@ -1372,7 +1362,7 @@ void MainWindow::play(sp_track *tr)
     m_playCondition.wakeAll();
 }
 
-void MainWindow::gotoNextTrack()
+void MainWindow::nextTrackSlot()
 {
     m_mainWidget->setState(MainWidget::Stopped);
 
