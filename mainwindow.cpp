@@ -1178,7 +1178,7 @@ void MainWindow::playlistChanged(const QItemSelection &selection)
 #if SPOTIFY_API_VERSION < 10
             if (!sp_track_is_available(session(), trackModel->data(index).value<sp_track*>())) {
 #else
-            if (sp_track_get_availability(session(), trackModel->data(index).value<sp_track*>()) != SP_TRACK_AVAILABILITY_AVAILABLE) {
+            if (!trackModel->data(index).value<sp_track*>() || sp_track_get_availability(session(), trackModel->data(index).value<sp_track*>()) != SP_TRACK_AVAILABILITY_AVAILABLE) {
 #endif
                 trackModel->removeRow(i);
             }
